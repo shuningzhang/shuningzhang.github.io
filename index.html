@@ -337,7 +337,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/ext2/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -357,7 +357,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/05/01/ext2/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 磁盘空间分配</a>
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 磁盘空间分配</a>
               
             
           </h1>
@@ -382,7 +382,7 @@
                 
               
 
-              <time title="Created: 2019-05-01 11:57:02 / Modified: 01:05:27" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+              <time title="Created: 2019-05-01 11:57:02 / Modified: 06:58:40" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
             
 
             
@@ -392,31 +392,6 @@
             
           </span>
 
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/Ext2/" itemprop="url" rel="index"><span itemprop="name">Ext2</span></a></span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -534,7 +509,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/04/21/Linux/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_layout/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -554,7 +529,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/04/21/Linux/" class="post-title-link" itemprop="url">Linux</a>
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_layout/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 数据的磁盘布局</a>
               
             
           </h1>
@@ -579,9 +554,13 @@
                 
               
 
-              <time title="Created: 2019-04-21 11:57:02" itemprop="dateCreated datePublished" datetime="2019-04-21T11:57:02+00:00">2019-04-21</time>
+              <time title="Created: 2019-05-01 11:57:02 / Modified: 06:58:40" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
             
 
+            
+              
+
+              
             
           </span>
 
@@ -616,7 +595,29 @@
       
         
           
-            
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Ext2文件系统将磁盘划分为大小相等的逻辑块进行管理，其默认大小是4KB（不做特殊说明，本文后续内容都采用该默认值）。文件系统逻辑块的大小在格式化的时候可以指定的。文件系统将磁盘划分为逻辑块就好像一个大厦划分为若干个房间，或者超市规划为若干货架一样。同时为了便于管理和避免访问冲突，其将若干个逻辑块组成一个大的逻辑块，称为块组（Block Group）。块组是Ext2文件系统的管理单元，块组中又包含若干管理数据（元数据）实现对块组中的逻辑块的管理，比如那些逻辑块是什么功能，那些逻辑块已经被使用等等。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ff373fa444ffedd2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 磁盘的块组划分"></p>
+<p>通过一个大厦对一个磁盘进行类比在形象不过了。大厦框架好比磁盘；而房间是对大厦规划后的结果，好比对磁盘的格式化；大厦每层的布局图好比元数据。我们可以通过楼层和每层的布局图很容易的找到房间。文件系统与此类似，它通过元数据查找和管理逻辑块。</p>
+<p>如图2是某货架示意图。每层都被划分为不同的货架，每个货架都有编号，且防止固定类型的商品。比如有些放酸奶，有些放调料还有放奶粉等，并规划。我们通过示意图和房间号可以很容易找到具体位置。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-b04dec1db0725f4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 超市货架图"></p>
+<p>如图3是Ext2文件系统的磁盘布局图。如中间蓝色为磁盘的逻辑空间，它被划分为若干个块组。每个块组的大小相等。如果我们在格式化的时候采用的是默认参数，此时块组的大小是128MB（后面介绍为什么是128MB），每个逻辑块的大小是4KB。</p>
+<h2 id="整体布局"><a href="#整体布局" class="headerlink" title="整体布局"></a>整体布局</h2><p>每个块组内部都有相关的元数据对该块组进行管理。如图3所示，第一个块组中的元数据包括<code>引导块、超级块、块组描述符、预留GDT块、数据块位图、inode位图、inode表</code>和其它数据块。后续块组中有些是对超级块的备份，有些则没有第一个块组这么完整的元数据信息，而只有数据块位图、inode位图和inode表等元数据信息。也就是说块组其实分为两种，一种是有超级块的，比较复杂的块组（如图3下面淡棕色所示），另外一种是没有超级块的，比较简单的块组（如图3上面淡绿色所示）。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-120bc6923ddbc9ad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 块组及内部细节"></p>
+<p>引导块是作为引导操作系统用的，在文件系统作为根文件系统时使用。在系统加电启动是，其内容有BIOS自动装载并执行。它包含一个启动装载程序，用于从计算机安装的操作系统中选择一个启动，还负责继续启动过程。因此Ext2文件系统把这个区域预留出来，不作为文件系统管理的磁盘区域。</p>
+<p>超级块是文件系统起始位置，用于整个文件系统，它作为文件系统的入口，记录了整个文件系统的关键信息。而上面提到的其它元数据则只针对本块组。下面本文介绍一下每个元数据的具体作用。</p>
+<h3 id="超级块（SuperBlock）"><a href="#超级块（SuperBlock）" class="headerlink" title="超级块（SuperBlock）"></a>超级块（SuperBlock）</h3><p>超级块记录了整个文件系统的各种信息，包括逻辑块的数量、inode数量、支持的特性和维护信息等内容。为了保证整个文件系统的完整性，例如突然断电或者系统崩溃等场景，文件系统出现元数据损坏的情况，Ext2文件系统对超级块进行了备份。这样可以保证即使在第一个超级块出现损坏的情况下，仍然可以通过其它块组中的超级块进行恢复，不至于整个文件系统都不可访问。</p>
+<p>超级块位于第1个逻辑块内，由于第一个块组预留了1KB的内容作为系统引导，因此在该块组超级块的位置在1KB偏移处，而其它备份块组中的超级块都在该块组偏移为0的地方。超级块会占用1个逻辑块的空间（实际占用空间要小于该值），也就是说块组描述符（ext2_group_desc）是在4KB偏移的地方。如下代码是超级块在磁盘存放的结构体，磁盘数据被读出来后按照该结构体的格式进行解析，其中变量__lexx表示变量是小端对齐，使用是需要转换为CPU的对齐方式。在文件系统中还有另外一个结构体super_block，这个结构体用于代码逻辑中使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">struct ext2_super_block &#123;</span><br><span class="line">        __le32  s_inodes_count;         /* 整个文件系统inode的数量 */</span><br><span class="line">        __le32  s_blocks_count;         /* 整个文件系统逻辑块的数量 */</span><br><span class="line">        __le32  s_r_blocks_count;       /* Reserved blocks count */</span><br><span class="line">        __le32  s_free_blocks_count;    /* 文件系统剩余逻辑块的数量 */</span><br><span class="line">        __le32  s_free_inodes_count;    /* 文件系统剩余inode的数量 */</span><br><span class="line">        __le32  s_first_data_block;     /* First Data Block */</span><br><span class="line">        __le32  s_log_block_size;       /* Block size */</span><br><span class="line">        __le32  s_log_frag_size;        /* Fragment size */</span><br><span class="line">        __le32  s_blocks_per_group;     /* 每一个块组中逻辑块的数量 */</span><br><span class="line">        __le32  s_frags_per_group;      /* # Fragments per group */</span><br><span class="line">        __le32  s_inodes_per_group;     /* 每一个块组中inode的数量 */</span><br><span class="line">        __le32  s_mtime;                /* 挂载时间 */</span><br><span class="line">        __le32  s_wtime;                /* 写时间 */</span><br><span class="line">        __le16  s_mnt_count;            /* 挂载数量 */</span><br><span class="line">        __le16  s_max_mnt_count;        /* Maximal mount count */</span><br><span class="line">        __le16  s_magic;                /* Magic signature */</span><br><span class="line">        __le16  s_state;                /* File system state */</span><br><span class="line">        __le16  s_errors;               /* Behaviour when detecting errors */</span><br><span class="line">        __le16  s_minor_rev_level;      /* minor revision level */</span><br><span class="line">        __le32  s_lastcheck;            /* time of last check */</span><br><span class="line">        __le32  s_checkinterval;        /* max. time between checks */</span><br><span class="line">        __le32  s_creator_os;           /* OS */</span><br><span class="line">        __le32  s_rev_level;            /* Revision level */</span><br><span class="line">        __le16  s_def_resuid;           /* Default uid for reserved blocks */</span><br><span class="line">        __le16  s_def_resgid;           /* Default gid for reserved blocks */</span><br><span class="line">        __le32  s_first_ino;            /* 第一个非保留inode的id，ext2有一些保留的inode，比如2用于根目录 */</span><br><span class="line">        __le16   s_inode_size;          /* inode结构体的大小 */</span><br><span class="line">        __le16  s_block_group_nr;       /* 本超级块所位于的块组的编号 */</span><br><span class="line">        __le32  s_feature_compat;       /* compatible feature set */</span><br><span class="line">        __le32  s_feature_incompat;     /* incompatible feature set */</span><br><span class="line">        __le32  s_feature_ro_compat;    /* readonly-compatible feature set */</span><br><span class="line">        __u8    s_uuid[16];             /* 128-bit uuid for volume */</span><br><span class="line">        char    s_volume_name[16];      /* volume name */</span><br><span class="line">        char    s_last_mounted[64];     /* directory where last mounted */</span><br><span class="line">        __le32  s_algorithm_usage_bitmap; /* For compression */</span><br><span class="line">        /*</span><br><span class="line">         * Performance hints.  Directory preallocation should only</span><br><span class="line">         * happen if the EXT2_COMPAT_PREALLOC flag is on.</span><br><span class="line">         */</span><br><span class="line">        __u8    s_prealloc_blocks;      /* Nr of blocks to try to preallocate*/</span><br><span class="line">        __u8    s_prealloc_dir_blocks;  /* Nr to preallocate for dirs */</span><br><span class="line">        __u16   s_padding1;</span><br><span class="line">        ... ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><strong>块组描述符</strong></p>
+<p>块组描述符，顾名思义是对该块组的描述，其中包括该块组中数据块位图的位置、inode位图位置和inode表位置等信息。另外，还包括数据块和inode的剩余情况等信息。块组描述符位于第2个逻辑块，占用一个逻辑块的空间。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">struct ext2_group_desc</span><br><span class="line">&#123;                                                   </span><br><span class="line">        __le32  bg_block_bitmap;                /* Blocks bitmap block */ </span><br><span class="line">        __le32  bg_inode_bitmap;                /* Inodes bitmap block */</span><br><span class="line">        __le32  bg_inode_table;         /* Inodes table block */</span><br><span class="line">        __le16  bg_free_blocks_count;   /* Free blocks count */</span><br><span class="line">        __le16  bg_free_inodes_count;   /* Free inodes count */</span><br><span class="line">        __le16  bg_used_dirs_count;     /* Directories count */</span><br><span class="line">        __le16  bg_pad;</span><br><span class="line">        __le32  bg_reserved[3];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p><strong>数据块位图</strong></p>
+<p>数据块位图标识了块组中那个数据块被使用了，那个没有被使用。磁盘中每个被管理的逻辑块在该位图中用1bit进行表示，0为未使用，1为已经使用。数据块位图占用1个逻辑块，对于默认块大小(4KB)情况，可以管理4096<em>8个逻辑块，也即4096</em>8*4096=128MB的空间。当然如果格式化的时候块大小为8KB，则管理的空间会更大一些。</p>
+<p><strong>inode位图</strong></p>
+<p>inode位图与逻辑块位图类似，描述inode的使用情况。inode用于唯一标识一个文件，其为一个编号。文件系统根据这个编号查找具体的问题。在inode位图中每一位标识inode表中的个inode是否被使用。关于什么是inode表，请参考下面的描述。<br>默认情况inode位图占用的空间也为4KB。</p>
+<p><strong>inode表</strong></p>
+<p>inode表一列表的形式保存了文件的元数据信息，包括文件大小、扩展属性和时间等内容。由于inode结构的大小根据格式化文件系统的属性而有差异，因此该表占用的磁盘空间不定，大概若干个逻辑块的大小。关于文件名称与inode数据结构的关系是通过inode的id确定的，在文件夹中的文件存储包含文件名和inode的id信息，而通过该id可以计算出inode数据结构位于的块组位置和inode表位置。</p>
+<p>本文简要介绍一下Ext4文件系统的磁盘布局情况，后续会更加详细的介绍每一部分的细节。</p>
+
           
         
       
@@ -672,7 +673,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/04/21/test1/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_read_base/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -692,7 +693,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/04/21/test1/" class="post-title-link" itemprop="url">tt</a>
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_read_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 读数据流程</a>
               
             
           </h1>
@@ -717,24 +718,12 @@
                 
               
 
-              <time title="Created: 2019-04-21 11:56:34" itemprop="dateCreated datePublished" datetime="2019-04-21T11:56:34+00:00">2019-04-21</time>
+              <time title="Created: 2019-05-01 11:57:02 / Modified: 06:58:40" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2019-05-01 00:45:00" itemprop="dateModified" datetime="2019-05-01T00:45:00+00:00">2019-05-01</time>
               
             
           </span>
@@ -770,7 +759,27 @@
       
         
           
-            
+            <p>读数据流程关于如何从用户态到Ext2文件系统公共部分（VFS）的流程本文不再详细介绍，这一部分与写流程基本一致，具体可以参考文末的相关文章介绍。如图是从用户态到Ext2文件系统的函数调用图，从图上可以看到对于Ext2文件系统在读数据流程中调用了大量VFS的函数，这主要原因是Ext2是Linux的原生文件系统，其实耦合还是比较大的。我们仔细观察一下，实际起作用的函数是Ext2文件系统的ext2_file_read_iter函数。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-50cf9176885a38d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 读数据整体流程"></p>
+<p>像写数据一样，读数据也分为Direct读和缓存读两种形式，Direct读是从磁盘直接读取数据，而缓存读则需要先将磁盘数据读到页缓存，然后在将数据拷贝到用户的缓冲区。本文照例只介绍缓存读的场景，对于Direct读请自行阅读代码理解。</p>
+<p>对于缓存读的流程，概括起来分为两个主要步骤，<strong>一个是查找页缓存（如果没有则分配新的），第二步是根据页缓存的状态从磁盘读取数据并填充页缓存（如果页缓存数据最新则不需要从磁盘读取数据）</strong>。</p>
+<h2 id="缓存命中"><a href="#缓存命中" class="headerlink" title="缓存命中"></a>缓存命中</h2><p>其实上图是一个比较复杂的函数调用关系图，这里处理了缓存没有命中的情况下的读数据的流程。如果缓存命中，整个读数据的流程将非常简单，我们可以简化为图2所示。可以看出此时在VFS的函数do_generic_file_read中即可完成整个数据的读取过程。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-60153183383057b5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 读数据缓存命中"></p>
+<p>在VFS函数do_generic_file_read中的主要流程如图3所示。这里假设缓存中存储的数据是最新的，也即页缓存的数据新于磁盘的数据。这样整个读取过程可以分为两步，首先通过find_get_page获取缓存页；然后判断页缓存的标记满足条件后直接调用copy_page_to_iter将页缓存的内容拷贝到用户态的缓冲区。当然实际还有其它一些情况的存在，比如虽然页缓存存在但不是最新，则需要从磁盘读取数据。或者页缓存存在，但正在进行预读操作，则需要等待预读完成等。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-05d20ddc2e57b298.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 读数据缓存命中"></p>
+<p>总之来说，缓存命中的常见还是比较简单的，下面我们介绍一下缓存不命中的场景。</p>
+<h2 id="非缓存命中"><a href="#非缓存命中" class="headerlink" title="非缓存命中"></a>非缓存命中</h2><p>如果没有缓存命中，此时就需要做两件事情，一个是分配页缓存并建立与磁盘位置映射，另一个是向磁盘提交读取数据的请求，完成数据的读取。为了提高读取数据的效率，这里其实实现了一个称为“预读”的功能，所谓预读就是提前从磁盘读取比较多的数据，为下次读数据做准备。这个特性对顺序读非常有效，可以明显的减少磁盘请求的数量，从而提升读数据的性能。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-1fdc0d6f65fdffd1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 读数据缓存命中"></p>
+<p>预读的基本规则主要包含两个，一个是在读请求中读到缺失页面(missing page)，进行同步预读；另一个是读到预读页面(PG_readahead page)，则进行异步预读。如图4是预读的基本示意图，tx代表请求时间序列。<br>1） t0触发同步预读，也就是文件系统除了读取请求的数据外，还会额外读取一部分数据；<br>2） t1时由于读到的缓存页有预读标记，因此会触发异步预读；<br>3） t2时由于缓存已经存在，因此直接从缓存读取后返回；<br>以此类推，当再次碰到有预读标记的页时进行异步预读。另外，这里面有个概念叫“预读窗口”，预读窗口是指一次从磁盘预读数据的多少。预读窗口是滑动的，也就是大小会根据命中情况进行变化，如果命中则会变大，这样可以有效的提高读取的效率。如下是用于滑动窗口的数据结构。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">file_ra_state</span> &#123;</span></span><br><span class="line">	<span class="keyword">pgoff_t</span> start;			<span class="comment">/* where readahead started */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> size;		<span class="comment">/* # of readahead pages */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> async_size;	<span class="comment">/* do asynchronous readahead when</span></span><br><span class="line"><span class="comment">					   there are only # of pages ahead */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> ra_pages;		<span class="comment">/* Maximum readahead window */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> mmap_miss;		<span class="comment">/* Cache miss stat for mmap accesses */</span></span><br><span class="line">	<span class="keyword">loff_t</span> prev_pos;		<span class="comment">/* Cache last read() position */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>理解了上述概念之后，我们分析一下整个读操作的流程。由图1，同步预读和异步预读的起始逻辑在函数do_generic_file_read中。其中find_get_page用于查找是否有缓存并返回找到的缓存页。如果没有找到缓存页则运行红色方框的流程，进行同步预读。如果找到缓存页，并且该缓存页有预读标记则运行绿色方框的流程，进行异步预读。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-c44efcf5e97ef057.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 读数据缓存基本逻辑"></p>
+<p>对比一下同步预读和异步预读的主要调用流程，可以看出最终都会调用到<strong>do_page_cache_readahead函数。实现逻辑的差异主要在ondemand_readahead函数中。基本差异是对滑动窗口的计算，对于同步预读由于要考虑随机读的情况，避免读过多的内容；而对于异步预读则根据达到预读标记则调整一个比较大的滑动窗口。<br>`page_cache_sync_readahead-&gt;ondemand_readahead-&gt;</strong>do_page_cache_readahead<code></code>page_cache_async_readahead-&gt;ondemand_readahead-&gt;__do_page_cache_readahead`</p>
+<p>数据读取操作的最终实现在__do_page_cache_readahead函数中，这里面主要完成两个功能，一个是分配页缓存(page_cache_alloc_readahead)，另一个是提交读请求到块设备层(read_pages)。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-dd30b5ac06972787.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 读数据缓存基本逻辑"></p>
+<p>上图中的函数指针具体实现是Ext2文件系统ext2_readpages函数，该函数的调用流程大致如图7所示。该函数主要实现缓存页的映射和从磁盘读取数据的操作。磁盘读取调用的块设备层的submit_bio函数。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ce88c83a26626c5c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图7 读数据缓存基本逻辑"></p>
+<p>至此，将磁盘上的数据读取到了页缓存中，其后的流程与缓存命中场景一致，也即拷贝页缓存的内容到用户态缓冲区等。</p>
+
           
         
       
@@ -826,7 +835,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/04/21/hello-world/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_write_base/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -846,7 +855,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/04/21/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_write_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 写数据流程</a>
               
             
           </h1>
@@ -871,7 +880,7 @@
                 
               
 
-              <time title="Created: 2019-04-21 11:42:59 / Modified: 10:45:47" itemprop="dateCreated datePublished" datetime="2019-04-21T11:42:59+00:00">2019-04-21</time>
+              <time title="Created: 2019-05-01 11:57:02 / Modified: 06:58:40" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
             
 
             
@@ -912,15 +921,218 @@
       
         
           
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<h2 id="中文测试"><a href="#中文测试" class="headerlink" title="中文测试"></a>中文测试</h2><p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+            <p>为了便于理解Ext2文件系统写数据的流程，本文先从整个Linux文件系统的角度分析一下写数据的流程，因此本文包含了部分VFS内容介绍。本文主要包含2部分内容，一部分是从总体上介绍一个写流程是如何从用户态接口到Ext2文件系统的，另一部分是Ext2文件的数据在磁盘上组织及函数流程。</p>
+<p>写文件的操作通常由用户态的程序发起，比如在开发的过程中调用系统API（write）。如图是从用户态发起一直到调用Ext2函数的整个调用流程。从用户态到内核态是触发了一个中断，这里我们不关心其具体实现，其作用是触发对内核函数的调用。最开始的内核函数是VFS的函数，VFS是一个中间抽象层，其目的是为用户提供统一的接口，屏蔽不同文件系统间的差异。VFS会调用具体文件系统的函数，对于本文基于的内核版本调用的仍然是VFS的通用函数generic_file_write_iter。后续新版本（例如最新的4.20则是调用ext2_file_write_iter函数，前面很早之前已经改成这个函数了）。能够调用该文件系统的接口是因为inode在初始化的时候填充了该文件系统的一个<code>文件操作的结构体</code>实现，关于具体细节本文不做解释，后续再另起文详述。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-01f2652800549d47.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 整体调用流程"></p>
+<p>Ext2文件系统文件操作结构体实现如代码所示，这里包含了Ext2文件系统实现的可以对文件进行的操作。包括对文件内容的读写、查找和缓存同步等等。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">ext2_file_operations</span> = &#123;</span> </span><br><span class="line">        .llseek         = generic_file_llseek,</span><br><span class="line">        .read_iter      = generic_file_read_iter,</span><br><span class="line">        .write_iter     = generic_file_write_iter,</span><br><span class="line">        .unlocked_ioctl = ext2_ioctl,</span><br><span class="line">#ifdef CONFIG_COMPAT</span><br><span class="line">        .compat_ioctl   = ext2_compat_ioctl,</span><br><span class="line">#endif</span><br><span class="line">        .mmap           = ext2_file_mmap,</span><br><span class="line">        .open           = dquot_file_open,</span><br><span class="line">        .release        = ext2_release_file,</span><br><span class="line">        .fsync          = ext2_fsync,</span><br><span class="line">        .splice_read    = generic_file_splice_read,</span><br><span class="line">        .splice_write   = iter_file_splice_write,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在新版本的内核中generic_file_write_iter函数被ext2_file_write_iter替代，但其实只是后者对前者进行了简单的封装，并没有做太多事情。</p>
+</blockquote>
+<p>图1中展示了VFS调用Ext2文件系统的流程，可能不够清晰。下面是VFS文件系统写操作的代码实现，由该代码可以看出在该函数中将调用具体文件系统的写数据的接口。可能涉及2种情况，视文件系统的具体实现而定。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ssize_t</span> __vfs_write(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *p, <span class="keyword">size_t</span> count,</span><br><span class="line">                    <span class="keyword">loff_t</span> *pos)</span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">if</span> (file-&gt;f_op-&gt;write)</span><br><span class="line">                <span class="keyword">return</span> file-&gt;f_op-&gt;write(file, p, count, pos);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (file-&gt;f_op-&gt;write_iter)</span><br><span class="line">                <span class="keyword">return</span> new_sync_write(file, p, count, pos);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">                <span class="keyword">return</span> -EINVAL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过上面描述，我们基本知道了用户态的接口调用是如何触发到Ext2文件系统的函数了，也就是如何调到ext2文件系统write_iter函数指针指向的函数，后面我们详细介绍一下文件系统的实现。</p>
+<h2 id="公共实现"><a href="#公共实现" class="headerlink" title="公共实现"></a>公共实现</h2><p>通过上面分析我们了解到，Ext2写数据由反过来调用VFS的通用写数据的接口generic_file_write_iter。为了保证写数据的安全性，避免进程之间的竟态导致数据的不一致，在写数据的时候会有一些锁。为了抓住主要逻辑，本文暂时不介绍参数合法性检查和锁等其它逻辑内容，这些内容后续专门介绍。</p>
+<p>本文接着分析generic_file_write_iter函数。如图2所示，其中绿色的是写流程的主要函数，该函数实现磁盘空间分配和实际的写数据的操作，主要业务逻辑也在该函数中。而函数<code>generic_write_sync</code>则是在文件具备同步刷写属性的情况下，实现缓存写数据的同步刷写，保证数据从缓存刷写到磁盘后在返回。因此，本文重点介绍__generic_file_write_iter函数，这个函数是整个文件写数据的核心。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-d30bb10a76f5e82d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 ext2写流程"></p>
+<p>该函数并不是ext2文件系统的函数，而是一个公共函数（mm/filemap.c中实现）。在该函数中，针对用户打开文件时设置的属性有两种不同的执行分支，如果设置了O_DIRECT属性，则调用<code>generic_file_direct_write</code>函数进行直写的流程；如果没有设置该属性，则调用函数<code>generic_perform_write</code>执行缓存写的流程。</p>
+<h3 id="直写流程"><a href="#直写流程" class="headerlink" title="直写流程"></a>直写流程</h3><p>所有文件系统的直写都有一个公共的入口generic_file_direct_write，这个函数在框架中实现（mm/filemap.c）。该函数流程相对比较简单，主要调用了4个函数，具体如图所示。前面两个函数是对目的区域的缓存进行刷写，并使缓存页失效。进行这一步的主要原因是缓存中可能有脏数据，如果不进行处理可能会导致缓存的数据覆盖直写的数据，从而导致数据不一致。第3个函数direct_IO是文件系统的实现，直写真正的写数据操作。最后一个函数在上面已经执行过，主要是避免预读等操作导致缓存数据与磁盘数据的不一致。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-32aab1c37bd03cb6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 直写流程"></p>
+<h3 id="缓存写流程"><a href="#缓存写流程" class="headerlink" title="缓存写流程"></a>缓存写流程</h3><p>与直写类似，缓存写也有一个公共函数，其名称为generic_perform_write。缓存写整体的主要流程也有4个主要步骤，<strong>分配磁盘空间和缓存页，将数据从用户态拷贝到内核态内存、收尾和页缓存均衡</strong>。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-bc8ab11b18418d30.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 缓存写调用流程"></p>
+<p>其中分配磁盘空间和缓存页以及收尾工作实在具体文件系统中做的。页缓存均衡的作用是检查目前页缓存的容量，保证页缓存的总容量不超过设置的水线大小，避免占用系统内存太多。上图中是函数指针方式的调用，具体到文件系统有各自的实现，对于ext2来说实现如下代码所示（在aops.c中）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">address_space_operations</span> <span class="title">ext2_aops</span> = &#123;</span></span><br><span class="line">        .readpage               = ext2_readpage,</span><br><span class="line">        .readpages              = ext2_readpages,</span><br><span class="line">        .writepage              = ext2_writepage,</span><br><span class="line">        .write_begin            = ext2_write_begin,</span><br><span class="line">        .write_end              = ext2_write_end,</span><br><span class="line">        .bmap                   = ext2_bmap,</span><br><span class="line">        .direct_IO              = ext2_direct_IO,</span><br><span class="line">        .writepages             = ext2_writepages,</span><br><span class="line">        .migratepage            = buffer_migrate_page,</span><br><span class="line">        .is_partially_uptodate  = block_is_partially_uptodate,</span><br><span class="line">        .error_remove_page      = generic_error_remove_page,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>上面都是公共框架的工作，对于所有文件系统都是一样的，整体逻辑也比较简单。了解了公共框架的部分的工作后，我们后续介绍ext2文件系统所做的工作。对于直写部分的逻辑本文暂时不做介绍，主要集中在缓存写逻辑的相关内容。</p>
+<h1 id="写数据流程"><a href="#写数据流程" class="headerlink" title="写数据流程"></a>写数据流程</h1><p>在介绍Ext2写数据的流程之前，我们先介绍一下文件中的数据在磁盘上是如何进行布局的。了解布局之后，对于我们了解文件数据的读写流程非常有益。</p>
+<p>文件内数据的存放位置由inode结构体（ext2_inode）的i_blcok成员变量指定。该变量是一个32整型数组，共有15个成员，其中前12成员的值直接指向存储文件数据的磁盘的逻辑地址。后面3个成员指向的磁盘逻辑块中存储的数据并不是文件的数据，而是指针数据。</p>
+<p>对于小文件来说，通过直接引用就可以完成数据的存储和查找。比如格式化的时候文件逻辑块大小是4K，对于48K（4K×12）以内的文件都可以通过直接引用完成。但是，如果文件大于48K，则直接引用无法容纳所有的数据，则48K以外的数据需要通过一级间接引用进行存储。以此类推，当超过本级存储空间的最大值时，则启用后面的存储方式。</p>
+<p>间接引用通过后面3个成员完成。对于第12个成员来说，它是一级间接引用模式，也就是该成员指向的磁盘逻辑块中存储的是<strong>指向文件数据的指针</strong>，而指针指向的是存储文件数据的磁盘逻辑块的地址。而有对于第13个成员来说，它是二级间接引用模式，也就是该成员指向的磁盘逻辑块中存储的是指针，而指针指向的仍然是存储指针的磁盘逻辑块，再之后该指针指向的才是文件数据的磁盘逻辑块的地址。以此类推，三级间接也用就是成员与存储文件数据的逻辑块之间有3层指针。如图5是Ext2文件数据在3级间接引用情况下的数据布局示意图。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-854b3c2d7d7b8835.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 文件数据索引示意图"></p>
+<p>在前面整体流程中我们知道VFS调用Ext2文件系统的write_begin和write_end函数指针。其中write_begin的具体函数是ext2_write_begin。如图6所示，该函数调用block_write_begin函数，并传入一个<code>ext2_get_block</code>参数，该参数是Ext2文件系统分配磁盘空间的具体实现。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-fbe28f412513b3b8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 Ext2写数据函数调用图"></p>
+<p>函数ext2_write_begin是文件系统写数据的重点实现，总结一下就是这里分配页缓存、分配磁盘空间和建立页缓存与磁盘块的关系。这样，在后面就可以实现数据的刷写，将数据从缓存刷写到磁盘。如下是block_write_begin函数的代码实现。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">block_write_begin</span><span class="params">(struct address_space *mapping, <span class="keyword">loff_t</span> pos, <span class="keyword">unsigned</span> len,</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="keyword">unsigned</span> flags, struct page **pagep, <span class="keyword">get_block_t</span> *get_block)</span></span></span><br><span class="line"><span class="function"></span>&#123;               </span><br><span class="line">        <span class="keyword">pgoff_t</span> index = pos &gt;&gt; PAGE_CACHE_SHIFT;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">page</span> *<span class="title">page</span>;</span></span><br><span class="line">        <span class="keyword">int</span> status;</span><br><span class="line">        <span class="comment">/* 分配存储数据的缓存页 */</span></span><br><span class="line">        page = grab_cache_page_write_begin(mapping, index, flags);</span><br><span class="line">        <span class="keyword">if</span> (!page)</span><br><span class="line">                <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">        <span class="comment">/* 通过get_block获取磁盘空间，并建立与缓存页的映射关系 */</span></span><br><span class="line">        status = __block_write_begin(page, pos, len, get_block);</span><br><span class="line">        <span class="keyword">if</span> (unlikely(status)) &#123;</span><br><span class="line">                unlock_page(page);</span><br><span class="line">                page_cache_release(page);</span><br><span class="line">                page = <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        *pagep = page;</span><br><span class="line">        <span class="keyword">return</span> status;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也就是对于Ext2文件系统来说，分配磁盘空间的关键函数是ext2_get_block，该函数会根据请求的大小和位置等信息计算出应该使用几级间接引用块，然后分配必须的空间。同时该函数还会填充inode的i_block数组的成员。该函数实现相对复杂，后面我们单独写一篇关于Ext2磁盘空间分配的文章。</p>
+<p>至此，我们分析了Ext2文件系统写数据的流程，总结起来也比较简单，概括起来就是<strong>分配磁盘空间和缓存页，将数据从用户态拷贝到内核态内存、收尾和页缓存均衡</strong>。由于分配磁盘空间是比较复杂的，因此后续再另行起文分析。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 扩展属性</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-05-01 11:57:02 / Modified: 06:58:40" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="什么是文件的扩展属性"><a href="#什么是文件的扩展属性" class="headerlink" title="什么是文件的扩展属性"></a>什么是文件的扩展属性</h2><p>扩展属性（xattrs）提供了一个机制用来将键值对（Key/Value）永久地关联到文件，让现有的文件系统得以支持在原始设计中未提供的功能。扩展属性是文件系统不可知论者，应用程序可以通过一个标准的接口来操纵他们，此接口不因文件系统而异。每个扩展属性可以通过唯一的键来区分，键的内容必须是有效的UTF-8，格式为namespace.attribute，每个键采用完全限定的形式，也就是键必需有一个确定的前缀（例如user）。</p>
+<p>Linux操作系统有如下集中扩展属性：</p>
+<ul>
+<li>system：用于实现利用扩展属性的内核功能，例如访问控制表。eg：system.posix_acl_access便是位于此用户空间的扩展属性，用户是否可以读取或写入这些属性取决于所使用的安全模块。</li>
+<li>security：用于实现安全模块。</li>
+<li>trusted：把受限制的信息存入用户空间。</li>
+<li>user：一般进程所使用的标准命名空间，经过一般文件权限位来控制此命名空间的访问。</li>
+</ul>
+<h2 id="Ext2扩展属性的数据布局"><a href="#Ext2扩展属性的数据布局" class="headerlink" title="Ext2扩展属性的数据布局"></a>Ext2扩展属性的数据布局</h2><p>本文主要介绍一下Ext2文件系统中扩展属性的相关内容，包括<strong>磁盘数据布局和创建流程</strong>等。在Ext2文件系统中，扩展属性存储在一个单独的磁盘逻辑块中，其位置由inode中的i_file_acl成员指定。如图所示是键值对在该逻辑块中的布局示意图。其前32个字节是一个描述头（ext2_xattr_header），描述该逻辑块基本使用情况。而下面紧跟着的是扩展属性项（ext2_xattr_entry），扩展属性项描述了扩展属性的键名称等信息，同时包含值的偏移等内容。这里需要说明的是<strong>扩展属性项是从上往下生长的，而值则是从下往上生长</strong>。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-a1a8c002946bdecf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 扩展属性布局图"></p>
+<p>如下代码是描述头（ext2_xattr_header）的结构体定义，里面有魔数、引用计数和哈希值等内容。这里魔数的作用是确认该逻辑块的内容是扩展属性逻辑块，避免代码Bug或者磁盘损坏等情况下给用户返回错误的结果。引用计数和哈希值的作用是实现多文件的扩展属性共享。所谓扩展属性共享是指，如果多个文件的扩展属性完全一样的情况下，这些文件的扩展属性将采用相同的磁盘逻辑块存储，这样可以大大的节省存储空间。另外，Ext2借用的哈希缓存，将文件属性的哈希值存储在其中，用于快速判断文件是否存在相同的扩展属性逻辑块。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ext2_xattr_header</span> &#123;</span></span><br><span class="line">        __le32  h_magic;        <span class="comment">/* magic number for identification */</span></span><br><span class="line">        __le32  h_refcount;     <span class="comment">/* reference count */</span></span><br><span class="line">        __le32  h_blocks;       <span class="comment">/* number of disk blocks used */</span></span><br><span class="line">        __le32  h_hash;         <span class="comment">/* hash value of all attributes */</span></span><br><span class="line">        __u32   h_reserved[<span class="number">4</span>];  <span class="comment">/* zero right now */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>扩展属性项在磁盘上是从上往下生长的，但需要注意的是由于每个扩展属性的键名称的长度不一定一样，因此该结构体的大小也是变化的。由于上述原因，我们无法直接找到某一个扩展属性项的位置，必需从头到位进行遍历。由于描述头的大小是确定的，这样第一个扩展属性项就可以找到，而下一个扩展属性项就可以根据本扩展属性项的位置及其中的e_name_len成员计算得到。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ext2_xattr_entry</span> &#123;</span></span><br><span class="line">        __u8    e_name_len;     <span class="comment">/* length of name */</span></span><br><span class="line">        __u8    e_name_index;   <span class="comment">/* attribute name index */</span></span><br><span class="line">        __le16  e_value_offs;   <span class="comment">/* offset in disk block of value */</span></span><br><span class="line">        __le32  e_value_block;  <span class="comment">/* disk block attribute is stored on (n/i) */</span></span><br><span class="line">        __le32  e_value_size;   <span class="comment">/* size of attribute value */</span></span><br><span class="line">        __le32  e_hash;         <span class="comment">/* hash value of name and value */</span></span><br><span class="line">        <span class="keyword">char</span>    e_name[<span class="number">0</span>];      <span class="comment">/* attribute name */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="VFS设置扩展流程分析"><a href="#VFS设置扩展流程分析" class="headerlink" title="VFS设置扩展流程分析"></a>VFS设置扩展流程分析</h2><p>操作系统提供了一些API来设置文件的扩展属性，分别是setxattr、fsetxattr和lsetxattr。这几个函数应用场景略有差异，但功能基本一致。本文以fsetxattr为例进行介绍。假设用户调用该接口为某个文件设置user前缀的扩展属性，此时的整个函数调用栈如图所示。本调用栈包含三部分内容，分别是用户态接口、VFS调研栈和Ext2文件系统调用栈。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-da85b218ee48c542.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 扩展属性设置流程"></p>
+<p>通过上图可以看出在VFS做了很多事情，最后通过函数指针的方式调用到Ext2文件系统的扩展属性设置接口。整个流程中除了Ext2文件系统实现的设置扩展属性的函数（ext2_xattr_set）逻辑相对复杂外，整个函数栈的代码逻辑非常简单，这里就不过多介绍了。但是，这里有几点需要说明的：</p>
+<h3 id="属性设置公共接口调用"><a href="#属性设置公共接口调用" class="headerlink" title="属性设置公共接口调用"></a>属性设置公共接口调用</h3><p>这个调用就是上图中<code>i_op-&gt;setxattr</code>的调用，其中i_op是inode中的一个成员，这个指针是<strong>分配inode节点的时候初始化</strong>的。这个函数屏蔽了不同的扩展属性（上文已经交代Linux文件系统有trusted和user等多种扩展属性）的处理方法集合。需要注意的是Ext2文件系统并没有实现自己的特有函数，而是调用了VFS提供的公共函数（generic_setxattr）。上述i_op是一个结构体指针，其中包含属性及扩展属性操作的所有接口，如下代码所示。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">const struct inode_operations ext2_file_inode_operations = &#123; </span><br><span class="line">#ifdef CONFIG_EXT2_FS_XATTR</span><br><span class="line">        .setxattr       = generic_setxattr,</span><br><span class="line">        .getxattr       = generic_getxattr,</span><br><span class="line">        .listxattr      = ext2_listxattr,</span><br><span class="line">        .removexattr    = generic_removexattr,</span><br><span class="line">#endif</span><br><span class="line">        .setattr        = ext2_setattr,</span><br><span class="line">        .get_acl        = ext2_get_acl,</span><br><span class="line">        .set_acl        = ext2_set_acl,</span><br><span class="line">        .fiemap         = ext2_fiemap,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>关于设置扩展属性的公共实现函数比较简单，具体如下所示。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">int generic_setxattr(struct dentry *dentry, </span><br><span class="line">									const char *name, </span><br><span class="line">									const void *value, </span><br><span class="line">									size_t size, </span><br><span class="line">									int flags)</span><br><span class="line">&#123;</span><br><span class="line">        const struct xattr_handler *handler;</span><br><span class="line"></span><br><span class="line">        if (size == 0)</span><br><span class="line">                value = &quot;&quot;;  /* empty EA, do not remove */</span><br><span class="line">		/* 根据扩展属性的键（Key）获取处理该动作的函数集指针handler。</span><br><span class="line">		  * 例如设置user类型的扩展属性，则name格式为user.xxx */</span><br><span class="line">        handler = xattr_resolve_name(dentry-&gt;d_sb-&gt;s_xattr, &amp;name);</span><br><span class="line">        if (!handler)</span><br><span class="line">                return -EOPNOTSUPP;</span><br><span class="line">		/* 调用具体类型扩展属性的处理函数， 例如对于user扩展属性，则</span><br><span class="line">		  * 调用ext2_xattr_user_handler进行处理。 */</span><br><span class="line">        return handler-&gt;set(dentry, name, value, size, flags, handler-&gt;flags);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="具体类型的扩展属性设置接口调用"><a href="#具体类型的扩展属性设置接口调用" class="headerlink" title="具体类型的扩展属性设置接口调用"></a>具体类型的扩展属性设置接口调用</h3><p>这个调用就是上图中<code>handler-&gt;set</code>的调用，这个指针是在文件系统挂载的时候初始化的，其内容初始化了超级块的成员变量s_xattr。其中handler指针是<strong>根据用户传入的键名称确定的</strong>。具体获取是在函数xattr_resolve_name中实现的，其对超级块中的s_xattr变量进行遍历（匹配扩展属性的键前缀，流入user），从而找到可以处理该扩展属性的handler。如下代码是Ext2文件系统初始化超级快s_xattr用的数据，里面包含Ext2文件系统支持的所有扩展属性类型。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">const struct xattr_handler *ext2_xattr_handlers[] = &#123;</span><br><span class="line">        &amp;ext2_xattr_user_handler,</span><br><span class="line">        &amp;ext2_xattr_trusted_handler,                                                 </span><br><span class="line">#ifdef CONFIG_EXT2_FS_POSIX_ACL</span><br><span class="line">        &amp;posix_acl_access_xattr_handler,</span><br><span class="line">        &amp;posix_acl_default_xattr_handler,               </span><br><span class="line">#endif</span><br><span class="line">#ifdef CONFIG_EXT2_FS_SECURITY</span><br><span class="line">        &amp;ext2_xattr_security_handler,                 </span><br><span class="line">#endif  </span><br><span class="line">        NULL                                    </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>这样，经过几层调用之后就可以调用到Ext2文件系统中关于user扩展属性的设置接口。</p>
+<h2 id="Ext2扩展属性设置"><a href="#Ext2扩展属性设置" class="headerlink" title="Ext2扩展属性设置"></a>Ext2扩展属性设置</h2><p>对于user类型的扩展属性，其函数集为ext2_xattr_user_handler，如下是具体的定义。这里面实现了该类型扩展属性的查询和设置等接口。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">const struct xattr_handler ext2_xattr_user_handler = &#123; </span><br><span class="line">        .prefix = XATTR_USER_PREFIX,</span><br><span class="line">        .list   = ext2_xattr_user_list,</span><br><span class="line">        .get    = ext2_xattr_user_get,</span><br><span class="line">        .set    = ext2_xattr_user_set,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>设置扩展属性的接口是ext2_xattr_user_set，如下是该函数的具体实现，从代码中可以看出该函数主要调用了ext2_xattr_set函数，这个函数实现了对添加扩展属性的操作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">static int </span><br><span class="line">ext2_xattr_user_set(struct dentry *dentry, </span><br><span class="line">								const char *name,</span><br><span class="line">                				const void *value, </span><br><span class="line">								size_t size, </span><br><span class="line">								int flags, </span><br><span class="line">								int type)</span><br><span class="line">&#123;</span><br><span class="line">        if (strcmp(name, &quot;&quot;) == 0)</span><br><span class="line">                return -EINVAL;</span><br><span class="line">        if (!test_opt(dentry-&gt;d_sb, XATTR_USER))</span><br><span class="line">                return -EOPNOTSUPP;</span><br><span class="line"></span><br><span class="line">        return ext2_xattr_set(d_inode(dentry), EXT2_XATTR_INDEX_USER,</span><br><span class="line">                              name, value, size, flags);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>函数ext2_xattr_set的实现非常长，大概300多行，因此这里就不贴代码了。本文具体介绍一下该函数的实现逻辑主要是查找键，然后根据查找的结果进行处理。如果能找到该键则更新值，如果找不到则新建一个键值对。这里有几个注意点，具体实现细节请自行阅读代码。</p>
+<ul>
+<li>设置扩展属性时可能是第一个，此时会分配新的磁盘空间</li>
+<li>设置扩展属性需要计算剩余空间，如果剩余空间不够，则创建失败</li>
+<li>设置扩展属性接口同时实现了更新扩展属性值的功能，但如果新值得长度大于旧值，则需要进行特殊处理</li>
+<li>在数据布局的次序上，键和值并没有严格的顺序</li>
+</ul>
+<blockquote>
+<p>在实现逻辑中需要注意的一点是，用户在调用接口的时候可以传递附加标识，比如XATTR_REPLACE和XATTR_CREATE等。例如XATTR_REPLACE表示用户期望进行扩展属性值得替换操作，如果没有找到扩展属性的键，则返回失败。XATTR_CREATE则表示只进行创建操作，如果已经存在期望的键则失败。</p>
+</blockquote>
+<p>持续更新… …</p>
+<p>关注作者微信公众号，更及时的获取原创IT技术文章。<br><img src="http://upload-images.jianshu.io/upload_images/11058170-2578c0e8ec303183.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="公众号二维码"></p>
 
           
         
@@ -1006,7 +1218,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -1023,7 +1235,7 @@
                     
                       
                     
-                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-count">0</span>
                     <span class="site-state-item-name">categories</span>
                   
                 </div>

@@ -100,7 +100,7 @@
 <meta name="keywords" content="Linux,Ext2">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Ext2文件系统彻底分析 | 磁盘空间分配">
-<meta property="og:url" content="http://www.itworld123.com/2019/05/01/ext2/index.html">
+<meta property="og:url" content="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2/index.html">
 <meta property="og:site_name" content="SunnyZhang的IT世界">
 <meta property="og:description" content="在实际写数据到磁盘之前需要分配磁盘上的空间。这里的写数据包括写文件数据、在目录中创建文件和添加扩展属性等等。但凡需要存储新数据的场景都需要分配磁盘空间。分配磁盘空间的主要功能在函数ext2_get_blocks中实现，该函数的原型如下所示： 1234static int ext2_get_blocks(struct inode *inode,                           s">
 <meta property="og:locale" content="default">
@@ -108,7 +108,7 @@
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-917f2044a4904607.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-982b4d64f56d30da.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-5ec6130362f2f167.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-05-01T01:05:27.085Z">
+<meta property="og:updated_time" content="2019-05-01T06:58:40.272Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ext2文件系统彻底分析 | 磁盘空间分配">
 <meta name="twitter:description" content="在实际写数据到磁盘之前需要分配磁盘上的空间。这里的写数据包括写文件数据、在目录中创建文件和添加扩展属性等等。但凡需要存储新数据的场景都需要分配磁盘空间。分配磁盘空间的主要功能在函数ext2_get_blocks中实现，该函数的原型如下所示： 1234static int ext2_get_blocks(struct inode *inode,                           s">
@@ -120,7 +120,7 @@
 
   
   
-  <link rel="canonical" href="http://www.itworld123.com/2019/05/01/ext2/">
+  <link rel="canonical" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2/">
 
 
 
@@ -346,7 +346,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/ext2/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -389,7 +389,7 @@
                 
               
 
-              <time title="Created: 2019-05-01 11:57:02 / Modified: 01:05:27" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+              <time title="Created: 2019-05-01 11:57:02 / Modified: 06:58:40" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
             
 
             
@@ -399,31 +399,6 @@
             
           </span>
 
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/Ext2/" itemprop="url" rel="index"><span itemprop="name">Ext2</span></a></span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -521,8 +496,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/04/21/Linux/" rel="next" title="Linux">
-                <i class="fa fa-chevron-left"></i> Linux
+              <a href="/2019/05/01/linux/filesystem/ext2/ext2_layout/" rel="next" title="Ext2文件系统彻底分析 | 数据的磁盘布局">
+                <i class="fa fa-chevron-left"></i> Ext2文件系统彻底分析 | 数据的磁盘布局
               </a>
             
           </div>
@@ -600,7 +575,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -617,7 +592,7 @@
                     
                       
                     
-                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-count">0</span>
                     <span class="site-state-item-name">categories</span>
                   
                 </div>
