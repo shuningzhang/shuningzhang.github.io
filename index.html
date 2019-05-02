@@ -337,6 +337,193 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/02/storage/san/iSCSI的基本架构及操作简介/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/02/storage/san/iSCSI的基本架构及操作简介/" class="post-title-link" itemprop="url">iSCSI的基本架构及操作简介</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-02 16:57:01 / 修改时间：09:02:15" itemprop="dateCreated datePublished" datetime="2019-05-02T16:57:01+00:00">2019-05-02</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>iSCSI是由IBM发明的基于以太网的存储协议，该协议与SUN的NFS协议都是为了解决存储资源共享问题的解决方案。两者意图一致，只不过两者是不同的实现方式，前者在客户机上呈现的是一个块设备，而后者则是一个目录树。<strong>关于两者的区别，可以参考本号之前的文章（<a href="https://www.toutiao.com/i6640939526892028429/?group_id=6640939526892028429" target="_blank" rel="noopener">分布式存储与传统SAN、NAS相比，有什么优势与劣势？</a>），本位不再赘述</strong>。</p>
+<p>本文今天主要介绍一下iSCSI的整体架构，以及在Linux平台上<strong>启动器端</strong>（可以理解为客户端，后续介绍该概念）如何实现对存储设备（系统）的配置和访问。</p>
+<h1 id="整体架构概述"><a href="#整体架构概述" class="headerlink" title="整体架构概述"></a>整体架构概述</h1><p>概括的说，iSCSI是一种存储设备远程映射技术，它可以将一个远程服务器上的存储设备映射到本地，并呈现为一个块设备（大白话就是磁盘）。从普通用户的角度，映射过来的磁盘与本地安装的磁盘毫无差异。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-f6032bba0a55acfa?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<p>这种映射方式基于是基于SCSI协议的，SCSI协议是计算机与外围设备（例如硬盘、光盘等）通信的协议。而iSCSI则是通过TCP协议对SCSI进行封装的一种协议，也就是通过以太网传输SCSI协议的内容。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-776598fb9f59b7fc?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<p>从上图可以看出来，iSCSI其实也是一种典型的客户端服务器架构（CS架构），其中访问存储系统的计算机成为客户端，其中负责连接的软件成为<strong>启动器</strong>。而提供存储服务的计算机成为服务端，其中的软件成为<strong>目标器</strong>。</p>
+<p>由于iSCSI是基于TCP协议的，因此启动器和目标器可以是纯软件实现，也可以基于硬件实现。如果是硬件实现，硬件实现主要是对SCSI命令封装和解析等，这样可以释放CPU资源。目前在Linux下面，启动器和目标器都有纯软件的实现，比如启动器的实现Open-iSCSI，目标器的实现LIO、SCST和TGT等。</p>
+<h1 id="基本概念介绍"><a href="#基本概念介绍" class="headerlink" title="基本概念介绍"></a>基本概念介绍</h1><p>本节介绍关于iSCSI的一些基本概念，理解这些概念便于我们理解iSCSI的原理及后续阅读iSCSI的开源代码。</p>
+<p><strong>Network Portal</strong>: 网络端口。网络实体的一个组成部分，它有一个 TCP/IP 地址。 网络端口在 initiator 用 IP 地址标识， 在 target 用 IP 地址＋侦听的 TCP 端口标识。</p>
+<p><strong>Session</strong>:  连接 initiator 和 target 的一组 TCP 连接构成一个 session(可以简单理解为 I_T nexus)。可以向 session 添加 TCP 连接，也可以把 TCP 连接从 session 删除。 也就是说一个session中是可以有多个连接的。通过一个 session 的所有连接，initiator 只看到同一个 target。</p>
+<p><strong>Connection </strong>: 一个 TCP 连接。Initiator 和 target 之间使用一或者多个 TCP 连接通信。</p>
+<p><strong>CID(Connection ID)</strong>: 一个 session 里的每个 connection 用 CID 进行标识，该标识在 session 范围内是唯一。CID 由 initiator 产生，在 login 请求和使用 logout 关闭 连接时传递给 target。</p>
+<p><strong>SSID（Session ID）</strong>：一个 iSCSI Initiator 与 iSCSI Target 之间的会话（Session）由会话ID（SSID）定义，该会话ID是一个由发起方部分（ISID）和目标部分（Target Portal Group Tag）组成的元组。 ISID 在会话建立时由发起者明确指定。 Target Portal Group Tag 由发起者在连接建立时选择的 TCP端口来隐式指定。 当给定 TargetName 时，TargetPortalGroupTag 也必须由目标在连接建立期间作为确认返回。</p>
+<p><strong>Portal Groups</strong>: 网络端口组。iSCSI session 支持多连接，一些实现能把通过多个端口建立的多个连接捆绑到一个 session。 一个 iSCSI 网络实体的多个网络端口被定义为一个网络端口组，把该组和一个 session 联系起来，该 session 就可以捆绑通过该组内多个端口建立的多个连接，再使它们一起协同工作以达到捆绑的目的。每一个该组的 session 并不需要包括该组的所有网络端口。一个 iSCSI 节点可能有一或者多个网络端口组，但是每一个 iSCSI 使用的网络端口只能属于 iSCSI 节点的一个组。</p>
+<p><strong>Target Portal Group Tag</strong>: 网络端口组标识。使用 16 比特的数标识一个网络端口组。在 一个 iSCSI 节点里，所有具有同样组标志的端口构成一个网络端口组。</p>
+<p><strong>iSCSI Task</strong>:  一个 iSCSI 任务是指一个需要响应的 iSCSI 请求。</p>
+<p><strong>I_T nexus</strong>:  I_T nexus 是指一个 SCSI initiator 的端口和一个 SCSI target 端口之间 的关系。 对于 iSCSI， 这个关系对应一个 session， 它指 session 的 initiator 端和 iSCSI target 网络端口组之间的关系。I_T nexus 的标识是一对端口名称(iSCSI initiator 名称＋i＋ISID，iSCSI target 名称＋t＋网络端口组标识)。 PDU (Protocol Data Unit): initiator 和 target 之间通信时把信息分割为消息。这些 消息称为 iSCSI PDU。 SSID (Session ID): iSCSI initiator 和 iSCSI target 之间的 session 用 SSID 进行标识， 该标识由 initiator 部分的 ISID 和 target 部分的 TPGT 构成。</p>
+<p><strong>ISID（The initiator part of the Session Identifier）</strong>：发起方会话标识，由 initiator 在 session 建立的时候明确给出，</p>
+<p><strong>TSIH (Target Session Identifying Handle)</strong>: Target 分配给与特定名称 initiator 建立的 session 的标识。 但是 0 值被保留着用于 initiator 告知 target 这是一个新 session。 在为一个 session 添加一个 connect 时，TSIH 已经隐含指明。</p>
+<h1 id="启动器端配置"><a href="#启动器端配置" class="headerlink" title="启动器端配置"></a>启动器端配置</h1><p>Linux的启动器包含内核态的启动器、用户态的守护进程和命令行工具3部分内容，整体架构还是比较复杂的。但是如果不想理解其原理，只是一般使用的话，还是比较简单方便的。下面我们介绍一下其操作步骤（<strong>这里假设已经有一个存储设备</strong>），关于更详细的原理我们后续再进行详细的介绍。</p>
+<p><strong>启动iscsi守护进程</strong></p>
+<p>在启动器端是有一个守护进程的，首先要保证该守护进程是处于正常运行状态。如果没有运行的情况下需要启动该服务。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>service iscsi start</span><br></pre></td></tr></table></figure>
+<p>默认情况下，系统启动后此进程会自动运行的。如果没有自动运行可以通过下面命令进行控制和查看。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> chkconfig iscsi on</span><br><span class="line"><span class="meta">#</span> chkconfig iscsi --list （查看ISCSI启动状态）</span><br></pre></td></tr></table></figure></p>
+<p><strong>发现目标</strong></p>
+<p>默认情况下，iscsi发起方和目标方之间通过端口3260连接。假设已知iscsi的目标方IP是192.168.1.1，运行下列命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># iscsiadm -m discovery -t sendtargets -p 192.168.1.1:3260</span><br></pre></td></tr></table></figure></p>
+<p>如果一切正常，过此时找到并拥有了一个目标（target）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.1.1:3260,1 iqn.1997-05.com.test:itworld123</span><br></pre></td></tr></table></figure></p>
+<p><strong>登入节点</strong></p>
+<p>以上面被发现的目标为例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># iscsiadm -m node –T iqn.1997-05.com.test:itworld123 -p 192.168.1.1：3260 -l</span><br></pre></td></tr></table></figure></p>
+<p>其中iqn.1997-05.com.test:itworld123是目标名。</p>
+<p><strong>查看磁盘信息</strong></p>
+<p>正常来说，如果登录成功后在客户端操作系统中就可以看到新增的硬盘了。可以通过下面命令查看。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># fdisk –l</span><br></pre></td></tr></table></figure></p>
+<p><strong>格式化设备</strong></p>
+<p>iSCSI设备的使用与普通硬盘没有任何差异，比如我们想把该设备格式化为ext4文件系统，运行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># mkfs.ext4 /dev/sdb</span><br></pre></td></tr></table></figure></p>
+<p>具体使用我们这里就不再解释，使用方法与本地磁盘完全一致。</p>
+<p><strong>登出节点</strong></p>
+<p>有些情况下我们可能需要登出节点，此时将端口启动器和目标器之间的连接，磁盘也会消失。登出之前需要先停止对磁盘的使用。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># umount /mnt/iscsi_itworld123</span><br></pre></td></tr></table></figure></p>
+<p>执行如下命令可以登出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># iscsiadm -m node –T iqn.1997-05.com.test:raid -p 192.168.1.1:3260 –u</span><br></pre></td></tr></table></figure></p>
+<p><strong>登入需验证码的节点</strong></p>
+<p>为了保证存储设备的安全，可以对存储设备设置权限认证，这样只有合法用户才能访问存储设备。下面是具有认证的存储的登录方法。</p>
+<p><strong>1）开启认证</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iscsiadm -m node -T [装置] -o update --name node.session.auth.authmethod --value=CHAP *.使用-o同--op</span><br></pre></td></tr></table></figure></p>
+<p><strong>2）添加用户</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iscsiadm -m node -T [装置] --op update --name node.session.auth.username --value=[用户名]</span><br></pre></td></tr></table></figure></p>
+<p><strong>3）添加密码</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iscsiadm –m node –T [装置] –op update –name node.session.auth.password –value=[密码]</span><br></pre></td></tr></table></figure></p>
+<p>好了，今天先到这。我们今天主要介绍iSCSI的基本架构以及启动器端的使用。这个主要是让大家有个感性的认识，为后面介绍启动器的实现打下基础。<strong>后续我们将介绍启动器用户态管理程序的架构和实现，以及内核态启动器的实现。</strong></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/02/storage/从DAS到分布式存储_存储形式总结/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -382,7 +569,7 @@
                 
               
 
-              <time title="创建时间：2019-05-02 16:37:02 / 修改时间：08:36:46" itemprop="dateCreated datePublished" datetime="2019-05-02T16:37:02+00:00">2019-05-02</time>
+              <time title="创建时间：2019-05-02 16:37:02 / 修改时间：09:02:15" itemprop="dateCreated datePublished" datetime="2019-05-02T16:37:02+00:00">2019-05-02</time>
             
 
             
@@ -558,12 +745,24 @@
                 
               
 
-              <time title="创建时间：2019-05-01 11:57:02 / 修改时间：06:58:40" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-02 09:02:15" itemprop="dateModified" datetime="2019-05-02T09:02:15+00:00">2019-05-02</time>
               
             
           </span>
@@ -730,12 +929,24 @@
                 
               
 
-              <time title="创建时间：2019-05-01 11:57:02 / 修改时间：06:58:40" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-02 09:02:15" itemprop="dateModified" datetime="2019-05-02T09:02:15+00:00">2019-05-02</time>
               
             
           </span>
@@ -894,12 +1105,24 @@
                 
               
 
-              <time title="创建时间：2019-05-01 11:57:02 / 修改时间：06:58:40" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-02 09:02:15" itemprop="dateModified" datetime="2019-05-02T09:02:15+00:00">2019-05-02</time>
               
             
           </span>
@@ -1056,12 +1279,24 @@
                 
               
 
-              <time title="创建时间：2019-05-01 11:57:02 / 修改时间：06:58:40" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-02 09:02:15" itemprop="dateModified" datetime="2019-05-02T09:02:15+00:00">2019-05-02</time>
               
             
           </span>
@@ -1231,12 +1466,24 @@
                 
               
 
-              <time title="创建时间：2019-05-01 11:57:02 / 修改时间：06:58:40" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-02 09:02:15" itemprop="dateModified" datetime="2019-05-02T09:02:15+00:00">2019-05-02</time>
               
             
           </span>
@@ -1394,7 +1641,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-count">7</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1417,7 +1664,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">4</span>
+                      
+                    
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
