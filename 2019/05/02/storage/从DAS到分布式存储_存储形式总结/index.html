@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="随着主机、磁盘、网络等技术的发展，对于承载大量数据存储的服务器来说，服务器内置存储空间，或者说内置磁盘往往不足以满足存储需要或者虽然能满足要求，但各个服务器之间独立，严重降低了磁盘的利用率。因此，在内置存储之外，服务器需要采用外置存储的方式扩展存储空间，今天IT君给大家分享一下当前主流的存储架构。   直连式存储（Direct-Attached Storage，简称DAS）DAS存储在我们生活中">
+<meta name="keywords" content="存储,DAS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从DAS到分布式存储，存储形式总结">
+<meta property="og:url" content="http://www.itworld123.com/2019/05/02/storage/从DAS到分布式存储_存储形式总结/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:description" content="随着主机、磁盘、网络等技术的发展，对于承载大量数据存储的服务器来说，服务器内置存储空间，或者说内置磁盘往往不足以满足存储需要或者虽然能满足要求，但各个服务器之间独立，严重降低了磁盘的利用率。因此，在内置存储之外，服务器需要采用外置存储的方式扩展存储空间，今天IT君给大家分享一下当前主流的存储架构。   直连式存储（Direct-Attached Storage，简称DAS）DAS存储在我们生活中">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-58006a84ff33aa89.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-551b8cffc7fe8eb5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-bfcc00a3b14c1bb4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-7d3742666c31a6ad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-0593db67fa59e1e4.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-bfe6cde2ca23c0c6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-513a704928e66cd6.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2019-05-02T08:36:46.309Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从DAS到分布式存储，存储形式总结">
+<meta name="twitter:description" content="随着主机、磁盘、网络等技术的发展，对于承载大量数据存储的服务器来说，服务器内置存储空间，或者说内置磁盘往往不足以满足存储需要或者虽然能满足要求，但各个服务器之间独立，严重降低了磁盘的利用率。因此，在内置存储之外，服务器需要采用外置存储的方式扩展存储空间，今天IT君给大家分享一下当前主流的存储架构。   直连式存储（Direct-Attached Storage，简称DAS）DAS存储在我们生活中">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/11058170-58006a84ff33aa89.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/2019/05/02/storage/从DAS到分布式存储_存储形式总结/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>从DAS到分布式存储，存储形式总结 | SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/02/storage/从DAS到分布式存储_存储形式总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从DAS到分布式存储，存储形式总结
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-02 16:37:02 / 修改时间：08:36:46" itemprop="dateCreated datePublished" datetime="2019-05-02T16:37:02+00:00">2019-05-02</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>随着主机、磁盘、网络等技术的发展，对于承载大量数据存储的服务器来说，服务器内置存储空间，或者说内置磁盘往往不足以满足存储需要或者虽然能满足要求，但各个服务器之间独立，严重降低了磁盘的利用率。因此，在内置存储之外，服务器需要采用外置存储的方式扩展存储空间，今天IT君给大家分享一下当前主流的存储架构。</p>
+</blockquote>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-58006a84ff33aa89.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 DAS存储示意图"></p>
+<h1 id="直连式存储（Direct-Attached-Storage，简称DAS）"><a href="#直连式存储（Direct-Attached-Storage，简称DAS）" class="headerlink" title="直连式存储（Direct-Attached Storage，简称DAS）"></a>直连式存储（Direct-Attached Storage，简称DAS）</h1><p>DAS存储在我们生活中是非常常见的，尤其是在中小企业应用中，DAS是最主要的应用模式，存储系统被直连到应用的服务器中。服务器中的硬盘或只有一个外部SCSI接口的JBOD都属于DAS架构。</p>
+<p>DAS存储设备与服务器主机之间的连接通道通常采用SCSI连接，DAS存储设备主要是磁盘阵列（RAID: Redundant Arrays of Independent Disks）、磁盘簇（JBOD:Just a Bunch Of Disks）等。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-551b8cffc7fe8eb5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 DAS存储示意图"></p>
+<p>DAS存储更多的依赖服务器主机操作系统进行数据的IO读写和存储维护管理，数据备份和恢复要求占用服务器主机资源（包括CPU、系统IO等），数据流需要回流主机再到服务器连接着的磁带机（库），数据备份通常占用服务器主机资源20-30%，因此许多企业用户的日常数据备份常常在深夜或业务系统不繁忙时进行，以免影响正常业务系统的运行。直连式存储的数据量越大，备份和恢复的时间就越长，对服务器硬件的依赖性和影响就越大。</p>
+<p>无论直连式存储还是服务器主机的扩展，从一台服务器扩展为多台服务器组成的群集(Cluster)，或存储阵列容量的扩展，都会造成业务系统的停机，从而给企业带来经济损失，对于银行、电信、传媒等行业7×24小时服务的关键业务系统，这是不可接受的。并且直连式存储或服务器主机的升级扩展，只能由原设备厂商提供，往往受原设备厂商限制。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-bfcc00a3b14c1bb4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 NAS存储示意图"></p>
+<h1 id="网络接入存储（Network-Attached-Storage，简称NAS）"><a href="#网络接入存储（Network-Attached-Storage，简称NAS）" class="headerlink" title="网络接入存储（Network-Attached Storage，简称NAS）"></a>网络接入存储（Network-Attached Storage，简称NAS）</h1><p>网络储存设备 (Network Attached Storage，NAS)，是一种专门的资料储存技术的名称。简单来说<strong>NAS就是一台在网络上提供文档共享服务的的网络存储服务器</strong>。它可以直接连接在电脑网络（以太网）上面，对不同类型操作系统的使用者提供了集中式资料存取服务。使用者可以通过某种方式（例如linux下的mount命令）将存储服务挂载到本地进行访问，在本地呈现的就是一个文件目录树。</p>
+<p>NAS和传统的文件储存服务或是直接储存设备不同的地方在于NAS设备上面的操作系统和软件只提供了资料储存、资料存取、以及相关的管理功能；此外，NAS设备也提供了不止一种文档传输协定。NAS系统通常有一个以上的硬盘，而且和传统的文档服务器一样，通常会把它们组成RAID来提供服务；有了NAS以后，网络上的其他服务器就可以不必再兼任文档服务器的功能。NAS的型式很多样化，可以是一个大量生产的嵌入式设备，也可以在一般的电脑上执行NAS的软件。</p>
+<p>NAS用的是以文档为单位的通讯协定，例如像是NFS（在UNIX系统上很常见）或是SMB（常用在Windows系统）。NAS所用的是以文档为单位的通讯协定，相对之下，储域网络（SAN）用的则是以区块为单位的通讯协定、通常是透过SCSI再转为光纤通道或是iSCSI。</p>
+<p>NAS设备用的通常是精简版的操作系统，只提供了最单纯的文档服务和其相关的通讯协定；举例来说，有一个叫FreeNAS的开放源码NAS软件用的就是精简版的FreeBSD，它可以在一般的电脑硬件上执行，而商业化的嵌入式设备用的则是封闭源码的操作系统和通讯协定程式。</p>
+<p>NAS产品有一个比较大的优势是真正即插即用。NAS设备一般支持多计算机平台，用户通过网络支持协议可进入相同的文档，因而NAS设备无需改造即可用于混合Unix/Windows NT局域网内，同时NAS的应用非常灵活。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-7d3742666c31a6ad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 SAN存储示意图"></p>
+<h1 id="存储区域网络（Storage-Area-Network，简称SAN）"><a href="#存储区域网络（Storage-Area-Network，简称SAN）" class="headerlink" title="存储区域网络（Storage Area Network，简称SAN）"></a>存储区域网络（Storage Area Network，简称SAN）</h1><p>SAN存储 （存储区域网络Storage Area Network）也即存储区域网络，从名字上我们也可以看出，这个是通过某种交换机（例如光纤交换机）连接存储阵列和服务器主机，最后成为一个专用的存储网络。SAN经过十多年历史的发展，已经相当成熟，成为业界的事实标准（但各个厂商的光纤交换技术不完全相同，其服务器和SAN存储有兼容性的要求）。</p>
+<p>SAN提供了一种与现有LAN连接的简易方法，并且通过同一物理通道支持广泛使用的SCSI和IP协议。SAN不受现今主流的、基于SCSI存储结构的布局限制。特别重要的是，随着存储容量的爆炸性增长，SAN允许企业独立地增加它们的存储容量。SAN的结构允许任何服务器连接到任何存储阵列，这样不管数据置放在那里，服务器都可直接存取所需的数据。因为采用了光纤接口，SAN还具有更高的带宽。</p>
+<p>如今的SAN解决方案通常会采取以下两种形式：光纤信道以及iSCSI或者基于IP的SAN，也就是FC SAN和IP SAN。光纤信道是SAN解决方案中大家最熟悉的类型，但是，由于万兆网的普及，基于iSCSI的SAN解决方案开始大规模应用，与光纤通道技术相比较而言，这种技术具有良好的性能，而且价格低廉。</p>
+<p>SAN真正的综合了DAS和NAS两种存储解决方案的优势。例如，在一个很好的SAN解决方案实现中，你可以得到一个完全冗余的存储网络，这个存储网络具有不同寻常的扩展性，确切地说，你可以得到只有NAS存储解决方案才能得到的几百T字节的存储空间，但是你还可以得到块级数据访问功能，而这些功能只能在DAS解决方案中才能得到。对于数据访问来说，你还可以得到一个合理的速度，对于那些要求大量磁盘访问的操作来说，SAN显得具有更好的性能。利用SAN解决方案，你还可以实现存储的集中管理，从而能够充分利用那些处于空闲状态的空间。更有优势的一点是，在某些实现中，你甚至可以将服务器配置为没有内部存储空间的服务器，要求所有的系统都直接从SAN（只能在光纤通道模式下实现）引导。这也是一种即插即用技术。</p>
+<p>因为SAN解决方案是从基本功能剥离出存储功能，所以运行备份操作就无需考虑它们对网络总体性能的影响。SAN方案也使得管理及集中控制实现简化，特别是对于全部存储设备都集群在一起的时候。最后一点，光纤接口提供了10公里的连接长度，这使得实现物理上分离的、不在机房的存储变得非常容易。</p>
+<blockquote>
+<p>SAN和NAS都是通过网络的方式实现了业务服务器与存储设备的连接和访问，但两者是有别的前者在业务服务器上呈现的是一个磁盘，需要格式化成文件系统后使用；而后者在业务服务器上呈现的是文件系统。</p>
+</blockquote>
+<h1 id="统一存储"><a href="#统一存储" class="headerlink" title="统一存储"></a>统一存储</h1><p>所谓统一存储其实在架构上与上述两种形式并没有差异，只是将上述两种方式整合到一台物理设备中，并可以同时对外提供SAN和NAS服务。该设备的前端接口可支持FC 8Gb、iSCSI 1Gb和iSCSI 10Gb，后端具备SAS 6Gb硬盘扩展接口，可支持SAS、SATA硬盘及SSD固态硬盘具备极佳的扩展能力。实现FC SAN与IP SAN、各类存储介质的完美融合，有效整合用户现有存储网络架构，实现高性能SAN网络的统一部署和集中管理，以适应业务和应用变化的动态需求。主机接口及硬盘接口均采用模块化设计，更换主机接口或硬盘扩展接口，无须更换固件，可大大简化升级维护的难度和工作量。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-0593db67fa59e1e4.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 分布式存储示意图"></p>
+<h1 id="分布式存储"><a href="#分布式存储" class="headerlink" title="分布式存储"></a>分布式存储</h1><p>分布式存储是一种数据存储技术，通过网络使用企业中的每台机器上的磁盘空间，并将这些分散的存储资源构成一个虚拟的存储设备，数据分散的存储在企业的各个角落。传统的网络存储系统采用集中的存储服务器存放所有数据，存储服务器成为系统性能的瓶颈，也是可靠性和安全性的焦点，不能满足大规模存储应用的需要。分布式网络存储系统采用可扩展的系统结构，利用多台存储服务器分担存储负荷，利用位置服务器定位存储信息，它不但提高了系统的可靠性、可用性和存取效率，还易于扩展。</p>
+<p>如图5所示，分布式存储使用的设备一般是常规服务器，而非存储设备。分布式存储通过非标准协议实现服务器上存储资源的整个，并进行存储资源池化和虚拟化处理，最后呈现给用户某种形式（块存储或者文件存储）的存储空间。分布式存储有其特异性，其使用的并非标准协议，因此通常需要在应用服务器安装其客户端软件实现存储空间的虚拟呈现，以及请求的处理。</p>
+<p>由于分布式存储拓扑结构的复杂性，其出现故障的概率也大大增加了。因此，对于分布式存储需要实现基于网络的数据冗余、数据保护和数据容错等功能，确保在出现任何异常情况（例如磁盘、网卡、交换机和服务器等）下存储系统的可用性和可靠性。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-bfe6cde2ca23c0c6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 分布式存储示意图"></p>
+<h1 id="Server-SAN"><a href="#Server-SAN" class="headerlink" title="Server SAN"></a>Server SAN</h1><p>Server SAN其实也是分布式存储的一种，由于其比较新，目前没有一个具体的定义。 Server San应该是一个利用软件将基于DAS存储（包含闪存卡，直连存储）的集合，做成一个能共享的SAN存储网络。 </p>
+<p>SAN存储区域网，大家都很熟悉。普遍使用的就两种： FC SAN和ISCSI SAN。这两种结构是通过FC网络或者IP网络将存储设备放到一个共享的环境中心，让分布式的服务HA，应用迁移，数据复制等都可以通过这套网络实现。但是大家注意了，这套SAN网络是很贵的，管理起来是很麻烦的。 在很多的环境下面，很多SAN环境中会有一部分直连存储我们根本没有用上：比如直连存储卡，本地硬盘等。 </p>
+<p>从实际的应用中，直连存储的效率是很高的：PCI-E直接到数据端，比经过FC协议的转换还要快。而且成本低。 Server SAN是一个最新的概念：将分布在各个服务器上的直连存储通过软件的方式整合成一个统一的SAN存储系统。有点类似谷歌在云计算上做的工作，将上万台服务器组成一个超级计算机。 现在Server San已经不是一个概念了，在谷歌和facebook的数据中心已经大量使用了。最经典的案例就是VMware中的vSAN 了。</p>
+<p>关注作者微信公众号，更及时的获取原创IT技术文章。<br><img src="http://upload-images.jianshu.io/upload_images/11058170-513a704928e66cd6.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="公众号二维码"></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/存储/" rel="tag"># 存储</a>
+          
+            <a href="/tags/DAS/" rel="tag"># DAS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/01/linux/filesystem/ext2/ext2/" rel="next" title="Ext2文件系统彻底分析 | 磁盘空间分配">
+                <i class="fa fa-chevron-left"></i> Ext2文件系统彻底分析 | 磁盘空间分配
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#直连式存储（Direct-Attached-Storage，简称DAS）"><span class="nav-number">1.</span> <span class="nav-text">直连式存储（Direct-Attached Storage，简称DAS）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#网络接入存储（Network-Attached-Storage，简称NAS）"><span class="nav-number">2.</span> <span class="nav-text">网络接入存储（Network-Attached Storage，简称NAS）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储区域网络（Storage-Area-Network，简称SAN）"><span class="nav-number">3.</span> <span class="nav-text">存储区域网络（Storage Area Network，简称SAN）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#统一存储"><span class="nav-number">4.</span> <span class="nav-text">统一存储</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分布式存储"><span class="nav-number">5.</span> <span class="nav-text">分布式存储</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Server-SAN"><span class="nav-number">6.</span> <span class="nav-text">Server SAN</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
