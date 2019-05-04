@@ -337,7 +337,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/03/data_structure/二叉树的概念及面试题大全/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/04/storage/san/存储系统的快照技术/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -357,7 +357,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/05/03/data_structure/二叉树的概念及面试题大全/" class="post-title-link" itemprop="url">二叉树的概念及面试题大全</a>
+                <a href="/2019/05/04/storage/san/存储系统的快照技术/" class="post-title-link" itemprop="url">存储系统的快照技术</a>
               
             
           </h1>
@@ -382,7 +382,7 @@
                 
               
 
-              <time title="创建时间：2019-05-03 19:01:02 / 修改时间：23:56:47" itemprop="dateCreated datePublished" datetime="2019-05-03T19:01:02+00:00">2019-05-03</time>
+              <time title="创建时间：2019-05-04 16:32:21 / 修改时间：07:17:45" itemprop="dateCreated datePublished" datetime="2019-05-04T16:32:21+00:00">2019-05-04</time>
             
 
             
@@ -423,7 +423,339 @@
       
         
           
-            <h1 id="1-二叉树（Binary-Tree-的定义"><a href="#1-二叉树（Binary-Tree-的定义" class="headerlink" title="1. 二叉树（Binary Tree)的定义"></a>1. 二叉树（Binary Tree)的定义</h1><h2 id="1-1-什么是二叉树（Binary-Tree"><a href="#1-1-什么是二叉树（Binary-Tree" class="headerlink" title="1.1 什么是二叉树（Binary Tree)"></a>1.1 什么是二叉树（Binary Tree)</h2><p><strong>每个结点至多拥有两棵子树的树结构</strong>(即二叉树中不存在度大于2的结点)。并且，二叉树的子树<strong>有左右之分</strong>，其次序不能任意颠倒。</p>
+            <p><strong>赵二狗</strong>刚刚毕业，应聘进入了锤钮匹科技有限公司，成为了这里的新员工。入司的第一天是分配宿舍（背景音：天哪，还有宿舍！羡慕嫉妒恨！）。跟他在同一个宿舍的是公司的老员工<strong>王大拿</strong>，王大拿是该公司的架构师，对公司的情况基本上无所不知。请注意，这里说的是公司的八卦新闻，哈哈！<br>赵二狗进了宿舍，王大拿正在那里噼里啪啦的敲键盘… …</p>
+<p>赵二狗： 前辈，我是新报道的同事。</p>
+<p>没有任何反应。</p>
+<p>“前辈”，赵二狗提高了嗓门。</p>
+<p>还是没有任何反应。</p>
+<p>“前辈！”，赵二狗大喝一声。</p>
+<p>王大拿忽的从椅子上站了起来，“干毛，吓死老子了”，王大拿略带怒气的说。</p>
+<p>“前辈，我是新入职的同事，跟您一个宿舍，认识您很高兴！”，赵二狗面带笑容的说。</p>
+<p>一听这样，王大拿笑了，“好说，好说，你随便坐吧，我这忙着调程序呢”。</p>
+<p>“周末还不休息！？”赵二狗小声嘀咕着。</p>
+<p>王大拿很愤愤，“是啊，娘的，遇到个Bug，阻塞好几天了。”</p>
+<p>“什么问题？”赵二狗问。</p>
+<p>“说了你也不懂，小鲜肉”，王大拿不屑的说。</p>
+<p>王大拿继续说， “你知道什么是快照吗？”</p>
+<p>“切，不就是快照，那有什么不懂的，我也是堂堂985的硕士研究生，之前专门搞存储的”，赵二狗很不爽。</p>
+<p>“好小子，那你讲讲”，王大拿突然提起了兴趣。</p>
+<p>于是赵二狗同学开始娓娓道来… …</p>
+<h2 id="什么是快照"><a href="#什么是快照" class="headerlink" title="什么是快照"></a>什么是快照</h2><p>快照是存储系统中的一种数据保护技术，主要是实现数据的<strong>逻辑保护</strong>。所谓逻辑保护，就是当数据出现误删除或者病毒等原因导致数据破坏的情况。通过快照技术，可以将数据恢复到某一个时间点的数据。</p>
+<p>“不错，接着说”，王大拿觉得赵同学还有两下子。</p>
+<p>从名字上可以猜出来，快照就好像给数据拍了一个照片，就好像我们日常生活中给人拍照片类似。以生活中拍照片为例，比如给你家娃娃拍了他2岁的照片，等他到5岁的时候，样子变化很大。这个时候你想看看他2岁的时候长什么样，那你就可以拿出他2岁的照片看看。</p>
+<p>对于存储中的快照技术也是类似，在某个时间点，你给某个磁盘（或者存储中的LUN）打一个快照，相当于让存储系统给这个磁盘拍了一个照片。当之后的使用过程中发生了意外，比如病毒把数据搞坏了等等。这个时候你就可以通过快照知道原来的数据是什么样的，这样数据就可以找回来了。</p>
+<h2 id="快照的实现原理"><a href="#快照的实现原理" class="headerlink" title="快照的实现原理"></a>快照的实现原理</h2><p>”不错，不错，那快照的实现原理是什么呢？“，王大拿觉得有点小看小赵同学了，于是接着问。</p>
+<p>快照可以在文件系统或者块设备层面实现，我们以块存储为例。块存储从普通用户的角度来看就是磁盘。从用户的角度<strong>磁盘其实就是一个线性空间，可以理解为一个很大的数组</strong>，比如512G或者4TB等。但磁盘的读写最小单位是一个扇区，也就是512字节。这样可以不用关心，这个跟我们后面讲的快照的原理也没有太大关系。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-a6f62398de3fd966.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 磁盘的线性空间结构"><br>有了磁盘的这个概念，那么快照就比计较容易理解了。对于存储系统而言，磁盘实际上是从<strong>存储池</strong>划分的一块空间而已（这一点与我们普通PC的事物磁盘有所不同），如图2所示，假设原始磁盘在存储池中有如图的一块空间，而磁盘在存储系统中其实就是一个数据结构而已，只不过这个数据结构描述了磁盘在存储池中的空间范围。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-2a6c6d95537857d5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 快照的基本原理"><br>磁盘是一个数据结构，快照实际上也是一个数据结构。对磁盘做快照，其实就是在存储系统中创建一个数据结构，让其描述的数据范围指向原始磁盘指向的存储池的范围即可。这样快照的数据就和磁盘的数据一模一样，具体可以参考图2 A进行理解。<br>但是原始磁盘的数据是会变化的，也就是会被重新写新数据的。这个时候怎么保证快照的数据还是打快照那个时间点的数据呢？<strong>问题的关键就在磁盘对数据的描述和管理</strong>。在存储系统中，将磁盘划分为固定大小的块（比如4KB），然后通过某种机制（比如位图）对这些磁盘块进行管理和标记。当有应用对磁盘写新的数据的时候，磁盘管理软件就会将原始数据拷贝到新的地方，然后让快照的指向改为这个新地址，而磁盘原来的地方就可以将数据写入。这样对于磁盘而言，数据发生了变化；而对于快照而言，快照的数据还是打快照那个时间点的数据。<br>“嗯，懂得很多嘛，小赵”，王大拿似乎很满意赵二狗同学的答案。“问题是这种方式需要在底层复制数据，会影响原始磁盘的性能”。</p>
+<h2 id="快照的2种实现"><a href="#快照的2种实现" class="headerlink" title="快照的2种实现"></a>快照的2种实现</h2><p>是的，目前快照有2中实现方式，一种是我上面介绍的方式，称为<strong>COW</strong>，全称为Copy-On-Write。也就是在原始磁盘写数据的时候会将原始数据拷贝到新的地方。当然，并不是每次写数据都会拷贝，而是第一次写数据的时候才会拷贝。这里有一个位图记录着已经拷贝过的数据，如果已经拷贝过，则下次再写数据的时候将不会再拷贝了。<br>另外一种实现方式成为<strong>ROW</strong>，全称为Redirect-On-Write，也就是写时重定向。这种实现方式的基本原理是当原始磁盘写数据的时候并不在原始位置写入数据，而是分配一个新的位置。这种情况下就需要维护磁盘逻辑地址与实际数据位置的对应关系。如图3是ROW的原理示意图。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-1c51fc5fef1a923c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 ROW原理"></p>
+<h2 id="快照的用途与局限"><a href="#快照的用途与局限" class="headerlink" title="快照的用途与局限"></a>快照的用途与局限</h2><p>“你刚才说的快照可以防止数据被病毒破坏，还有其它应用场景吗？”，王大拿问。<br>“很多啊”， 赵二狗接着说。<br>“比如在数据库应用领域，使用关系型数据库的业务通常是关键业务。因此，需要保证数据库在出现数据损坏或者丢失的情况下能够恢复到某个时间点。这样，通过快照，比如每个小时打一个快照，这样即使出现问题，最多丢失1个小时的数据，从而保证数据的安全。”</p>
+<p>“数据库为了提升性能可能会同时使用好几个磁盘，比如Oracle数据库会用不同的磁盘存放不同的数据。比如数据文件会单独放在一个磁盘，Redo日志又会放在另外一个磁盘。并且，Oracle数据库会校验两者的一致性，任何差异可能会导致整个数据库的不一致，这个怎么解决？”，王大拿问。<br>赵二狗回答：“这种情况下就需要一种称为“一致性组”的技术了，“一致性组”相当于将磁盘打包成为一组磁盘，做快照的时候可以保证这一组磁盘的数据是在同一个时间点的。”</p>
+<p>王大拿若有所思：“嗯嗯，但是还有一点，如果我们做了快照，在恢复的时候数据库是否可以直接恢复？”<br>赵二狗：“应该可以的啊，因为数据我们都保护了，数据恢复到该时间点后，数据库可以直接启动。”<br>“不一定”，王大拿继续说“我们举个例子，数据库通常是要保证事务性的，为了保证数据的事务性，数据库对于一个写数据通常不是简单的写，而是要写一大堆各种日志，因此对于一个写数据操作，到我们存储系统就会变成很多个IO。”<br>“在我们存储层面我们是不知道那些IO是某一个事务的，而我们做快照是以IO为粒度进行的。换而言之，也就是我们做了一个快照，可能对于数据库而言正在处于中间过程。这样的话，当我们恢复到这个时间点的时候，数据库并不能直接启动，而是处于一种数据不一致的状态，需要手动做恢复处理。”<br><img src="https://upload-images.jianshu.io/upload_images/11058170-36ae9dfbaf7d906c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 赵二狗很惊讶"><br>赵二狗露出了惊讶的表情： “大拿就是大拿， 那怎么办？”<br>“凉拌，这个没招啊，臣妾做不到”，王大拿说。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-db59ad36588d5fa7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="臣妾做不到"><br>“应用层面上的问题只能在应用层面上解决了，存储系统本身处于下层，无法感知应用的差异。Oracle层面本身也有数据保护的机制，比如数据备份，或者RAC等。好了，时间不早了，吃饭去吧。”<br>“好的，大拿，今天我请客，学到不少新东西。”</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/04/data_structure/单向链表的概念及面试题大全/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/04/data_structure/单向链表的概念及面试题大全/" class="post-title-link" itemprop="url">单向链表的概念及面试题大全</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-04 09:31:15 / 修改时间：07:17:45" itemprop="dateCreated datePublished" datetime="2019-05-04T09:31:15+00:00">2019-05-04</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>链表是最基本的数据结构，面试官也常常用链表来考察面试者的基本能力，而且链表相关的操作相对而言比较简单，也适合考察写代码的能力。链表的操作也离不开指针，指针又很容易导致出错。综合多方面的原因，链表题目在面试中占据着很重要的地位。</p>
+<h1 id="1-单向链表的定义"><a href="#1-单向链表的定义" class="headerlink" title="1. 单向链表的定义"></a>1. 单向链表的定义</h1><h1 id="2-单向链表的算法（面试题）"><a href="#2-单向链表的算法（面试题）" class="headerlink" title="2. 单向链表的算法（面试题）"></a>2. 单向链表的算法（面试题）</h1><h2 id="2-1-求单链表中结点的个数"><a href="#2-1-求单链表中结点的个数" class="headerlink" title="2.1 求单链表中结点的个数"></a>2.1 求单链表中结点的个数</h2><h2 id="2-2-单链表反转-leetcode-206"><a href="#2-2-单链表反转-leetcode-206" class="headerlink" title="2.2 单链表反转 (leetcode 206)"></a>2.2 单链表反转 (leetcode 206)</h2><h2 id="2-3-截取出单链表中的后K个结点（k-gt-0）"><a href="#2-3-截取出单链表中的后K个结点（k-gt-0）" class="headerlink" title="2.3 截取出单链表中的后K个结点（k&gt;0）"></a>2.3 截取出单链表中的后K个结点（k&gt;0）</h2><h2 id="2-4-判断一个单链表中是否有环-若带环，求环的长度和入口点"><a href="#2-4-判断一个单链表中是否有环-若带环，求环的长度和入口点" class="headerlink" title="2.4 判断一个单链表中是否有环(若带环，求环的长度和入口点)"></a>2.4 判断一个单链表中是否有环(若带环，求环的长度和入口点)</h2><h2 id="2-5-去除有序链表中的重复元素-leetcode-83"><a href="#2-5-去除有序链表中的重复元素-leetcode-83" class="headerlink" title="2.5 去除有序链表中的重复元素(leetcode 83)"></a>2.5 去除有序链表中的重复元素(leetcode 83)</h2><p>Given a sorted linked list,<br>delete all duplicates such that each element appear only once.</p>
+<p>For example,<br>Given 1-&gt;1-&gt;2, return 1-&gt;2.</p>
+<h2 id="Given-1-gt-1-gt-2-gt-3-gt-3-return-1-gt-2-gt-3"><a href="#Given-1-gt-1-gt-2-gt-3-gt-3-return-1-gt-2-gt-3" class="headerlink" title="Given 1-&gt;1-&gt;2-&gt;3-&gt;3, return 1-&gt;2-&gt;3. "></a>Given 1-&gt;1-&gt;2-&gt;3-&gt;3, return 1-&gt;2-&gt;3. </h2><p>作者：nudt_qxx<br>来源：CSDN<br>原文：<a href="https://blog.csdn.net/xiangxianghehe/article/details/81739181" target="_blank" rel="noopener">https://blog.csdn.net/xiangxianghehe/article/details/81739181</a><br>版权声明：本文为博主原创文章，转载请附上博文链接！</p>
+<h2 id="2-6-合并两个排好序的链表-leetcode-21"><a href="#2-6-合并两个排好序的链表-leetcode-21" class="headerlink" title="2.6 合并两个排好序的链表(leetcode 21)"></a>2.6 合并两个排好序的链表(leetcode 21)</h2><h2 id="2-7-链表的中间节点-leetcode-876"><a href="#2-7-链表的中间节点-leetcode-876" class="headerlink" title="2.7 链表的中间节点(leetcode 876)"></a>2.7 链表的中间节点(leetcode 876)</h2><p>给定一个带有头结点 head 的非空单链表，返回链表的中间结点。</p>
+<p>如果有两个中间结点，则返回第二个中间结点。</p>
+<p>输入：[1,2,3,4,5]<br>输出：此列表中的结点 3 (序列化形式：[3,4,5])<br>返回的结点值为 3 。 (测评系统对该结点序列化表述是 [3,4,5])。<br>注意，我们返回了一个 ListNode 类型的对象 ans，这样：<br>ans.val = 3, ans.next.val = 4, ans.next.next.val = 5,</p>
+<h2 id="以及-ans-next-next-next-NULL"><a href="#以及-ans-next-next-next-NULL" class="headerlink" title="以及 ans.next.next.next = NULL."></a>以及 ans.next.next.next = NULL.</h2><p>作者：nudt_qxx<br>来源：CSDN<br>原文：<a href="https://blog.csdn.net/xiangxianghehe/article/details/81739181" target="_blank" rel="noopener">https://blog.csdn.net/xiangxianghehe/article/details/81739181</a><br>版权声明：本文为博主原创文章，转载请附上博文链接！</p>
+<h2 id="2-7-删除链表中的节点-leetcode-237"><a href="#2-7-删除链表中的节点-leetcode-237" class="headerlink" title="2.7 删除链表中的节点 (leetcode 237)"></a>2.7 删除链表中的节点 (leetcode 237)</h2><p>请编写一个函数，使其可以删除某个链表中给定的（非末尾）节点，你将只被给定要求被删除的节点。</p>
+<p>输入: head = [4,5,1,9], node = 5<br>输出: [4,1,9]<br>解释: 给定你链表中值为 5 的第二个节点，那么在调用了你的函数之后，该链表应变为 4 -&gt; 1 -&gt; 9.</p>
+<p>链表至少包含两个节点。<br>链表中所有节点的值都是唯一的。<br>给定的节点为非末尾节点并且一定是链表中的一个有效节点。</p>
+<h2 id="不要从你的函数中返回任何结果。"><a href="#不要从你的函数中返回任何结果。" class="headerlink" title="不要从你的函数中返回任何结果。"></a>不要从你的函数中返回任何结果。</h2><p>作者：nudt_qxx<br>来源：CSDN<br>原文：<a href="https://blog.csdn.net/xiangxianghehe/article/details/81739181" target="_blank" rel="noopener">https://blog.csdn.net/xiangxianghehe/article/details/81739181</a><br>版权声明：本文为博主原创文章，转载请附上博文链接！</p>
+<h2 id="2-8-删除链表的倒数第N个节点-leetcode-19"><a href="#2-8-删除链表的倒数第N个节点-leetcode-19" class="headerlink" title="2.8 删除链表的倒数第N个节点(leetcode 19)"></a>2.8 删除链表的倒数第N个节点(leetcode 19)</h2><p>给定一个链表: 1-&gt;2-&gt;3-&gt;4-&gt;5, 和 n = 2.<br>当删除了倒数第二个节点后，链表变为 1-&gt;2-&gt;3-&gt;5.</p>
+<h2 id="2-9-删除链表中的节点-leetcode-203"><a href="#2-9-删除链表中的节点-leetcode-203" class="headerlink" title="2.9 删除链表中的节点(leetcode 203)"></a>2.9 删除链表中的节点(leetcode 203)</h2><p><strong>题目</strong><br>删除链表中等于给定值 val 的所有节点。<br><strong>示例</strong></p>
+<blockquote>
+<p>输入: 1-&gt;2-&gt;6-&gt;3-&gt;4-&gt;5-&gt;6, val = 6<br>输出: 1-&gt;2-&gt;3-&gt;4-&gt;5</p>
+</blockquote>
+<h2 id="2-10-约瑟夫环"><a href="#2-10-约瑟夫环" class="headerlink" title="2.10 约瑟夫环"></a>2.10 约瑟夫环</h2><p>约瑟夫环(约瑟夫问题)是一个数学的应用问题：已知n个人(以编号1，2，3…n分别表示)围坐在一张圆桌周围。从编号为k的人开始报数，数到m的那个人出列;他的下一个人又从1开始报数，数到m的那个人又出列;依此规律重复下去，直到圆桌周围的人全部出列。通常解决这类问题时我们把编号从0~n-1，最后结果+1即为原问题的解。</p>
+<h2 id="2-11-遍历一次，删除倒数第-k-个结点（k从1开始），不能用替换删除法"><a href="#2-11-遍历一次，删除倒数第-k-个结点（k从1开始），不能用替换删除法" class="headerlink" title="2.11 遍历一次，删除倒数第 k 个结点（k从1开始），不能用替换删除法"></a>2.11 遍历一次，删除倒数第 k 个结点（k从1开始），不能用替换删除法</h2>
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/04/data_structure/二叉树的概念及面试题大全/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/04/data_structure/二叉树的概念及面试题大全/" class="post-title-link" itemprop="url">未命名</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-04 07:17:45" itemprop="dateCreated datePublished" datetime="2019-05-04T07:17:45+00:00">2019-05-04</time>
+            
+
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <pre><code>---
+title: 二叉树的概念及面试题大全
+date: 2019-05-03 19:01:02
+tags:
+- 数据结构
+- 二叉树
+---
+</code></pre><h1 id="1-二叉树（Binary-Tree-的定义"><a href="#1-二叉树（Binary-Tree-的定义" class="headerlink" title="1. 二叉树（Binary Tree)的定义"></a>1. 二叉树（Binary Tree)的定义</h1><h2 id="1-1-什么是二叉树（Binary-Tree"><a href="#1-1-什么是二叉树（Binary-Tree" class="headerlink" title="1.1 什么是二叉树（Binary Tree)"></a>1.1 什么是二叉树（Binary Tree)</h2><p><strong>每个结点至多拥有两棵子树的树结构</strong>(即二叉树中不存在度大于2的结点)。并且，二叉树的子树<strong>有左右之分</strong>，其次序不能任意颠倒。</p>
 <blockquote>
 <p>上面概念中提到了“度”的概念，“度”其实就是某个节点<strong>子节点</strong>的数量。如果某个节点的子节点数量为1，则该节点的度为1，如果有8个子节点，则度为8，以此类推。</p>
 </blockquote>
@@ -438,7 +770,7 @@
 <h2 id="2-2-完美二叉树"><a href="#2-2-完美二叉树" class="headerlink" title="2.2 完美二叉树"></a>2.2 <strong>完美二叉树</strong></h2><p>一个深度为k(&gt;=-1)且有2^(k+1) - 1个结点的二叉树称为完美二叉树。完美二叉树也就是满二叉树，也就是所有非叶子节点都有2个叶子节点，并且每一次都是满的。如图所示：<br><img src="https://upload-images.jianshu.io/upload_images/11058170-b406169ba98ed0d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 完美二叉树"></p>
 <h2 id="2-3-完全二叉树-Complete"><a href="#2-3-完全二叉树-Complete" class="headerlink" title="2.3 完全二叉树(Complete)"></a>2.3 <strong>完全二叉树(Complete)</strong></h2><p>完全二叉树从根结点到倒数第二层满足完美二叉树，最后一层可以不完全填充，其叶子结点都靠左对齐。<br>下图就不是一棵完全(Complete)二叉树<br> <img src="https://upload-images.jianshu.io/upload_images/11058170-056ce846e85c4089.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 完全二叉树"></p>
 <h1 id="3-二叉树相关的算法（面试题）"><a href="#3-二叉树相关的算法（面试题）" class="headerlink" title="3. 二叉树相关的算法（面试题）"></a>3. 二叉树相关的算法（面试题）</h1><p>在面试和笔试的过程中，二叉树的题目是非常多的。除了常见的关于二叉树遍历的题目外，还有其它一些延伸的题目。本文今天先将二叉树相关的题目罗列到这里，后续会给出每个题目的解题思路和代码示例。</p>
-<h2 id="3-1-二叉树的前序遍历（递归-amp-非递归，下同）"><a href="#3-1-二叉树的前序遍历（递归-amp-非递归，下同）" class="headerlink" title="3.1 二叉树的前序遍历（递归&amp;非递归，下同）"></a>3.1 二叉树的前序遍历（递归&amp;非递归，下同）</h2><h2 id="3-2-二叉树的中序遍历"><a href="#3-2-二叉树的中序遍历" class="headerlink" title="3.2 二叉树的中序遍历"></a>3.2 二叉树的中序遍历</h2><h2 id="3-3-二叉树的后序遍历"><a href="#3-3-二叉树的后序遍历" class="headerlink" title="3.3 二叉树的后序遍历"></a>3.3 二叉树的后序遍历</h2><h2 id="3-4-二叉树层序遍历"><a href="#3-4-二叉树层序遍历" class="headerlink" title="3.4 二叉树层序遍历"></a>3.4 二叉树层序遍历</h2><h2 id="3-5-求二叉树的高度"><a href="#3-5-求二叉树的高度" class="headerlink" title="3.5 求二叉树的高度"></a>3.5 求二叉树的高度</h2><h2 id="3-6-求二叉树节点个数"><a href="#3-6-求二叉树节点个数" class="headerlink" title="3.6 求二叉树节点个数"></a>3.6 求二叉树节点个数</h2><h2 id="3-7-求二叉树第k层的节点个数"><a href="#3-7-求二叉树第k层的节点个数" class="headerlink" title="3.7 求二叉树第k层的节点个数"></a>3.7 求二叉树第k层的节点个数</h2><h2 id="3-8-求二叉树中叶子节点的个数"><a href="#3-8-求二叉树中叶子节点的个数" class="headerlink" title="3.8 求二叉树中叶子节点的个数"></a>3.8 求二叉树中叶子节点的个数</h2><h2 id="3-9-判断一个节点是否在一棵二叉树中"><a href="#3-9-判断一个节点是否在一棵二叉树中" class="headerlink" title="3.9 判断一个节点是否在一棵二叉树中"></a>3.9 判断一个节点是否在一棵二叉树中</h2><h2 id="3-10-判断两棵二叉树是否相同的树"><a href="#3-10-判断两棵二叉树是否相同的树" class="headerlink" title="3.10 判断两棵二叉树是否相同的树"></a>3.10 判断两棵二叉树是否相同的树</h2><h2 id="3-11-判断二叉树是不是平衡二叉树"><a href="#3-11-判断二叉树是不是平衡二叉树" class="headerlink" title="3.11 判断二叉树是不是平衡二叉树"></a>3.11 判断二叉树是不是平衡二叉树</h2><h2 id="3-12-求二叉树的镜像"><a href="#3-12-求二叉树的镜像" class="headerlink" title="3.12 求二叉树的镜像"></a>3.12 求二叉树的镜像</h2><h2 id="3-13-判断两个二叉树是否互相镜像"><a href="#3-13-判断两个二叉树是否互相镜像" class="headerlink" title="3. 13 判断两个二叉树是否互相镜像"></a>3. 13 判断两个二叉树是否互相镜像</h2><h2 id="3-14-从二叉树中查找结点"><a href="#3-14-从二叉树中查找结点" class="headerlink" title="3.14 从二叉树中查找结点"></a>3.14 从二叉树中查找结点</h2><h2 id="3-15-求二叉树中两个节点的最低公共祖先节点"><a href="#3-15-求二叉树中两个节点的最低公共祖先节点" class="headerlink" title="3.15 求二叉树中两个节点的最低公共祖先节点"></a>3.15 求二叉树中两个节点的最低公共祖先节点</h2><h2 id="3-16-判断是否为二分查找树BST"><a href="#3-16-判断是否为二分查找树BST" class="headerlink" title="3.16 判断是否为二分查找树BST"></a>3.16 判断是否为二分查找树BST</h2><h2 id="3-17-二叉搜索树中第K小的元素"><a href="#3-17-二叉搜索树中第K小的元素" class="headerlink" title="3.17 二叉搜索树中第K小的元素"></a>3.17 二叉搜索树中第K小的元素</h2><h2 id="3-18-填充每个节点的下一个右侧节点指针-完美二叉树"><a href="#3-18-填充每个节点的下一个右侧节点指针-完美二叉树" class="headerlink" title="3.18 填充每个节点的下一个右侧节点指针(完美二叉树)"></a>3.18 填充每个节点的下一个右侧节点指针(完美二叉树)</h2><h2 id="3-19-填充每个节点的下一个右侧节点指针（普通二叉树）"><a href="#3-19-填充每个节点的下一个右侧节点指针（普通二叉树）" class="headerlink" title="3.19 填充每个节点的下一个右侧节点指针（普通二叉树）"></a>3.19 填充每个节点的下一个右侧节点指针（普通二叉树）</h2><h2 id="3-20-表达式转二叉树"><a href="#3-20-表达式转二叉树" class="headerlink" title="3.20 表达式转二叉树"></a>3.20 表达式转二叉树</h2><h2 id="3-21-表达式求值"><a href="#3-21-表达式求值" class="headerlink" title="3.21 表达式求值"></a>3.21 表达式求值</h2><h2 id="3-22-求两个节点的最近公共祖先"><a href="#3-22-求两个节点的最近公共祖先" class="headerlink" title="3.22 求两个节点的最近公共祖先"></a>3.22 求两个节点的最近公共祖先</h2><h2 id="3-23-求二叉树中最远的两个节点的距离"><a href="#3-23-求二叉树中最远的两个节点的距离" class="headerlink" title="3.23 求二叉树中最远的两个节点的距离"></a>3.23 求二叉树中最远的两个节点的距离</h2><h2 id="3-24-由前序遍历和中序遍历重建二叉树"><a href="#3-24-由前序遍历和中序遍历重建二叉树" class="headerlink" title="3.24 由前序遍历和中序遍历重建二叉树"></a>3.24 由前序遍历和中序遍历重建二叉树</h2><h2 id="3-25-判断一棵树是否是完全二叉树"><a href="#3-25-判断一棵树是否是完全二叉树" class="headerlink" title="3.25 判断一棵树是否是完全二叉树"></a>3.25 判断一棵树是否是完全二叉树</h2><h2 id="3-26-将二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向"><a href="#3-26-将二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向" class="headerlink" title="3.26 将二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向"></a>3.26 将二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向</h2><h2 id="3-27-求二叉树的宽度"><a href="#3-27-求二叉树的宽度" class="headerlink" title="3.27 求二叉树的宽度"></a>3.27 求二叉树的宽度</h2><h2 id="3-28-判断一棵二叉树是否是平衡二叉树"><a href="#3-28-判断一棵二叉树是否是平衡二叉树" class="headerlink" title="3.28 判断一棵二叉树是否是平衡二叉树"></a>3.28 判断一棵二叉树是否是平衡二叉树</h2><h2 id="3-28-判断一颗二叉树是否是另一颗树的子树"><a href="#3-28-判断一颗二叉树是否是另一颗树的子树" class="headerlink" title="3.28 判断一颗二叉树是否是另一颗树的子树"></a>3.28 判断一颗二叉树是否是另一颗树的子树</h2><h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ol>
+<h2 id="3-1-二叉树的前序遍历（递归-amp-非递归，下同）"><a href="#3-1-二叉树的前序遍历（递归-amp-非递归，下同）" class="headerlink" title="3.1 二叉树的前序遍历（递归&amp;非递归，下同）"></a>3.1 二叉树的前序遍历（递归&amp;非递归，下同）</h2><h2 id="3-2-二叉树的中序遍历"><a href="#3-2-二叉树的中序遍历" class="headerlink" title="3.2 二叉树的中序遍历"></a>3.2 二叉树的中序遍历</h2><h2 id="3-3-二叉树的后序遍历"><a href="#3-3-二叉树的后序遍历" class="headerlink" title="3.3 二叉树的后序遍历"></a>3.3 二叉树的后序遍历</h2><h2 id="3-4-二叉树层序遍历"><a href="#3-4-二叉树层序遍历" class="headerlink" title="3.4 二叉树层序遍历"></a>3.4 二叉树层序遍历</h2><h2 id="3-5-求二叉树的高度"><a href="#3-5-求二叉树的高度" class="headerlink" title="3.5 求二叉树的高度"></a>3.5 求二叉树的高度</h2><h2 id="3-6-求二叉树节点个数"><a href="#3-6-求二叉树节点个数" class="headerlink" title="3.6 求二叉树节点个数"></a>3.6 求二叉树节点个数</h2><h2 id="3-7-求二叉树第k层的节点个数"><a href="#3-7-求二叉树第k层的节点个数" class="headerlink" title="3.7 求二叉树第k层的节点个数"></a>3.7 求二叉树第k层的节点个数</h2><h2 id="3-8-求二叉树中叶子节点的个数"><a href="#3-8-求二叉树中叶子节点的个数" class="headerlink" title="3.8 求二叉树中叶子节点的个数"></a>3.8 求二叉树中叶子节点的个数</h2><h2 id="3-9-判断一个节点是否在一棵二叉树中"><a href="#3-9-判断一个节点是否在一棵二叉树中" class="headerlink" title="3.9 判断一个节点是否在一棵二叉树中"></a>3.9 判断一个节点是否在一棵二叉树中</h2><h2 id="3-10-判断两棵二叉树是否相同的树"><a href="#3-10-判断两棵二叉树是否相同的树" class="headerlink" title="3.10 判断两棵二叉树是否相同的树"></a>3.10 判断两棵二叉树是否相同的树</h2><h2 id="3-11-判断二叉树是不是平衡二叉树"><a href="#3-11-判断二叉树是不是平衡二叉树" class="headerlink" title="3.11 判断二叉树是不是平衡二叉树"></a>3.11 判断二叉树是不是平衡二叉树</h2><h2 id="3-12-求二叉树的镜像"><a href="#3-12-求二叉树的镜像" class="headerlink" title="3.12 求二叉树的镜像"></a>3.12 求二叉树的镜像</h2><h2 id="3-13-判断两个二叉树是否互相镜像"><a href="#3-13-判断两个二叉树是否互相镜像" class="headerlink" title="3. 13 判断两个二叉树是否互相镜像"></a>3. 13 判断两个二叉树是否互相镜像</h2><h2 id="3-14-从二叉树中查找结点"><a href="#3-14-从二叉树中查找结点" class="headerlink" title="3.14 从二叉树中查找结点"></a>3.14 从二叉树中查找结点</h2><h2 id="3-15-求二叉树中两个节点的最低公共祖先节点"><a href="#3-15-求二叉树中两个节点的最低公共祖先节点" class="headerlink" title="3.15 求二叉树中两个节点的最低公共祖先节点"></a>3.15 求二叉树中两个节点的最低公共祖先节点</h2><h2 id="3-16-判断是否为二分查找树BST"><a href="#3-16-判断是否为二分查找树BST" class="headerlink" title="3.16 判断是否为二分查找树BST"></a>3.16 判断是否为二分查找树BST</h2><h2 id="3-17-二叉搜索树中第K小的元素"><a href="#3-17-二叉搜索树中第K小的元素" class="headerlink" title="3.17 二叉搜索树中第K小的元素"></a>3.17 二叉搜索树中第K小的元素</h2><h2 id="3-18-填充每个节点的下一个右侧节点指针-完美二叉树"><a href="#3-18-填充每个节点的下一个右侧节点指针-完美二叉树" class="headerlink" title="3.18 填充每个节点的下一个右侧节点指针(完美二叉树)"></a>3.18 填充每个节点的下一个右侧节点指针(完美二叉树)</h2><h2 id="3-19-填充每个节点的下一个右侧节点指针（普通二叉树）"><a href="#3-19-填充每个节点的下一个右侧节点指针（普通二叉树）" class="headerlink" title="3.19 填充每个节点的下一个右侧节点指针（普通二叉树）"></a>3.19 填充每个节点的下一个右侧节点指针（普通二叉树）</h2><h2 id="3-20-表达式转二叉树"><a href="#3-20-表达式转二叉树" class="headerlink" title="3.20 表达式转二叉树"></a>3.20 表达式转二叉树</h2><h2 id="3-21-表达式求值"><a href="#3-21-表达式求值" class="headerlink" title="3.21 表达式求值"></a>3.21 表达式求值</h2><h2 id="3-22-求两个节点的最近公共祖先"><a href="#3-22-求两个节点的最近公共祖先" class="headerlink" title="3.22 求两个节点的最近公共祖先"></a>3.22 求两个节点的最近公共祖先</h2><h2 id="3-23-求二叉树中最远的两个节点的距离"><a href="#3-23-求二叉树中最远的两个节点的距离" class="headerlink" title="3.23 求二叉树中最远的两个节点的距离"></a>3.23 求二叉树中最远的两个节点的距离</h2><h2 id="3-24-由前序遍历和中序遍历重建二叉树"><a href="#3-24-由前序遍历和中序遍历重建二叉树" class="headerlink" title="3.24 由前序遍历和中序遍历重建二叉树"></a>3.24 由前序遍历和中序遍历重建二叉树</h2><h2 id="3-25-判断一棵树是否是完全二叉树"><a href="#3-25-判断一棵树是否是完全二叉树" class="headerlink" title="3.25 判断一棵树是否是完全二叉树"></a>3.25 判断一棵树是否是完全二叉树</h2><h2 id="3-26-将二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向"><a href="#3-26-将二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向" class="headerlink" title="3.26 将二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向"></a>3.26 将二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向</h2><h2 id="3-27-求二叉树的宽度"><a href="#3-27-求二叉树的宽度" class="headerlink" title="3.27 求二叉树的宽度"></a>3.27 求二叉树的宽度</h2><h2 id="3-28-判断一棵二叉树是否是平衡二叉树"><a href="#3-28-判断一棵二叉树是否是平衡二叉树" class="headerlink" title="3.28 判断一棵二叉树是否是平衡二叉树"></a>3.28 判断一棵二叉树是否是平衡二叉树</h2><h2 id="3-28-判断一颗二叉树是否是另一颗树的子树"><a href="#3-28-判断一颗二叉树是否是另一颗树的子树" class="headerlink" title="3.28 判断一颗二叉树是否是另一颗树的子树"></a>3.28 判断一颗二叉树是否是另一颗树的子树</h2><h2 id="3-29-二叉树的右视图（二叉树最右边节点）"><a href="#3-29-二叉树的右视图（二叉树最右边节点）" class="headerlink" title="3.29 二叉树的右视图（二叉树最右边节点）"></a>3.29 二叉树的右视图（二叉树最右边节点）</h2><h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ol>
 <li><a href="https://www.cnblogs.com/33debug/p/7252371.html" target="_blank" rel="noopener">https://www.cnblogs.com/33debug/p/7252371.html</a></li>
 <li><a href="https://www.cnblogs.com/33debug/p/7248822.html" target="_blank" rel="noopener">https://www.cnblogs.com/33debug/p/7248822.html</a></li>
 </ol>
@@ -560,7 +892,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-03 23:49:52" itemprop="dateModified" datetime="2019-05-03T23:49:52+00:00">2019-05-03</time>
+                <time title="修改时间：2019-05-04 07:17:45" itemprop="dateModified" datetime="2019-05-04T07:17:45+00:00">2019-05-04</time>
               
             
           </span>
@@ -759,7 +1091,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-03 23:49:52" itemprop="dateModified" datetime="2019-05-03T23:49:52+00:00">2019-05-03</time>
+                <time title="修改时间：2019-05-04 07:17:45" itemprop="dateModified" datetime="2019-05-04T07:17:45+00:00">2019-05-04</time>
               
             
           </span>
@@ -947,7 +1279,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-03 23:49:52" itemprop="dateModified" datetime="2019-05-03T23:49:52+00:00">2019-05-03</time>
+                <time title="修改时间：2019-05-04 07:17:45" itemprop="dateModified" datetime="2019-05-04T07:17:45+00:00">2019-05-04</time>
               
             
           </span>
@@ -1131,7 +1463,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-03 23:49:52" itemprop="dateModified" datetime="2019-05-03T23:49:52+00:00">2019-05-03</time>
+                <time title="修改时间：2019-05-04 07:17:45" itemprop="dateModified" datetime="2019-05-04T07:17:45+00:00">2019-05-04</time>
               
             
           </span>
@@ -1307,7 +1639,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-03 23:49:52" itemprop="dateModified" datetime="2019-05-03T23:49:52+00:00">2019-05-03</time>
+                <time title="修改时间：2019-05-04 07:17:45" itemprop="dateModified" datetime="2019-05-04T07:17:45+00:00">2019-05-04</time>
               
             
           </span>
@@ -1481,7 +1813,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-03 23:49:52" itemprop="dateModified" datetime="2019-05-03T23:49:52+00:00">2019-05-03</time>
+                <time title="修改时间：2019-05-04 07:17:45" itemprop="dateModified" datetime="2019-05-04T07:17:45+00:00">2019-05-04</time>
               
             
           </span>
@@ -1668,7 +2000,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-03 23:49:52" itemprop="dateModified" datetime="2019-05-03T23:49:52+00:00">2019-05-03</time>
+                <time title="修改时间：2019-05-04 07:17:45" itemprop="dateModified" datetime="2019-05-04T07:17:45+00:00">2019-05-04</time>
               
             
           </span>
@@ -1826,7 +2158,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-count">10</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1855,7 +2187,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">7</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
