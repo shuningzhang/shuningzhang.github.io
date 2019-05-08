@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="什么是波兰表达式我们日常的运算表达式通常是如下形式，这种成为中缀表达式，也就是运算符在运算数的中间。这种表达式人类人容易识别，并根据其进行计算，但计算机识别这种表达式非常困难。1a + b * (c - d) + e/f 因此，1920年，波兰科学家扬·武卡谢维奇（Jan ukasiewicz）发明了一种不需要括号的计算表达式的表示法将操作符号写在操作数之前，也就是前缀表达式，即波兰式（Polis">
+<meta name="keywords" content="数据结构,波兰表达式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="波兰表达式与逆波兰表达式">
+<meta property="og:url" content="http://www.itworld123.com/2019/05/08/data_structure/波兰表达式与逆波兰表达式/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:description" content="什么是波兰表达式我们日常的运算表达式通常是如下形式，这种成为中缀表达式，也就是运算符在运算数的中间。这种表达式人类人容易识别，并根据其进行计算，但计算机识别这种表达式非常困难。1a + b * (c - d) + e/f 因此，1920年，波兰科学家扬·武卡谢维奇（Jan ukasiewicz）发明了一种不需要括号的计算表达式的表示法将操作符号写在操作数之前，也就是前缀表达式，即波兰式（Polis">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-039327aeaab41ce8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-9cd5e43ca1f6452d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-c2bb75460a75e91d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2019-05-08T12:22:01.441Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="波兰表达式与逆波兰表达式">
+<meta name="twitter:description" content="什么是波兰表达式我们日常的运算表达式通常是如下形式，这种成为中缀表达式，也就是运算符在运算数的中间。这种表达式人类人容易识别，并根据其进行计算，但计算机识别这种表达式非常困难。1a + b * (c - d) + e/f 因此，1920年，波兰科学家扬·武卡谢维奇（Jan ukasiewicz）发明了一种不需要括号的计算表达式的表示法将操作符号写在操作数之前，也就是前缀表达式，即波兰式（Polis">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/11058170-039327aeaab41ce8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/2019/05/08/data_structure/波兰表达式与逆波兰表达式/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>波兰表达式与逆波兰表达式 | SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/08/data_structure/波兰表达式与逆波兰表达式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">波兰表达式与逆波兰表达式
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-08 20:01:02 / 修改时间：12:22:01" itemprop="dateCreated datePublished" datetime="2019-05-08T20:01:02+00:00">2019-05-08</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/数据结构与算法/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="什么是波兰表达式"><a href="#什么是波兰表达式" class="headerlink" title="什么是波兰表达式"></a>什么是波兰表达式</h1><p>我们日常的运算表达式通常是如下形式，这种成为中缀表达式，也就是运算符在运算数的中间。这种表达式人类人容易识别，并根据其进行计算，但计算机识别这种表达式非常困难。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a + b * (c - d) + e/f</span><br></pre></td></tr></table></figure></p>
+<p>因此，1920年，波兰科学家扬·武卡谢维奇（Jan ukasiewicz）发明了一种不需要括号的计算表达式的表示法将操作符号写在操作数之前，也就是前缀表达式，即波兰式（Polish Notation, PN）。上述中缀表达式转换为波兰表达式的格式如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+a+*b-cd/ef</span><br></pre></td></tr></table></figure></p>
+<p>从上面表达式可以看出，运算符在2个运算数的前面，因此波兰表达式也称为前缀表达式。为了便于理解，我们给出一个具体的实例，这个实例将上面的字母换成具体的数字（1 + 2 <em> (4 - 3) + 6/2），这个结果很容易看出来，也就是1 + 2</em>1 + 3 = 6。然后我们看一下波兰表达式的表示形式及运算过程。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">+1+*2-4 3/ 6 2 // 从右向左扫描，当遇到运算符时计算其最近的右侧2个运算数</span><br><span class="line">+1+*2-4 3 3   //先计算最右侧的数据，也就是 6/2=3</span><br><span class="line">+1+*2 1 3     // 同理，4-3 = 1</span><br><span class="line">+1+2 3         // 同理， 2*1= 1</span><br><span class="line">+1+5  </span><br><span class="line">6</span><br></pre></td></tr></table></figure></p>
+<p>通过上面示例可以大概理解波兰表达式的计算过程，上面的运算符和运算数就可以通过通用的数据结构进行计算（请自己思考一下，我们后面再介绍）。</p>
+<h1 id="什么是逆波兰表达式"><a href="#什么是逆波兰表达式" class="headerlink" title="什么是逆波兰表达式"></a>什么是逆波兰表达式</h1><p>前面了解了波兰表达式，那什么是<strong>逆波兰表达式</strong>呢？波兰表达式也成为前缀表达式，而逆波兰表达式则成为后缀表达式，对比可以猜出来<strong>运算符在运算数后面的表达式就是逆波兰表达式</strong>。上述表达式如果采用逆波兰表达式则如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1 2  4 3 -*+ 6 2 / + //计算方式正好相反，也就是从左向右扫描</span><br><span class="line">1 2 1 *+ 6 2 / +</span><br><span class="line">1 2 + 6 2 / +</span><br><span class="line">3 6 2 / +</span><br><span class="line">3 3 +</span><br><span class="line">6</span><br></pre></td></tr></table></figure></p>
+<h1 id="从中缀表达式转换为逆波兰（后缀）表达式"><a href="#从中缀表达式转换为逆波兰（后缀）表达式" class="headerlink" title="从中缀表达式转换为逆波兰（后缀）表达式"></a>从中缀表达式转换为逆波兰（后缀）表达式</h1><p>从中缀表达式转换为后缀表达式的流程如下描述。需要注意的是，经过处理之后，中缀表达式中的括弧将被消除，也就是只剩下+-*/数学运算符。</p>
+<ol>
+<li>从左至右扫描一中缀表达式。</li>
+<li>若读取的是操作数，则判断该操作数的类型，并将该操作数存入操作数堆栈</li>
+<li>若读取的是运算符<ul>
+<li>该运算符为左括号”(“，则直接存入运算符堆栈。</li>
+<li>该运算符为右括号”)”，则输出运算符堆栈中的运算符到操作数堆栈，直到遇到左括号为止。</li>
+<li>该运算符为非括号运算符：<pre><code>- 若运算符堆栈栈顶的运算符为括号，则直接存入运算符堆栈。
+- 若比运算符堆栈栈顶的运算符优先级高，则直接存入运算符堆栈。
+- 若比运算符堆栈栈顶的运算符优先级低或者相等，则输出栈顶运算符到操作数堆栈，并将当前运算符压入运算符堆栈。
+</code></pre></li>
+</ul>
+</li>
+<li>当表达式读取完成后运算符堆栈中尚有运算符时，则依序取出运算符到操作数堆栈，直到运算符堆栈为空。</li>
+</ol>
+<p>将中缀表达式转换成逆波兰表达式过程中，特别要注意对于中缀标到式中括号的处理。</p>
+<ol>
+<li>要注意的，如果算符是”（”，无论入栈中栈顶级别（只看栈顶）为何直接入栈，所以，“(”的等级<br> 只用于对其后入栈的算符进行优先级比较，在“（”入栈时是无视优先级的。</li>
+<li>在遇到”）”时候找到最后进入的”（”，并把”（”前面所有的符号都压入出栈。不能仅凭运算符的级别来判断。</li>
+</ol>
+<blockquote>
+<p>  注： 逆波兰用的优先级有以下几种， 等级<strong>从高到低</strong>分别是：<br>1.* \<br>2.+ -<br>3.(<br>4.)</p>
+</blockquote>
+<p>上面关于流程的表示文字比较多，看起来可能比较头疼。为了便于理解上述流程，我们依然通过上面的实例（1 + 2 <em> (4 - 3) + 6/2）进行介绍。在实际操作过程中需要一个栈和一个队列，分别存储运算符和操作数。<br>|  运算符堆栈  |  操作数队列  | 说明  |<br>|——————|————————| ———|<br>|    | 1    |  操作数直接入操作数的队列 |<br>| + | 1    |  由于操作符的栈为空，因此可以直接入栈 |<br>| + | 1 2 |  操作数直接入队列 |<br>| + </em> | 1 2  |   由于<em>的优先级比+高，因此直接入栈  |<br>| + </em> (  | 1 2  | 左括弧不考虑优先级，直接入栈  |<br>| + <em> (  | 1 2 4 | 运算数直接入队列 |<br>| + </em> ( -  | 1 2 4 | 运算符直接入栈，由于栈顶是(，因此不考虑优先级 |<br>| + <em> ( -  | 1 2 4 3 | 运算数直接入队列  |<br>| + </em> | 1 2 4 3 - | 发现是右括弧，因此将其中的运算符逐个出栈，并压入运算数队列 |<br>| +  | 1 2 4 3 - <em> +   | 继续扫描表达式，+运算符比\</em>优先级低，因此<em>出栈，压入运算数队列 |<br>| +  | 1 2 4 3 - </em> + 6 | 运算数直接入队列 |<br>| + / | 1 2 4 3 - <em> + 6 | 高优先级运算符（/比+高）直接入栈 |<br>| + / | 1 2 4 3 - </em> + 6 2 | 运算数直接入队列  |<br>|  | 1 2 4 3 - * + 6 2 / + | 表达式已经没有内容，因此将运算符栈内容逐个出栈并压入操作数队列|<br>通过上面整个过程的描述，并结合算法，相信大家对中缀表达式转换为后缀表达式（波兰表达式）已经非常清楚了。</p>
+<h1 id="逆波兰表达式的计算"><a href="#逆波兰表达式的计算" class="headerlink" title="逆波兰表达式的计算"></a>逆波兰表达式的计算</h1><p>逆波兰表达式的计算就比较简单了。<strong>以上面结果中的队列为输入，同时再准备一个栈用于运算</strong>。具体流程如下：</p>
+<ol>
+<li>将队列中的数据依次出队，然后压栈；</li>
+<li>在出队的过程中如果遇到运算符，则从栈中弹出2个运算数，分别作为右运算数和左运算数，进行运算；</li>
+<li>将步骤2的运算结果入栈；</li>
+<li>跳入步骤1，继续进行出队操作。<br>依然以上述内容为例进行介绍。<br>如图1中第一行左侧为形成的队列，右侧是一个空栈。<strong>将队列中操作数依次出队，入栈</strong>。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-039327aeaab41ce8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 操作数入栈"><br>在出队的过程中遇到运算符（-），此时将操作数出栈进行运算（注意这里操作数的顺序）。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-9cd5e43ca1f6452d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 进行运算"><br>重复上述操作，直到将队列中所有内容出队。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-c2bb75460a75e91d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 整个运算过程"></li>
+</ol>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ol>
+<li><a href="http://www.cnblogs.com/wanghetao/archive/2012/04/23/2466580.html" target="_blank" rel="noopener">http://www.cnblogs.com/wanghetao/archive/2012/04/23/2466580.html</a></li>
+<li><a href="https://www.cnblogs.com/journal-of-xjx/p/5940030.html" target="_blank" rel="noopener">https://www.cnblogs.com/journal-of-xjx/p/5940030.html</a></li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/数据结构/" rel="tag"># 数据结构</a>
+          
+            <a href="/tags/波兰表达式/" rel="tag"># 波兰表达式</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/04/storage/san/存储系统的快照技术/" rel="next" title="存储系统的快照技术">
+                <i class="fa fa-chevron-left"></i> 存储系统的快照技术
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">11</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是波兰表达式"><span class="nav-number">1.</span> <span class="nav-text">什么是波兰表达式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是逆波兰表达式"><span class="nav-number">2.</span> <span class="nav-text">什么是逆波兰表达式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#从中缀表达式转换为逆波兰（后缀）表达式"><span class="nav-number">3.</span> <span class="nav-text">从中缀表达式转换为逆波兰（后缀）表达式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#逆波兰表达式的计算"><span class="nav-number">4.</span> <span class="nav-text">逆波兰表达式的计算</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">5.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

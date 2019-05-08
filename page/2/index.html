@@ -96,22 +96,13 @@
 
 
 
-  <meta name="description" content="什么是文件的扩展属性扩展属性（xattrs）提供了一个机制用来将键值对（Key/Value）永久地关联到文件，让现有的文件系统得以支持在原始设计中未提供的功能。扩展属性是文件系统不可知论者，应用程序可以通过一个标准的接口来操纵他们，此接口不因文件系统而异。每个扩展属性可以通过唯一的键来区分，键的内容必须是有效的UTF-8，格式为namespace.attribute，每个键采用完全限定的形式，也就">
-<meta name="keywords" content="Linux,Ext2">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Ext2文件系统彻底分析 | 扩展属性">
-<meta property="og:url" content="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/index.html">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="SunnyZhang的IT世界">
+<meta property="og:url" content="http://www.itworld123.com/page/2/index.html">
 <meta property="og:site_name" content="SunnyZhang的IT世界">
-<meta property="og:description" content="什么是文件的扩展属性扩展属性（xattrs）提供了一个机制用来将键值对（Key/Value）永久地关联到文件，让现有的文件系统得以支持在原始设计中未提供的功能。扩展属性是文件系统不可知论者，应用程序可以通过一个标准的接口来操纵他们，此接口不因文件系统而异。每个扩展属性可以通过唯一的键来区分，键的内容必须是有效的UTF-8，格式为namespace.attribute，每个键采用完全限定的形式，也就">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-a1a8c002946bdecf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-da85b218ee48c542.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-2578c0e8ec303183.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-05-08T12:22:01.445Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Ext2文件系统彻底分析 | 扩展属性">
-<meta name="twitter:description" content="什么是文件的扩展属性扩展属性（xattrs）提供了一个机制用来将键值对（Key/Value）永久地关联到文件，让现有的文件系统得以支持在原始设计中未提供的功能。扩展属性是文件系统不可知论者，应用程序可以通过一个标准的接口来操纵他们，此接口不因文件系统而异。每个扩展属性可以通过唯一的键来区分，键的内容必须是有效的UTF-8，格式为namespace.attribute，每个键采用完全限定的形式，也就">
-<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/11058170-a1a8c002946bdecf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:title" content="SunnyZhang的IT世界">
 
 
 
@@ -119,7 +110,7 @@
 
   
   
-  <link rel="canonical" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/">
+  <link rel="canonical" href="http://www.itworld123.com/page/2/">
 
 
 
@@ -129,7 +120,7 @@
   };
 </script>
 
-  <title>Ext2文件系统彻底分析 | 扩展属性 | SunnyZhang的IT世界</title>
+  <title>SunnyZhang的IT世界</title>
   
 
 
@@ -177,7 +168,8 @@
     
   
 
-  <div class="container sidebar-position-left page-post-detail">
+  <div class="container sidebar-position-left 
+  page-home">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -328,9 +320,9 @@
           
           <div id="content" class="content">
             
-
-  <div id="posts" class="posts-expand">
+  <section id="posts" class="posts-expand">
     
+      
 
   
 
@@ -362,8 +354,10 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Ext2文件系统彻底分析 | 扩展属性
-
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 扩展属性</a>
               
             
           </h1>
@@ -439,7 +433,9 @@
       
 
       
-        <h2 id="什么是文件的扩展属性"><a href="#什么是文件的扩展属性" class="headerlink" title="什么是文件的扩展属性"></a>什么是文件的扩展属性</h2><p>扩展属性（xattrs）提供了一个机制用来将键值对（Key/Value）永久地关联到文件，让现有的文件系统得以支持在原始设计中未提供的功能。扩展属性是文件系统不可知论者，应用程序可以通过一个标准的接口来操纵他们，此接口不因文件系统而异。每个扩展属性可以通过唯一的键来区分，键的内容必须是有效的UTF-8，格式为namespace.attribute，每个键采用完全限定的形式，也就是键必需有一个确定的前缀（例如user）。</p>
+        
+          
+            <h2 id="什么是文件的扩展属性"><a href="#什么是文件的扩展属性" class="headerlink" title="什么是文件的扩展属性"></a>什么是文件的扩展属性</h2><p>扩展属性（xattrs）提供了一个机制用来将键值对（Key/Value）永久地关联到文件，让现有的文件系统得以支持在原始设计中未提供的功能。扩展属性是文件系统不可知论者，应用程序可以通过一个标准的接口来操纵他们，此接口不因文件系统而异。每个扩展属性可以通过唯一的键来区分，键的内容必须是有效的UTF-8，格式为namespace.attribute，每个键采用完全限定的形式，也就是键必需有一个确定的前缀（例如user）。</p>
 <p>Linux操作系统有如下集中扩展属性：</p>
 <ul>
 <li>system：用于实现利用扩展属性的内核功能，例如访问控制表。eg：system.posix_acl_access便是位于此用户空间的扩展属性，用户是否可以读取或写入这些属性取决于所使用的安全模块。</li>
@@ -477,6 +473,8 @@
 <p>持续更新… …</p>
 <p>关注作者微信公众号，更及时的获取原创IT技术文章。<br><img src="http://upload-images.jianshu.io/upload_images/11058170-2578c0e8ec303183.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="公众号二维码"></p>
 
+          
+        
       
     </div>
 
@@ -497,38 +495,14 @@
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/Linux/" rel="tag"># Linux</a>
-          
-            <a href="/tags/Ext2/" rel="tag"># Ext2</a>
-          
-        </div>
+
+      
+
       
 
       
       
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/05/01/linux/filesystem/ext2/ext2_write_base/" rel="prev" title="Ext2文件系统彻底分析 | 写数据流程">
-                Ext2文件系统彻底分析 | 写数据流程 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
+        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -538,15 +512,18 @@
   </article>
 
 
-  </div>
+    
+  </section>
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
+
 
 
           </div>
           
-
-  
-
-
 
         </div>
         
@@ -566,17 +543,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <div class="site-overview-wrap sidebar-panel">
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -674,23 +642,6 @@
         </div>
       </div>
 
-      
-      <!--noindex-->
-        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-            
-            
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是文件的扩展属性"><span class="nav-number">1.</span> <span class="nav-text">什么是文件的扩展属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ext2扩展属性的数据布局"><span class="nav-number">2.</span> <span class="nav-text">Ext2扩展属性的数据布局</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VFS设置扩展流程分析"><span class="nav-number">3.</span> <span class="nav-text">VFS设置扩展流程分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#属性设置公共接口调用"><span class="nav-number">3.1.</span> <span class="nav-text">属性设置公共接口调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#具体类型的扩展属性设置接口调用"><span class="nav-number">3.2.</span> <span class="nav-text">具体类型的扩展属性设置接口调用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ext2扩展属性设置"><span class="nav-number">4.</span> <span class="nav-text">Ext2扩展属性设置</span></a></li></ol></div>
-            
-
-          </div>
-        </div>
-      <!--/noindex-->
       
 
       
@@ -822,10 +773,6 @@
 
 
   
-  <script src="/js/scrollspy.js?v=7.1.0"></script>
-<script src="/js/post-details.js?v=7.1.0"></script>
-
-
 
   
 
@@ -841,8 +788,6 @@
 
   
 
-
-  
 
 
   
