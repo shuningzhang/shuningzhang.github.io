@@ -337,6 +337,347 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/12/interview/network/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/12/interview/network/" class="post-title-link" itemprop="url">网络知识点及面试题汇总</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-12 11:37:02 / 修改时间：03:15:45" itemprop="dateCreated datePublished" datetime="2019-05-12T11:37:02+00:00">2019-05-12</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>无论做前端开发还是后端开发，网络知识是必备的知识。这部分知识是基础中的基础，是我们必须掌握的内容。网络相关的问题也是在面试过程中经常被问到的内容。本文主要梳理了一下网络相关的主要知识点及面试中经常被问到的内容，希望对大家有所帮助。</p>
+<h2 id="OSI有哪几层，会画出来，知道主要几层的各自作用"><a href="#OSI有哪几层，会画出来，知道主要几层的各自作用" class="headerlink" title="OSI有哪几层，会画出来，知道主要几层的各自作用"></a>OSI有哪几层，会画出来，知道主要几层的各自作用</h2><p>OSI（Open System Interconnect），即开放式系统互联，是ISO（国际标准化组织）组织在1985年研究的网络互连模型。其一共有7层：<br><img src="https://upload-images.jianshu.io/upload_images/11058170-843553d9303aabd0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 OSI分层"></p>
+<pre><code>1.  应用层（数据）：确定进程之间通信的性质以满足用户需要以及提供网络与用户应用
+2.  表示层（数据）：主要解决拥护信息的语法表示问题，如加密解密
+3.  会话层（数据）：提供包括访问验证和会话管理在内的建立和维护应用之间通信的机制，如服务器验证用户登录便是由会话层完成的
+4.  运输层（段）：实现网络不同主机上用户进程之间的数据通信，可靠
+    与不可靠的传输，传输层的错误检测，流量控制等
+5.  网络层（包）：提供逻辑地址（IP）、选路，数据从源端到目的端的
+    传输
+6.  数据链路层（帧）：将上层数据封装成帧，用MAC地址访问媒介，错误检测与修正
+7.  物理层（比特流）：设备之间比特流的传输，物理接口，电气特性等*   
+</code></pre><h2 id="TCP-IP有哪几层，会画出来，知道所有层数的作用，会列举各层主要的协议名称"><a href="#TCP-IP有哪几层，会画出来，知道所有层数的作用，会列举各层主要的协议名称" class="headerlink" title="TCP/IP有哪几层，会画出来，知道所有层数的作用，会列举各层主要的协议名称"></a>TCP/IP有哪几层，会画出来，知道所有层数的作用，会列举各层主要的协议名称</h2><p>TCP/IP分层模型（TCP/IP Layening Model）被称作因特网分层模型(Internet Layering Model)、因特网参考模型(Internet Reference Model)。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-a304bdfa940ea892.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 TCP/IP网络分层"></p>
+<pre><code>1.  应用层（TELNET、FTP、SMTP）
+2.  运输层（TCP、UDP）
+3.  网际层（IP、ICMP）
+4.  网络接口层（PPP）*   
+</code></pre><h2 id="各个层使用的是哪个数据交换设备。（交换机、路由器、网关）"><a href="#各个层使用的是哪个数据交换设备。（交换机、路由器、网关）" class="headerlink" title="各个层使用的是哪个数据交换设备。（交换机、路由器、网关）"></a>各个层使用的是哪个数据交换设备。（交换机、路由器、网关）</h2><p>在广域网场景下，整个网络传输需要经过很多设备，包括网关、交换机、路由器等等，<br><img src="https://upload-images.jianshu.io/upload_images/11058170-1f3d8a8007774cc1.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 交换设备示意图"></p>
+<ol>
+<li>网关：应用层、传输层（网关在传输层上以实现网络互连，是最复杂的网络互连设备，仅用于两个高层协议不同的网络互连。网关的结构也和路由器类似，不同的是互连层。网关既可以用于广域网互连，也可以用于局域网互连）</li>
+<li>路由器：网络层（路由选择、存储转发）</li>
+<li>交换机：数据链路层、网络层（识别数据包中的MAC地址信息，根据MAC地址进行转发，并将这些MAC地址与对应的端口记录在自己内部的一个地址表中）</li>
+<li>网桥：数据链路层（将两个LAN连起来，根据MAC地址来转发帧）</li>
+<li>集线器（Hub）：物理层（纯硬件设备，主要用来连接计算机等网络终端）</li>
+<li>中继器：物理层（在比特级别对网络信号进行再生和重定时，从而使得它们能够在网络上传输更长的距离）</li>
+</ol>
+<h2 id="TCP协议是如何定义的，它的数据格式是什么样子的？"><a href="#TCP协议是如何定义的，它的数据格式是什么样子的？" class="headerlink" title="TCP协议是如何定义的，它的数据格式是什么样子的？"></a>TCP协议是如何定义的，它的数据格式是什么样子的？</h2><p>TCP是基于传输层的协议，协议文件可从RFC793得到，使用广泛，面向连接的可靠协议。它能把报文分解为数段，在目的站再重新装配这些段，支持重新发送未被收到的段，提供两台设备间的全双工连接，允许它们高效地交换大量数据。TCP使用滑动窗口协议来高效使用网络。由于TCP很少干预底层投递系统的工作，它适应各种投递系统，且提供流量控制，能使各种不同速率的系统进行通信。报文段是TCP所使用的基本传输单元，用于传输数据或控制信息。如下是TCP协议的报文格式：<br><img src="//upload-images.jianshu.io/upload_images/2979410-4170418d78238e14.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/800/format/webp" alt="image"></p>
+<h2 id="IP报文的格式，格式的各个字段的含义要理解"><a href="#IP报文的格式，格式的各个字段的含义要理解" class="headerlink" title="IP报文的格式，格式的各个字段的含义要理解"></a>IP报文的格式，格式的各个字段的含义要理解</h2><p>IP是Internet最基本的协议。IP是面向报文的协议，它独立处理每个报文包，每个报文包必须含有完整的寻址信息。IP报文包的格式如图所示：<br><img src="https://upload-images.jianshu.io/upload_images/11058170-51fd190866a3b49b.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="1.jpg"></p>
+<p>关于TCP/IP的内容，请参考本号之前的文章<a href="https://www.jianshu.com/p/c0475dc6540f" target="_blank" rel="noopener">《从socket到TCP协议，透彻理解网络编程》</a>。</p>
+<h2 id="ICMP协议的主要功能"><a href="#ICMP协议的主要功能" class="headerlink" title="ICMP协议的主要功能"></a>ICMP协议的主要功能</h2><p>用于在IP主机、路由器之间传递控制消息<br><img src="//upload-images.jianshu.io/upload_images/2979410-a5e93c1a47cb59f9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/583/format/webp" alt="image"></p>
+<h2 id="IP地址的分类，如何划分的，及会计算各类地址支持的主机数"><a href="#IP地址的分类，如何划分的，及会计算各类地址支持的主机数" class="headerlink" title="IP地址的分类，如何划分的，及会计算各类地址支持的主机数"></a>IP地址的分类，如何划分的，及会计算各类地址支持的主机数</h2><p>IP地址的类型共有4种（如图3所示）：A类用于处理超大型网络，最多16387064个主机（1～126）；B类网络最多可有64516个主机（网络地址的第一段为128～191）；C类用于小型网络，最多可有254个主机（网络地址的第一段为192～223）；D类用于多点播送，用于多目的信息的传输。全零（“0.0.0.0”）地址对应于当前主机，全1地址（“255.255.255.255”）是当前子网的广播地址。 </p>
+<pre><code>1.  A类地址：首位为0，1.0.0.1~~126.255.255.254；主机号24位
+2.  B类地址：首位为10，128.0.0.1~~191.255.255.254；主机号16位
+3.  C类地址：首位为110，192.0.0.1~~223.255.255.254；主机号8位
+4.  D类地址（多播地址，也叫做组播地址）：首位为1110，224.0.0.1~~239.255.255.254
+5.  E类地址：此类地址是保留地址，首位为11110，240.0.0.1~~254.255.255.254
+</code></pre><h2 id="划分子网、构造超网"><a href="#划分子网、构造超网" class="headerlink" title="划分子网、构造超网"></a>划分子网、构造超网</h2><ol>
+<li>划分子网（变长子网掩码VLSM）：划分子网的方法是从网络的主机号借用若干位作为子网号subnet-id，与此同时主机号也减少相应位数（总位数32位不变）。由此两级IP地址可变为三级IP地址： IP地址 ::= {&lt;网络号&gt;,&lt;子网号&gt;,&lt;主机号&gt;}，划分子网只是把IP地址的主机号这部分进行再划分，并不改变IP地址原来的网络号</li>
+<li>构造超网（无分类编址CIDR）：CIDR消除了传统的A类、B类和C类地址以及划分子网的概念，把32位的IP地址划分为两个部分。如：128.14.35.7/20是某个CIDR地址块中的一个地址，其前20位是网络前缀（用下划线表示的部分），后面的12位为主机号*  </li>
+</ol>
+<h2 id="DNS的概念，用途，DNS查询的实现算法"><a href="#DNS的概念，用途，DNS查询的实现算法" class="headerlink" title="DNS的概念，用途，DNS查询的实现算法"></a>DNS的概念，用途，DNS查询的实现算法</h2><ul>
+<li>概念<pre><code>域名解析，[www.xxx.com](http://www.xxx.com)转换成ip，能够使用户更方便的访问互联网，而不用去记住能够被机器直接读取的ip数串
+DNS协议运行在UDP协议之上，使用端口号53
+</code></pre><ul>
+<li>主机解析域名的顺序<ol>
+<li>浏览器缓存</li>
+<li>找本机的hosts文件</li>
+<li>路由缓存</li>
+<li>找DNS服务器(本地域名、顶级域名、根域名)</li>
+<li>迭代查询、递归查询*   </li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="常见熟知端口"><a href="#常见熟知端口" class="headerlink" title="常见熟知端口"></a>常见熟知端口</h2><p><img src="//upload-images.jianshu.io/upload_images/2979410-146a884d9a7a366e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/581/format/webp" alt="image"></p>
+<h2 id="TCP与UDP的概念相互的区别及优劣"><a href="#TCP与UDP的概念相互的区别及优劣" class="headerlink" title="TCP与UDP的概念相互的区别及优劣"></a>TCP与UDP的概念相互的区别及优劣</h2><pre><code>1.  TCP面向连接，UDP面向无链接
+2.  TCP面向报文，UDP面向字节流
+3.  TCP提供可靠传输服务（数据顺序、正确性），UDP传输不可靠
+4.  TCP协议传输速度慢，UDP协议传输速度快
+5.  TCP协议对系统资源要求多（头部开销大），UDP协议要求少*   
+</code></pre><h2 id="UDP报文的格式，字段的意义"><a href="#UDP报文的格式，字段的意义" class="headerlink" title="UDP报文的格式，字段的意义"></a>UDP报文的格式，字段的意义</h2><p>UDP 是User Datagram Protocol的简称， 中文名是用户数据报协议，是OSI（Open System Interconnection，开放式系统互联） 参考模型中一种无连接的传输层协议，提供面向事务的简单不可靠信息传送服务，IETF RFC 768是UDP的正式规范。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-510256dc71aa8bbd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图 UDP报文格式"><br>UDP通过IP协议进行数据传输，如图是两者之间的关系。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-84f4bb2748ec8703.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图 UDP与IP的关系"></p>
+<h2 id="TCP报文的格式，字段的意义"><a href="#TCP报文的格式，字段的意义" class="headerlink" title="TCP报文的格式，字段的意义"></a>TCP报文的格式，字段的意义</h2><p><img src="//upload-images.jianshu.io/upload_images/2979410-e964aa996676edc0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/821/format/webp" alt="image"></p>
+<h2 id="TCP通过哪些措施，保证传输可靠"><a href="#TCP通过哪些措施，保证传输可靠" class="headerlink" title="TCP通过哪些措施，保证传输可靠"></a>TCP通过哪些措施，保证传输可靠</h2><pre><code>1.  流量控制
+2.  让发送方的发送速率不要太快，要让接收方来得及接收
+3.  窗口大小是一个可以改变的值，它由接收端主机控制，附加在 TCP 首部的“窗口大小”字段中
+4.  拥塞控制
+5.  防止过多的数据注入到网络中，这样可以使网络中的路由器或链路不致过载
+6.  拥塞控制方法：慢开始、拥塞避免、快重传和快恢复*   ### 三次握手，四次断开过程
+</code></pre><p><img src="https://upload-images.jianshu.io/upload_images/11058170-4af6d99c6a1e6d73.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<h2 id="请求各个状态的意义如下"><a href="#请求各个状态的意义如下" class="headerlink" title="请求各个状态的意义如下"></a>请求各个状态的意义如下</h2><p><img src="https://upload-images.jianshu.io/upload_images/11058170-978a3da5dc96be28.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<pre><code>1.  LISTEN - 侦听来自远方TCP端口的连接请求；
+2.  SYN-SENT -在发送连接请求后等待匹配的连接请求；
+3.  SYN-RECEIVED - 在收到和发送一个连接请求后等待对连接请求的确认；
+4.  ESTABLISHED- 代表一个打开的连接，数据可以传送给用户；
+5.  FIN-WAIT-1 - 等待远程TCP的连接中断请求，或先前的连接中断请求的确认；
+6.  FIN-WAIT-2 - 从远程TCP等待连接中断请求；
+7.  CLOSE-WAIT - 等待从本地用户发来的连接中断请求；
+8.  CLOSING -等待远程TCP对连接中断的确认；
+9.  LAST-ACK - 等待原来发向远程TCP的连接中断请求的确认；
+10.  TIME-WAIT -等待足够的时间以确保远程TCP接收到连接中断请求的确认；
+11.  CLOSED - 没有任何连接状态；*  
+</code></pre><h2 id="TCP-的拥塞控制是怎样的"><a href="#TCP-的拥塞控制是怎样的" class="headerlink" title="TCP 的拥塞控制是怎样的"></a>TCP 的拥塞控制是怎样的</h2><p>拥塞算法：</p>
+<p>慢启动（Slow Start）发送方维护拥塞窗口变量cwnd，先用小数据试探网络拥塞，没问题后来断加倍<br>拥塞避免（Congestion voidance）：拥塞窗口缓慢增长，即每经过一个往返时间RTT就把发送方的拥塞窗口cwnd加1<br>重传机制<br>快速重传（Fast Retransmit）：快重传要求接收方收到失序报文段后立即发出重复确认（为的是使发送方及早知道有报文段没有到达对方）而不要等到自己发送数据时捎带确认。快重传算法规定，发送方只要一连收到三个重复确认就应当立即重传对方尚未收到的报文段，而不必继续等待设置的重传计时器时间到期。<br>快速恢复（Fast Recovery）：当发送方连续收到三个重复确认时，就把慢开始门限ssthresh门限减半。接下来将cwnd设置为ssthresh的大小，然后执行拥塞避免算法</p>
+<h2 id="拥塞控制和流量控制都是什么，两者的区别？"><a href="#拥塞控制和流量控制都是什么，两者的区别？" class="headerlink" title="拥塞控制和流量控制都是什么，两者的区别？"></a>拥塞控制和流量控制都是什么，两者的区别？</h2><p>拥塞控制：对网络中的路由和链路传输进行速度限制，避免网络过载；包含四个过程：慢启动、拥塞避免、快重传和快恢复。<br>流量控制 ：对点和点/发送方和接收方之间进行速度匹配，由于接收方的应用程序读取速度不一定很迅速，加上缓存有限，因此需要避免发送速度过快。</p>
+<h2 id="为什么要3次握手，4次挥手"><a href="#为什么要3次握手，4次挥手" class="headerlink" title="为什么要3次握手，4次挥手"></a>为什么要3次握手，4次挥手</h2><p><strong>三次握手</strong>：防止已过期的连接请求报文突然又传送到服务器，因而产生错误<br><strong>四次挥手</strong>：确保数据能够完成传输，但关闭连接时，当收到对方的FIN报文通知时，它仅仅表示对方没有数据发送给你了；但未必你所有的数据都全部发送给对方了，所以你可以未必会马上会关闭SOCKET,也即你可能还需要发送一些数据给对方之后，再发送FIN报文给对方来表示你同意现在可以关闭连接了，所以它这里的ACK报文和FIN报文多数情况下都是分开发送的*   </p>
+<h2 id="TCP协议如何来保证传输的可靠性"><a href="#TCP协议如何来保证传输的可靠性" class="headerlink" title="TCP协议如何来保证传输的可靠性"></a>TCP协议如何来保证传输的可靠性</h2><p>数据包校验：目的是检测数据在传输过程中的任何变化，若校验出包有错，则丢弃报文段并且不给出响应，这时TCP发送数据端超时后会重发数据；<br>对失序数据包重排序：既然TCP报文段作为IP数据报来传输，而IP数据报的到达可能会失序，因此TCP报文段的到达也可能会失序。TCP将对失序数据进行重新排序，然后才交给应用层；<br>丢弃重复数据：对于重复数据，能够丢弃重复数据；<br>应答机制：当TCP收到发自TCP连接另一端的数据，它将发送一个确认。这个确认不是立即发送，通常将推迟几分之一秒；<br>超时重发：当TCP发出一个段后，它启动一个定时器，等待目的端确认收到这个报文段。如果不能及时收到一个确认，将重发这个报文段；<br>流量控制：TCP连接的每一方都有固定大小的缓冲空间。TCP的接收端只允许另一端发送接收端缓冲区所能接纳的数据，这可以防止较快主机致使较慢主机的缓冲区溢出，这就是流量控制。TCP使用的流量控制协议是可变大小的滑动窗口协议。</p>
+<h2 id="HTTP基本格式"><a href="#HTTP基本格式" class="headerlink" title="HTTP基本格式"></a>HTTP基本格式</h2><p><strong>HTTP请求</strong></p>
+<p><img src="//upload-images.jianshu.io/upload_images/2979410-fabe101a44c7bfa6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/712/format/webp" alt="image"></p>
+<p><strong>HTTP响应</strong></p>
+<p><img src="//upload-images.jianshu.io/upload_images/2979410-7bdeeba2c1bc2612.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/762/format/webp" alt="image"></p>
+<h2 id="GET、POST区别"><a href="#GET、POST区别" class="headerlink" title="GET、POST区别"></a>GET、POST区别</h2><p>一般用于获取/查询资源信息；GET参数通过URL传递，传递的参数是有长度限制，不能用来传递敏感信息。<br>当客户端给服务器提供信息较多时可以使用POST；POST会附带用户数据，一般用于更新资源信息；POST将请求参数封装在HTTP 请求数据中，可以传输大量数据，传参方式比GET更安全。<br><img src="//upload-images.jianshu.io/upload_images/2979410-b35a6fa8323ae16e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/835/format/webp" alt="image"></p>
+<h2 id="HTTP-、TCP、Socket区别"><a href="#HTTP-、TCP、Socket区别" class="headerlink" title="HTTP 、TCP、Socket区别"></a>HTTP 、TCP、Socket区别</h2><p><strong>TCP/IP</strong>代表传输控制协议/网际协议，指的是一系列协组</p>
+<p><strong>HTTP</strong>本身就是一个协议，是从Web服务器传输超文本到本地浏览器的传送协议</p>
+<p><strong>Socket</strong>是TCP/IP网络的API其实就是一个门面模式，它把复杂的TCP/IP协议族隐藏在Socket接口后面，对用户来说，一组简单的接口就是全部，让Socket去组织数据，以符合指定的协议</p>
+<p>综上所述：需要IP协议来连接网络;TCP是一种允许我们安全传输数据的机制，使用TCP协议来传输数据的HTTP是Web服务器和客户端使用的特殊协议。HTTP基于TCP协议，但是却可以使用socket去建立一个TCP连接</p>
+<h2 id="Cookies-和-Session的区别"><a href="#Cookies-和-Session的区别" class="headerlink" title="Cookies 和 Session的区别"></a>Cookies 和 Session的区别</h2><p>cookie 是一种发送到客户浏览器的文本串句柄，并保存在客户机硬盘上，可以用来在某个WEB站点会话间持久的保持数据<br>session其实指的就是访问者从到达某个特定主页到离开为止的那段时间。 Session其实是利用Cookie进行信息处理的，当用户首先进行了请求后，服务端就在用户浏览器上创建了一个Cookie，当这个Session结束时，其实就是意味着这个Cookie就过期了<br>cookie数据保存在客户端，session数据保存在服务器端*   </p>
+<h2 id="一次完整的HTTP请求所经历的步骤"><a href="#一次完整的HTTP请求所经历的步骤" class="headerlink" title="一次完整的HTTP请求所经历的步骤"></a>一次完整的HTTP请求所经历的步骤</h2><p><img src="https://upload-images.jianshu.io/upload_images/11058170-a99c34de7ed4348d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 HTTP请求过程分析"></p>
+<pre><code>1.  DNS解析(通过访问的域名找出其IP地址，递归搜索)
+2.  HTTP请求，当输入一个请求时，建立一个Socket连接发起TCP的3次握手
+3.  如果是HTTPS请求建立连接后，则看Q26
+4.  客户端向服务器发送请求命令（一般是GET或POST请求）
+5.  客户端发送请求头信息
+6.  服务器发送应答头信息
+7.  服务器向客户端发送数据
+8.  服务器关闭TCP连接（4次挥手）
+9.  客户端根据返回的HTML，CSS，JS进行渲染
+</code></pre><h2 id="为什么要用HTTPS"><a href="#为什么要用HTTPS" class="headerlink" title="为什么要用HTTPS?"></a>为什么要用HTTPS?</h2><ol>
+<li>通信使用明文(不加密)，内容可能被窃听(抓包工具可以获取请求和响应内容)</li>
+<li>不验证通讯方的身分，任何人都坑你发送请求，不管对方是谁都返回相应</li>
+<li>无法证明报文的完整性，可能会遭到篡改，即没有办法确认发出的请求/相应前后一致*   </li>
+</ol>
+<h2 id="HTTP与HTTPS的相同和异同点"><a href="#HTTP与HTTPS的相同和异同点" class="headerlink" title="HTTP与HTTPS的相同和异同点"></a>HTTP与HTTPS的相同和异同点</h2><pre><code>1.  HTTPS需要用到CA申请证书
+2.  HTTP是超文本传输协议，信息是明文的；HTTPS则是具有安全性的SSL加密传输协议
+3.  HTTP是80,HTTPS是443
+4.  HTTP的连接很简单，是无状态的，HTTPS是HTTP+SSL协议构建的，可进行加密传输、身份认证的网络协议，比HTTP协议安全*   
+</code></pre><h2 id="加密-amp-证书"><a href="#加密-amp-证书" class="headerlink" title="加密&amp;证书"></a>加密&amp;证书</h2><pre><code>1.  加密方法：
+
+    *   对称加密(加密和解密使用相同的密钥的加密算法) :DES(Data Encryption Standard)、AES(Advanced Encryption Standard)、RC4、IDEA
+    *   非对称加密（非对称加密算法有两个密钥：公开密钥(public key）和私有密钥(private key)；并且加密密钥和解密密钥是成对出现的）：RSA、DSA/DSS
+    *   不可逆加密：数字摘要是采用单项Hash函数将需要加密的明文&quot;摘要&quot;成一串固定长度(128位)的密文，“数字摘要”是https能确保数据完整性和防篡改的根本原因。常用的摘要主要有MD5、SHA1、SHA256等。
+2.  数字签名：
+    数字签名技术就是对&quot;非对称&quot;和&quot;数字摘要&quot;两项技术的应用，它将摘要信息用发送者的私钥加密，与原文一起传送给接受者。接受者只有用发送者的公钥才能解密被加密的摘要信息，然后用HASH函数对收到的原因产生一个摘要信息，与解密的摘要信息对比。如果相同，则说明收到的信息是完整的，在传输的过程中没有被修改，否则说明信息被修改过，因此数字签名能够验证信息的完整性。明文——&gt;hash运算——&gt;摘要——&gt;私钥加密——&gt;数字签名
+
+3.  数字证书
+</code></pre><h2 id="使用HTTPS方式与Web服务器通信时有以下几个步骤-HTTPS协议是由SSL-HTTP协议构建的可进行加密传输、身份认证的网络协议，要比http协议安全"><a href="#使用HTTPS方式与Web服务器通信时有以下几个步骤-HTTPS协议是由SSL-HTTP协议构建的可进行加密传输、身份认证的网络协议，要比http协议安全" class="headerlink" title="使用HTTPS方式与Web服务器通信时有以下几个步骤(HTTPS协议是由SSL+HTTP协议构建的可进行加密传输、身份认证的网络协议，要比http协议安全)"></a>使用HTTPS方式与Web服务器通信时有以下几个步骤(HTTPS协议是由SSL+HTTP协议构建的可进行加密传输、身份认证的网络协议，要比http协议安全)</h2><pre><code>1.  客户使用https的URL访问Web服务器，要求与Web服务器建立SSL连接（通知可加密的算法）。
+2.  Web服务器收到客户端请求后，会将网站的电子证书（证书中包含公钥）传送一份给客户端。
+3.  客户端确认电子证书是否刚才访问网站所属
+4.  客户端的浏览器根据双方同意的安全等级，建立会话密钥，然后利用网站的公钥将会话密钥加密，并传送给网站。
+5.  Web服务器利用自己的私钥解密出会话密钥（客户端发来的对称加密密钥）。
+6.  Web服务器利用对称密钥加密与客户端之间的通信。*   ### HTTPS的结构图
+
+![image](//upload-images.jianshu.io/upload_images/2979410-73b3c96ec301dd32.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/946/format/webp)
+</code></pre><h2 id="TLS-SSL-原理"><a href="#TLS-SSL-原理" class="headerlink" title="TLS/SSL 原理"></a>TLS/SSL 原理</h2><pre><code>1.  SSL(Secure Sokcet Layer，安全套接字层)
+2.  TLS(Transport Layer Security,传输层安全协议)
+
+    ![image](//upload-images.jianshu.io/upload_images/2979410-3c7ed47912a40f33.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000/format/webp)
+</code></pre><h2 id="HTTPS与代理"><a href="#HTTPS与代理" class="headerlink" title="HTTPS与代理"></a>HTTPS与代理</h2><pre><code>1.  代理作用：提高访问速度、Proxy可以起到防火墙的作用、通过代理服务器访问一些不能直接访问的网站、安全性得到提高
+
+    ![image](//upload-images.jianshu.io/upload_images/2979410-07c146f0ef4788ac.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/803/format/webp)
+</code></pre><h2 id="SPDY"><a href="#SPDY" class="headerlink" title="SPDY"></a>SPDY</h2><pre><code>1.  SPDY可以说是综合了HTTPS和HTTP两者有点于一体的传输协议
+2.  降低延迟、请求优先级、header压缩、服务端推送*   ### HTTP2.0
+</code></pre><p><img src="//upload-images.jianshu.io/upload_images/2979410-1c3a36fa7fbd7a9e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000/format/webp" alt="image"></p>
+<p>播放视频用TCP还是UDP？为什么？</p>
+<p>播放视频适合用UDP。UDP适用于对网络通讯质量要求不高、要求网络通讯速度能尽量快的实时性应用；而TCP适用于对网络通讯质量有要求的可靠性应用。</p>
+<p>get和post的区别？</p>
+<h2 id="HTTP和TCP的区别"><a href="#HTTP和TCP的区别" class="headerlink" title="HTTP和TCP的区别"></a>HTTP和TCP的区别</h2><p>TCP是传输层协议，定义数据传输和连接方式的规范。通过三次握手建立连接、四次挥手释放连接。<br>HTTP是应用层协议，定义的是传输数据的内容的规范。HTTP的连接使用”请求-响应”方式。基于TCP协议传输。</p>
+<h2 id="HTTP和Socket的区别"><a href="#HTTP和Socket的区别" class="headerlink" title="HTTP和Socket的区别"></a>HTTP和Socket的区别</h2><p>HTTP是应用层协议；基于TCP协议；使用“请求—响应”方式建立连接，在请求时需要先建立连接且客户端要先发出请求，可见服务器需要等到客户端发送一次请求后才能将数据传回给客户端。<br>Socket（套接字）是对TCP/IP协议的封装，是接口而不是协议；创建Socket连接时可以指定传输层协议TCP或UDP；Socket建立连接过程三步骤：服务器监听-&gt;客户端请求-&gt;连接确认，可见服务器可以直接将数据传送给客户端。</p>
+<h2 id="Http和Https的区别"><a href="#Http和Https的区别" class="headerlink" title="Http和Https的区别"></a>Http和Https的区别</h2><p>端口不同：Http与Http使用不同的连接方式，用的端口也不一样，前者是80，后者是443；<br>资源消耗：和HTTP通信相比，Https通信会由于加减密处理消耗更多的CPU和内存资源；<br>开销：Https通信需要证书，而证书一般需要向认证机构购买；</p>
+<h2 id="DDos-攻击"><a href="#DDos-攻击" class="headerlink" title="DDos 攻击"></a>DDos 攻击</h2><p>客户端向服务端发送请求链接数据包<br>服务端向客户端发送确认数据包<br>客户端不向服务端发送确认数据包，服务器一直等待来自客户端的确认</p>
+<h2 id="DDos-预防-没有彻底根治的办法，除非不使用TCP"><a href="#DDos-预防-没有彻底根治的办法，除非不使用TCP" class="headerlink" title="DDos 预防 ( 没有彻底根治的办法，除非不使用TCP )"></a>DDos 预防 ( 没有彻底根治的办法，除非不使用TCP )</h2><p>限制同时打开SYN半链接的数目<br>缩短SYN半链接的Time out 时间<br>关闭不必要的服务</p>
+<h2 id="Get与POST的区别"><a href="#Get与POST的区别" class="headerlink" title="Get与POST的区别"></a>Get与POST的区别</h2><p>从功能上讲，GET一般用来从服务器上获取资源，POST一般用来更新服务器上的资源；<br>从REST服务角度上说，GET是幂等的，即读取同一个资源，总是得到相同的数据，而POST不是幂等的，因为每次请求对资源的改变并不是相同的；进一步地，GET不会改变服务器上的资源，而POST会对服务器资源进行改变；<br>从请求参数形式上看，GET请求的数据会附在URL之后，即将请求数据放置在HTTP报文的 请求头 中，以?分割URL和传输数据，参数之间以&amp;相连。特别地，如果数据是英文字母/数字，原样发送；否则，会将其编码为 application/x-www-form-urlencoded MIME 字符串(如果是空格，转换为+，如果是中文/其他字符，则直接把字符串用BASE64加密，得出如：%E4%BD%A0%E5%A5%BD，其中％XX中的XX为该符号以16进制表示的ASCII)；而POST请求会把提交的数据则放置在是HTTP请求报文的 请求体 中。<br>就安全性而言，POST的安全性要比GET的安全性高，因为GET请求提交的数据将明文出现在URL上，而且POST请求参数则被包装到请求体中，相对更安全。<br>从请求的大小看，GET请求的长度受限于浏览器或服务器对URL长度的限制，允许发送的数据量比较小，而POST请求则是没有大小限制的。</p>
+<p>TCP和UDP分别对应的常见应用层协议<br>TCP对应的应用层协议</p>
+<p>FTP：定义了文件传输协议，使用21端口。常说某某计算机开了FTP服务便是启动了文件传输服务。下载文件，上传主页，都要用到FTP服务。<br>Telnet：它是一种用于远程登陆的端口，用户可以以自己的身份远程连接到计算机上，通过这种端口可以提供一种基于DOS模式下的通信服务。如以前的BBS是-纯字符界面的，支持BBS的服务器将23端口打开，对外提供服务。<br>SMTP：定义了简单邮件传送协议，现在很多邮件服务器都用的是这个协议，用于发送邮件。如常见的免费邮件服务中用的就是这个邮件服务端口，所以在电子邮件设置-中常看到有这么SMTP端口设置这个栏，服务器开放的是25号端口。<br>POP3：它是和SMTP对应，POP3用于接收邮件。通常情况下，POP3协议所用的是110端口。也是说，只要你有相应的使用POP3协议的程序（例如Fo-xmail或Outlook），就可以不以Web方式登陆进邮箱界面，直接用邮件程序就可以收到邮件（如是163邮箱就没有必要先进入网易网站，再进入自己的邮-箱来收信）。<br>HTTP：从Web服务器传输超文本到本地浏览器的传送协议。</p>
+<p>UDP对应的应用层协议</p>
+<p>DNS：用于域名解析服务，将域名地址转换为IP地址。DNS用的是53号端口。<br>SNMP：简单网络管理协议，使用161号端口，是用来管理网络设备的。由于网络设备很多，无连接的服务就体现出其优势。<br>TFTP(Trival File Transfer Protocal)：简单文件传输协议，该协议在熟知端口69上使用UDP服务</p>
+<p><strong> 79. http 响应码 301 和 302 代表的是什么？有什么区别？</strong></p>
+<p>答：301，302 都是HTTP状态的编码，都代表着某个URL发生了转移。</p>
+<p><strong>区别： </strong></p>
+<p>301 redirect: 301 代表永久性转移(Permanently Moved)。</p>
+<p>302 redirect: 302 代表暂时性转移(Temporarily Moved )。 </p>
+<p><strong>80. forward 和 redirect 的区别？</strong></p>
+<p>Forward和Redirect代表了两种请求转发方式：直接转发和间接转发。</p>
+<p><strong>直接转发方式（Forward）</strong>，客户端和浏览器只发出一次请求，Servlet、HTML、JSP或其它信息资源，由第二个信息资源响应该请求，在请求对象request中，保存的对象对于每个信息资源是共享的。</p>
+<p><strong>间接转发方式（Redirect）</strong>实际是两次HTTP请求，服务器端在响应第一次请求的时候，让浏览器再向另外一个URL发出请求，从而达到转发的目的。</p>
+<p><strong>举个通俗的例子：</strong></p>
+<p>直接转发就相当于：“A找B借钱，B说没有，B去找C借，借到借不到都会把消息传递给A”；</p>
+<p>间接转发就相当于：”A找B借钱，B说没有，让A去找C借”。</p>
+<h2 id="简述-tcp-和-udp的区别？"><a href="#简述-tcp-和-udp的区别？" class="headerlink" title="简述 tcp 和 udp的区别？**"></a>简述 tcp 和 udp的区别？**</h2><p>TCP面向连接（如打电话要先拨号建立连接）;UDP是无连接的，即发送数据之前不需要建立连接。</p>
+<p>TCP提供可靠的服务。也就是说，通过TCP连接传送的数据，无差错，不丢失，不重复，且按序到达;UDP尽最大努力交付，即不保证可靠交付。</p>
+<p>Tcp通过校验和，重传控制，序号标识，滑动窗口、确认应答实现可靠传输。如丢包时的重发控制，还可以对次序乱掉的分包进行顺序控制。</p>
+<p>UDP具有较好的实时性，工作效率比TCP高，适用于对高速传输和实时性有较高的通信或广播通信。</p>
+<p>每一条TCP连接只能是点到点的;UDP支持一对一，一对多，多对一和多对多的交互通信。</p>
+<p>TCP对系统资源要求较多，UDP对系统资源要求较少。</p>
+<h2 id="说一下-tcp-粘包是怎么产生的？"><a href="#说一下-tcp-粘包是怎么产生的？" class="headerlink" title="说一下 tcp 粘包是怎么产生的？"></a>说一下 tcp 粘包是怎么产生的？</h2><p><strong>①. 发送方产生粘包</strong></p>
+<p>采用TCP协议传输数据的客户端与服务器经常是保持一个长连接的状态（一次连接发一次数据不存在粘包），双方在连接不断开的情况下，可以一直传输数据；但当发送的数据包过于的小时，那么TCP协议默认的会启用Nagle算法，将这些较小的数据包进行合并发送（缓冲区数据发送是一个堆压的过程）；这个合并过程就是在发送缓冲区中进行的，也就是说数据发送出来它已经是粘包的状态了。</p>
+<p><img src="//upload-images.jianshu.io/upload_images/16472296-f16849d427ef025d.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/779/format/webp" alt="image"></p>
+<p><strong>②. 接收方产生粘包</strong></p>
+<p>接收方采用TCP协议接收数据时的过程是这样的：数据到底接收方，从网络模型的下方传递至传输层，传输层的TCP协议处理是将其放置接收缓冲区，然后由应用层来主动获取（C语言用recv、read等函数）；这时会出现一个问题，就是我们在程序中调用的读取数据函数不能及时的把缓冲区中的数据拿出来，而下一个数据又到来并有一部分放入的缓冲区末尾，等我们读取数据时就是一个粘包。（放数据的速度 &gt; 应用层拿数据速度） </p>
+<p><img src="//upload-images.jianshu.io/upload_images/16472296-59605b1c44624197.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/900/format/webp" alt="image"></p>
+<h2 id="get-和-post-请求有哪些区别？"><a href="#get-和-post-请求有哪些区别？" class="headerlink" title="get 和 post 请求有哪些区别？"></a>get 和 post 请求有哪些区别？</h2><p>GET在浏览器回退时是无害的，而POST会再次提交请求。</p>
+<p>GET产生的URL地址可以被Bookmark，而POST不可以。</p>
+<p>GET请求会被浏览器主动cache，而POST不会，除非手动设置。</p>
+<p>GET请求只能进行url编码，而POST支持多种编码方式。</p>
+<p>GET请求参数会被完整保留在浏览器历史记录里，而POST中的参数不会被保留。</p>
+<p>GET请求在URL中传送的参数是有长度限制的，而POST么有。</p>
+<p>对参数的数据类型，GET只接受ASCII字符，而POST没有限制。</p>
+<p>GET比POST更不安全，因为参数直接暴露在URL上，所以不能用来传递敏感信息。</p>
+<p>GET参数通过URL传递，POST放在Request body中。</p>
+<h2 id="HTTP-和-TCP-有什么关系"><a href="#HTTP-和-TCP-有什么关系" class="headerlink" title="HTTP 和 TCP 有什么关系"></a>HTTP 和 TCP 有什么关系</h2><p>http是在tcp基础上的请求响应式协议。<br>tcp为传输层协议，http为应用层协议</p>
+<h2 id="HTTP-1-0-和-HTTP-1-1-的差别"><a href="#HTTP-1-0-和-HTTP-1-1-的差别" class="headerlink" title="HTTP 1.0 和 HTTP 1.1 的差别"></a>HTTP 1.0 和 HTTP 1.1 的差别</h2><p>http1.1增加了如下功能</p>
+<p>可扩展性（1.1增加了版本号，OPTIONS，Upgrade等）<br>缓存强化（cache相关）<br>带宽优化（文件断点续传，range相关）<br>长连接（keep-alive相关）<br>host头<br>身份认证，状态管理</p>
+<h2 id="HTTP-头部有哪些字段"><a href="#HTTP-头部有哪些字段" class="headerlink" title="HTTP 头部有哪些字段"></a>HTTP 头部有哪些字段</h2><p>举例：</p>
+<p>Expire<br>If-Modified-Since<br>Last-Modefied<br>Pragma:no-cache<br>ETag<br>If-None-Match<br>Cache-Control<br>Accept-Language<br>Accept-Charset<br>Content-Range<br>Transfer-Encoding<br>Origin<br>Host<br>User-Agent<br>Access-Control-Allow-Origin<br>Access-Control-Allow-Credentials<br>Access-Control-Expose-Headers<br>Content-Type</p>
+<h2 id="为什么-HTTP-是无连接的"><a href="#为什么-HTTP-是无连接的" class="headerlink" title="为什么 HTTP 是无连接的"></a>为什么 HTTP 是无连接的</h2><p>无连接的意思是限制每次连接只处理一个请求。服务器处理完客户的请求，并收到客户的应答后，即断开连接。与TCP连接不是同一个意思。<br>但实际上现在的HTTP支持keepalive等模式，支持单个连接处理多个请求应答。</p>
+<h2 id="有没有保持长连接的-HTTP"><a href="#有没有保持长连接的-HTTP" class="headerlink" title="有没有保持长连接的 HTTP"></a>有没有保持长连接的 HTTP</h2><p>HTTP1.1及更新的HTTP协议都支持keepalive长连接，甚至http2还支持服务端向客户端推送数据</p>
+<h2 id="TCP-中客户端发送-SYN-后客户端和服务器分别处在什么状态"><a href="#TCP-中客户端发送-SYN-后客户端和服务器分别处在什么状态" class="headerlink" title="TCP 中客户端发送 SYN 后客户端和服务器分别处在什么状态"></a>TCP 中客户端发送 SYN 后客户端和服务器分别处在什么状态</h2><p>客户端SYN_SENT，服务端则接收到SYN并发出ACK后转为SYN_RECV</p>
+<h2 id="服务器调用-send-后返回发送数据大小，是否可以认为客户端已收到？如何确保客户端收到数据"><a href="#服务器调用-send-后返回发送数据大小，是否可以认为客户端已收到？如何确保客户端收到数据" class="headerlink" title="服务器调用 send 后返回发送数据大小，是否可以认为客户端已收到？如何确保客户端收到数据"></a>服务器调用 send 后返回发送数据大小，是否可以认为客户端已收到？如何确保客户端收到数据</h2><p>send返回发送数据大小后，说明数据已经到达或到达客户端内核缓存，但并不能表明客户端的进程已经拿到数据。如果需要确认对方客户端进程收到，则需要与该进程在应用层实现相应的确认机制</p>
+<h2 id="304-状态码的意义？在-HTTP-协议中的实现"><a href="#304-状态码的意义？在-HTTP-协议中的实现" class="headerlink" title="304 状态码的意义？在 HTTP 协议中的实现"></a>304 状态码的意义？在 HTTP 协议中的实现</h2><p>304校验缓存：浏览器端cache的信息发送到服务器校验，如果服务器认为cache依然有效，则返回304，浏览器可以继续使用该cache</p>
+<h2 id="如何判断服务器文件是否已修改？知道浏览器缓存的文件与服务器文件不一致？在-HTTP-中哪个字段（TODO））"><a href="#如何判断服务器文件是否已修改？知道浏览器缓存的文件与服务器文件不一致？在-HTTP-中哪个字段（TODO））" class="headerlink" title="如何判断服务器文件是否已修改？知道浏览器缓存的文件与服务器文件不一致？在 HTTP 中哪个字段（TODO））"></a>如何判断服务器文件是否已修改？知道浏览器缓存的文件与服务器文件不一致？在 HTTP 中哪个字段（TODO））</h2><p>304校验时，客户端发送条件请求，带If-Modified-Since头，值为服务器上次返回的Last-Modified头中的时间，还会带If-None-Match头，值为服务器上次返回的ETag响应头的值<br>A 类地址和 B 类地址的区别</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/08/data_structure/波兰表达式与逆波兰表达式/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -382,12 +723,24 @@
                 
               
 
-              <time title="创建时间：2019-05-08 20:01:02 / 修改时间：12:58:40" itemprop="dateCreated datePublished" datetime="2019-05-08T20:01:02+00:00">2019-05-08</time>
+              <time title="创建时间：2019-05-08 20:01:02" itemprop="dateCreated datePublished" datetime="2019-05-08T20:01:02+00:00">2019-05-08</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-12 03:06:51" itemprop="dateModified" datetime="2019-05-12T03:06:51+00:00">2019-05-12</time>
               
             
           </span>
@@ -599,7 +952,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-08 12:58:40" itemprop="dateModified" datetime="2019-05-08T12:58:40+00:00">2019-05-08</time>
+                <time title="修改时间：2019-05-12 03:06:51" itemprop="dateModified" datetime="2019-05-12T03:06:51+00:00">2019-05-12</time>
               
             
           </span>
@@ -780,7 +1133,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-08 12:58:40" itemprop="dateModified" datetime="2019-05-08T12:58:40+00:00">2019-05-08</time>
+                <time title="修改时间：2019-05-12 03:06:51" itemprop="dateModified" datetime="2019-05-12T03:06:51+00:00">2019-05-12</time>
               
             
           </span>
@@ -952,7 +1305,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-08 12:58:40" itemprop="dateModified" datetime="2019-05-08T12:58:40+00:00">2019-05-08</time>
+                <time title="修改时间：2019-05-12 03:06:51" itemprop="dateModified" datetime="2019-05-12T03:06:51+00:00">2019-05-12</time>
               
             
           </span>
@@ -1150,7 +1503,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-08 12:58:40" itemprop="dateModified" datetime="2019-05-08T12:58:40+00:00">2019-05-08</time>
+                <time title="修改时间：2019-05-12 03:06:51" itemprop="dateModified" datetime="2019-05-12T03:06:51+00:00">2019-05-12</time>
               
             
           </span>
@@ -1349,7 +1702,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-08 12:58:40" itemprop="dateModified" datetime="2019-05-08T12:58:40+00:00">2019-05-08</time>
+                <time title="修改时间：2019-05-12 03:06:51" itemprop="dateModified" datetime="2019-05-12T03:06:51+00:00">2019-05-12</time>
               
             
           </span>
@@ -1537,7 +1890,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-08 12:58:40" itemprop="dateModified" datetime="2019-05-08T12:58:40+00:00">2019-05-08</time>
+                <time title="修改时间：2019-05-12 03:06:51" itemprop="dateModified" datetime="2019-05-12T03:06:51+00:00">2019-05-12</time>
               
             
           </span>
@@ -1721,7 +2074,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-08 12:58:40" itemprop="dateModified" datetime="2019-05-08T12:58:40+00:00">2019-05-08</time>
+                <time title="修改时间：2019-05-12 03:06:51" itemprop="dateModified" datetime="2019-05-12T03:06:51+00:00">2019-05-12</time>
               
             
           </span>
@@ -1779,180 +2132,6 @@
 <p><strong>inode表</strong></p>
 <p>inode表一列表的形式保存了文件的元数据信息，包括文件大小、扩展属性和时间等内容。由于inode结构的大小根据格式化文件系统的属性而有差异，因此该表占用的磁盘空间不定，大概若干个逻辑块的大小。关于文件名称与inode数据结构的关系是通过inode的id确定的，在文件夹中的文件存储包含文件名和inode的id信息，而通过该id可以计算出inode数据结构位于的块组位置和inode表位置。</p>
 <p>本文简要介绍一下Ext4文件系统的磁盘布局情况，后续会更加详细的介绍每一部分的细节。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_read_base/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Sunny Zhang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/itworld_logo_300.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SunnyZhang的IT世界">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/05/01/linux/filesystem/ext2/ext2_read_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 读数据流程</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-05-08 12:58:40" itemprop="dateModified" datetime="2019-05-08T12:58:40+00:00">2019-05-08</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>读数据流程关于如何从用户态到Ext2文件系统公共部分（VFS）的流程本文不再详细介绍，这一部分与写流程基本一致，具体可以参考文末的相关文章介绍。如图是从用户态到Ext2文件系统的函数调用图，从图上可以看到对于Ext2文件系统在读数据流程中调用了大量VFS的函数，这主要原因是Ext2是Linux的原生文件系统，其实耦合还是比较大的。我们仔细观察一下，实际起作用的函数是Ext2文件系统的ext2_file_read_iter函数。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-50cf9176885a38d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 读数据整体流程"></p>
-<p>像写数据一样，读数据也分为Direct读和缓存读两种形式，Direct读是从磁盘直接读取数据，而缓存读则需要先将磁盘数据读到页缓存，然后在将数据拷贝到用户的缓冲区。本文照例只介绍缓存读的场景，对于Direct读请自行阅读代码理解。</p>
-<p>对于缓存读的流程，概括起来分为两个主要步骤，<strong>一个是查找页缓存（如果没有则分配新的），第二步是根据页缓存的状态从磁盘读取数据并填充页缓存（如果页缓存数据最新则不需要从磁盘读取数据）</strong>。</p>
-<h2 id="缓存命中"><a href="#缓存命中" class="headerlink" title="缓存命中"></a>缓存命中</h2><p>其实上图是一个比较复杂的函数调用关系图，这里处理了缓存没有命中的情况下的读数据的流程。如果缓存命中，整个读数据的流程将非常简单，我们可以简化为图2所示。可以看出此时在VFS的函数do_generic_file_read中即可完成整个数据的读取过程。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-60153183383057b5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 读数据缓存命中"></p>
-<p>在VFS函数do_generic_file_read中的主要流程如图3所示。这里假设缓存中存储的数据是最新的，也即页缓存的数据新于磁盘的数据。这样整个读取过程可以分为两步，首先通过find_get_page获取缓存页；然后判断页缓存的标记满足条件后直接调用copy_page_to_iter将页缓存的内容拷贝到用户态的缓冲区。当然实际还有其它一些情况的存在，比如虽然页缓存存在但不是最新，则需要从磁盘读取数据。或者页缓存存在，但正在进行预读操作，则需要等待预读完成等。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-05d20ddc2e57b298.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 读数据缓存命中"></p>
-<p>总之来说，缓存命中的常见还是比较简单的，下面我们介绍一下缓存不命中的场景。</p>
-<h2 id="非缓存命中"><a href="#非缓存命中" class="headerlink" title="非缓存命中"></a>非缓存命中</h2><p>如果没有缓存命中，此时就需要做两件事情，一个是分配页缓存并建立与磁盘位置映射，另一个是向磁盘提交读取数据的请求，完成数据的读取。为了提高读取数据的效率，这里其实实现了一个称为“预读”的功能，所谓预读就是提前从磁盘读取比较多的数据，为下次读数据做准备。这个特性对顺序读非常有效，可以明显的减少磁盘请求的数量，从而提升读数据的性能。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-1fdc0d6f65fdffd1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 读数据缓存命中"></p>
-<p>预读的基本规则主要包含两个，一个是在读请求中读到缺失页面(missing page)，进行同步预读；另一个是读到预读页面(PG_readahead page)，则进行异步预读。如图4是预读的基本示意图，tx代表请求时间序列。<br>1） t0触发同步预读，也就是文件系统除了读取请求的数据外，还会额外读取一部分数据；<br>2） t1时由于读到的缓存页有预读标记，因此会触发异步预读；<br>3） t2时由于缓存已经存在，因此直接从缓存读取后返回；<br>以此类推，当再次碰到有预读标记的页时进行异步预读。另外，这里面有个概念叫“预读窗口”，预读窗口是指一次从磁盘预读数据的多少。预读窗口是滑动的，也就是大小会根据命中情况进行变化，如果命中则会变大，这样可以有效的提高读取的效率。如下是用于滑动窗口的数据结构。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">file_ra_state</span> &#123;</span></span><br><span class="line">	<span class="keyword">pgoff_t</span> start;			<span class="comment">/* where readahead started */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> size;		<span class="comment">/* # of readahead pages */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> async_size;	<span class="comment">/* do asynchronous readahead when</span></span><br><span class="line"><span class="comment">					   there are only # of pages ahead */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> ra_pages;		<span class="comment">/* Maximum readahead window */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> mmap_miss;		<span class="comment">/* Cache miss stat for mmap accesses */</span></span><br><span class="line">	<span class="keyword">loff_t</span> prev_pos;		<span class="comment">/* Cache last read() position */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<p>理解了上述概念之后，我们分析一下整个读操作的流程。由图1，同步预读和异步预读的起始逻辑在函数do_generic_file_read中。其中find_get_page用于查找是否有缓存并返回找到的缓存页。如果没有找到缓存页则运行红色方框的流程，进行同步预读。如果找到缓存页，并且该缓存页有预读标记则运行绿色方框的流程，进行异步预读。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-c44efcf5e97ef057.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 读数据缓存基本逻辑"></p>
-<p>对比一下同步预读和异步预读的主要调用流程，可以看出最终都会调用到<strong>do_page_cache_readahead函数。实现逻辑的差异主要在ondemand_readahead函数中。基本差异是对滑动窗口的计算，对于同步预读由于要考虑随机读的情况，避免读过多的内容；而对于异步预读则根据达到预读标记则调整一个比较大的滑动窗口。<br>`page_cache_sync_readahead-&gt;ondemand_readahead-&gt;</strong>do_page_cache_readahead<code></code>page_cache_async_readahead-&gt;ondemand_readahead-&gt;__do_page_cache_readahead`</p>
-<p>数据读取操作的最终实现在__do_page_cache_readahead函数中，这里面主要完成两个功能，一个是分配页缓存(page_cache_alloc_readahead)，另一个是提交读请求到块设备层(read_pages)。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-dd30b5ac06972787.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 读数据缓存基本逻辑"></p>
-<p>上图中的函数指针具体实现是Ext2文件系统ext2_readpages函数，该函数的调用流程大致如图7所示。该函数主要实现缓存页的映射和从磁盘读取数据的操作。磁盘读取调用的块设备层的submit_bio函数。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ce88c83a26626c5c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图7 读数据缓存基本逻辑"></p>
-<p>至此，将磁盘上的数据读取到了页缓存中，其后的流程与缓存命中场景一致，也即拷贝页缓存的内容到用户态缓冲区等。</p>
 
           
         
@@ -2071,7 +2250,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-08 12:58:40" itemprop="dateModified" datetime="2019-05-08T12:58:40+00:00">2019-05-08</time>
+                <time title="修改时间：2019-05-12 03:06:51" itemprop="dateModified" datetime="2019-05-12T03:06:51+00:00">2019-05-12</time>
               
             
           </span>
@@ -2229,7 +2408,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">11</span>
+                    <span class="site-state-item-count">12</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2283,7 +2462,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">12</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">15</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
