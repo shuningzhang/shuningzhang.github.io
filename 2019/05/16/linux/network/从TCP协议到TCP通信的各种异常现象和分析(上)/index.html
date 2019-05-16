@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="很多人总觉得学习TCP/IP协议没什么用，觉得日常编程开发只需要知道socket接口怎么用就可以了。如果大家定位过线上问题就会知道，实际上并非如此。如果应用在局域网内，且设备一切正常的情况下可能确实如此，但如果一旦出现诸如中间交换机不稳定、物理服务器宕机或者其它异常情况时，此时引起的问题如果只停留在套接字接口的理解层面将无法解决。因此，深入理解TCP/IP协议，对我们分析异常问题有很大的帮助。 下">
+<meta name="keywords" content="TCP,网络,问题分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从TCP协议到TCP通信的各种异常现象和分析">
+<meta property="og:url" content="http://www.itworld123.com/2019/05/16/linux/network/从TCP协议到TCP通信的各种异常现象和分析(上)/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:description" content="很多人总觉得学习TCP/IP协议没什么用，觉得日常编程开发只需要知道socket接口怎么用就可以了。如果大家定位过线上问题就会知道，实际上并非如此。如果应用在局域网内，且设备一切正常的情况下可能确实如此，但如果一旦出现诸如中间交换机不稳定、物理服务器宕机或者其它异常情况时，此时引起的问题如果只停留在套接字接口的理解层面将无法解决。因此，深入理解TCP/IP协议，对我们分析异常问题有很大的帮助。 下">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-591ab42101f47555?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-147883383fa661e2?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-0b12d9874dee68b9?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-2f2afd4a3dc484ca?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-99111eb72c27dd28?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-aa8272fb4f85d333?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-9bcd409f5a9786b8?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2019-05-16T12:10:17.601Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从TCP协议到TCP通信的各种异常现象和分析">
+<meta name="twitter:description" content="很多人总觉得学习TCP/IP协议没什么用，觉得日常编程开发只需要知道socket接口怎么用就可以了。如果大家定位过线上问题就会知道，实际上并非如此。如果应用在局域网内，且设备一切正常的情况下可能确实如此，但如果一旦出现诸如中间交换机不稳定、物理服务器宕机或者其它异常情况时，此时引起的问题如果只停留在套接字接口的理解层面将无法解决。因此，深入理解TCP/IP协议，对我们分析异常问题有很大的帮助。 下">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/11058170-591ab42101f47555?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/2019/05/16/linux/network/从TCP协议到TCP通信的各种异常现象和分析(上)/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>从TCP协议到TCP通信的各种异常现象和分析 | SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/16/linux/network/从TCP协议到TCP通信的各种异常现象和分析(上)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从TCP协议到TCP通信的各种异常现象和分析
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-16 19:37:02 / 修改时间：12:10:17" itemprop="dateCreated datePublished" datetime="2019-05-16T19:37:02+00:00">2019-05-16</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>很多人总觉得学习TCP/IP协议没什么用，<strong>觉得</strong>日常编程开发只需要知道socket接口怎么用就可以了。<strong>如果大家定位过线上问题就会知道，实际上并非如此</strong>。如果应用在局域网内，且设备一切正常的情况下可能确实如此，但如果一旦出现诸如中间交换机不稳定、物理服务器宕机或者其它异常情况时，此时引起的问题如果只停留在套接字接口的理解层面将无法解决。因此，深入理解TCP/IP协议<strong>，对我们分析异常问题有很大的帮助</strong>。</p>
+<p>下图是网络通信中常见的架构，也就是CS架构。其中程序包括两部分，分别为客户端（Client）和服务端（Server）。当然，实际的环境还要复杂的多，在客户端和服务端之间可能有多种不同种类和数量的设备，这些设备都会增加网络通信的复杂性。自然，也会增加程序开发容错的复杂性。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-591ab42101f47555?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 基本架构"></p>
+<h1 id="TCP的基本流程"><a href="#TCP的基本流程" class="headerlink" title="TCP的基本流程"></a>TCP的基本流程</h1><p>在分析异常情况之前，我们先回忆一下TCP协议的基本逻辑。在客户端和服务端能够收发数据之前首先必需建立连接。连接的建立在协议层面也是通过收发数据包完成，只不过在用户层面就是客户端调用了一个connect函数。连接的过程俗称“三次握手”，具体流程如图2所示。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-147883383fa661e2?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 TCP的三次握手流程"></p>
+<p>TCP连接的断开也是比较复杂的，需要经过所谓的“四次挥手”的流程。其原因是因为TCP是双工通信，分别需要从客户端和服务端2侧断开连接。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-0b12d9874dee68b9?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 TCP的四次挥手"></p>
+<p>另外一个比较重要的内容是TCP协议的状态转换，理解了这个内容，我们才能清楚出现各种异常情况下数据包的内容。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-2f2afd4a3dc484ca?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 TCP状态转换图"></p>
+<p>本文只是简单回忆一下TCP的基本流程，详细的内容可以参考本号之前的文章《<a href="https://www.toutiao.com/i6658464588012454407/?group_id=6658464588012454407" target="_blank" rel="noopener">从TCP到Socket，彻底理解网络编程是怎么回事</a></p>
+<h1 id="异常情况分析"><a href="#异常情况分析" class="headerlink" title="异常情况分析"></a>异常情况分析</h1><p>了解了TCP的基本流程之后，我们再看一下各种异常情况。这些异常情况才是我们在后续解决问题的时候的关键。了解了这些异常情况及原理，后面解决问题才能游刃有余。</p>
+<p><strong>1. 试图与一个不存在的端口建立连接（主机正常）</strong></p>
+<p>这里的不存在的端口是指在<strong>服务器端没有程序监听在该端口</strong>。我们的客户端就调用connect，试图与其建立连接。这时会发生什么呢？</p>
+<p>这种情况下我们在客户端通常会收到如下异常内容：</p>
+<blockquote>
+<p>[Errno 111] Connection refused（连接拒绝）</p>
+</blockquote>
+<p>具体含义可以查一下Linux的相关手册，或者用搜索引擎搜索一下。试想一下，服务端本来就没有程序监听在这个接口，因此在服务端是无法完成连接的建立过程的。我们参考‘三次握手’的流程可以知道当客户端的SYNC包到达服务端时，TCP协议没有找到监听的套接字，就会向客户端发送一个错误的报文，告诉客户端产生了错误。而该错误报文就是一个包含RST的报文。这种异常情况也很容易模拟，我们只需要写一个小程序，连接服务器上没有监听的端口即可。如下是通过wireshark捕获的数据包，可以看到红色部分的RST报文。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-99111eb72c27dd28?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 数据包截图"></p>
+<p><strong>继续深入理解一下</strong>，在操作系统层面，<strong>TCP的服务端实际上就是从网卡的寄存器中读取数据，然后进行解析</strong>。对于TCP自然会解析出目的端口这个关键信息，然后根据这个信息查看有没有这样的套接字。这个套接字是什么呢？在用户层面是一个文件句柄，但在内核中实际是一个数据结构，里面记录了很多信息。这个数据结构存储在一个哈希表中，通过函数<strong>__inet_lookup_skb</strong>（net/inet_hashtables.h）可以实现对该数据结构的查找。对于上述情况，自然无法找到该套接字，因此TCP服务端会进行错误处理，处理的方式就是给客户端发送一个RST（通过函数tcp_v4_send_reset进行发送）。</p>
+<p><strong>2. 试图与一个某端口建立连接但该主机已经宕机（主机宕机）</strong></p>
+<p>这也是一种比较常见的情况，当某台服务器主机宕机了，而客户端并不知道，仍然尝试去与其建立连接。这种场景也是分为2种情况的，一种是刚刚宕机，另外一种是宕机了很长时间。<strong>为什么要分这2种情况？</strong></p>
+<p>这主要根ARP协议有关系，ARP会在本地缓存失效，TCP客户端就无法想目的服务端发送数据包了。</p>
+<blockquote>
+<p>(192.168.1.100) 位于 08:00:27:1a:7a:0a [ether] 在 eth0</p>
+</blockquote>
+<p>了解了上述情况，我们分析一下刚刚宕机的情况，此时客户端是可以向服务端发送数据包的。但是由于服务器宕机，因此不会给客户端发送任何回复。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-aa8272fb4f85d333?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 数据包截图"></p>
+<p>由于客户端并不知道服务端宕机，因此会重复发送SYNC数据包，如图6所示，可以看到客户端每隔几秒会向服务端发送一个SYNC数据包。这里面具体的时间是跟TCP协议相关的，具体时间不同的操作系统实现可能稍有不同。</p>
+<p><strong>3. 建立连接时，服务器应用被阻塞（或者僵死）</strong></p>
+<p>还有一种情况是在客户端建立连接的过程中服务端应用处于僵死状态，这种情况在实际中也会经常出现（我们假设仅仅应用程序僵死，而内核没有僵死）。此时会出现什么状态？TCP的三次是否可以完成？客户端是否可以收发数据？</p>
+<p>在用户层面我们知道，<strong>服务端通过accept接口返回一个新的套接字</strong>，这时就可以和客户端进行数据往来了。也就是在用户层面来说，accept返回结果说明3次握手完成了，否则accept会被阻塞。在我们假设的情况下，其实就相当于应用程序无法进行accept操作了。</p>
+<p>如果想彻底理解上面我们假设的问题，需要理解两点，一点是accept函数具体做了什么，另外一点是TCP三次握手的本质。</p>
+<p>我们先试着理解第一点，accept会通过软中断陷入内核中，最终会调用tcp协议的inet_csk_accept函数，该函数会从队列中查找是否有处于ESTABLISHED状态的套接字。如果有则返回该套接字，否则阻塞当前进程。也就是说这里只是一个查询的过程，并不参与三次握手的任何逻辑。</p>
+<p>三次握手的本质是什么呢？实际上就是客户端与服务端一个不断交流的过程，而这个交流过程就是通过3个数据包完成的。而这个数据包的发送和处理实际上都是在内核中完成的。对于TCP的服务端来说，当它收到SYNC数据包时，就会<strong>创建一个套接字的数据结构</strong>并给客户端回复ACK，再次收到客户端的ACK时会将套接字数据结构的状态转换为ESTABLISHED，并将其发送就绪队列中。而这整个过程跟应用程序没有半毛钱的关系。</p>
+<p>当上面套接字加入就绪队列时，accept函数就被唤醒了，然后就可以获得新的套接字并返回。但我们回过头来看一下，在accept返回之前，其实三次握手已经完成，也就是连接已经建立了。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-9bcd409f5a9786b8?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图7 TCP缓存与应用进程"></p>
+<p>另外一个是如果accept没有返回，客户端是否可以发送数据？答案是可以的。因为数据的发送和接受都是在内核态进行的。客户端发送数据后，服务端的网卡会先接收，然后通过中断通知IP层，再上传到TCP层。TCP层根据目的端口和地址将数据存入关联的缓冲区。如果此时应用程序有读操作（例如read或recv），那么数据会从内核态的缓冲区拷贝到用户态的缓存。否则，数据会一直在内核态的缓冲区中。<strong>总的来说，TCP的客户端是否可以发送数据与服务端程序是否工作没有任何关系。</strong></p>
+<p>当然，如果是整个机器都卡死了，那就是另外一种情况了。这种情况就我们之前分析的第2种情况一直了。因为，由于机器完全卡死，TCP服务端无法接受任何消息，自然也无法给客户端发送任何应答报文。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>今天我们主要介绍了连接建立过程中的各种异常情况，还有另外一种情况是在数据的传输过程中。<strong>比如传输过程中服务器突然掉电，或者程序crash等，后续我们将详细这些异常情况下在协议层的表现</strong>。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/TCP/" rel="tag"># TCP</a>
+          
+            <a href="/tags/网络/" rel="tag"># 网络</a>
+          
+            <a href="/tags/问题分析/" rel="tag"># 问题分析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/12/interview/network/" rel="next" title="网络知识点及面试题汇总">
+                <i class="fa fa-chevron-left"></i> 网络知识点及面试题汇总
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#TCP的基本流程"><span class="nav-number">1.</span> <span class="nav-text">TCP的基本流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异常情况分析"><span class="nav-number">2.</span> <span class="nav-text">异常情况分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
