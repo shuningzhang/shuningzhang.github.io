@@ -337,6 +337,180 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_read_base/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_read_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 读数据流程</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-16 12:19:47" itemprop="dateModified" datetime="2019-05-16T12:19:47+00:00">2019-05-16</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>读数据流程关于如何从用户态到Ext2文件系统公共部分（VFS）的流程本文不再详细介绍，这一部分与写流程基本一致，具体可以参考文末的相关文章介绍。如图是从用户态到Ext2文件系统的函数调用图，从图上可以看到对于Ext2文件系统在读数据流程中调用了大量VFS的函数，这主要原因是Ext2是Linux的原生文件系统，其实耦合还是比较大的。我们仔细观察一下，实际起作用的函数是Ext2文件系统的ext2_file_read_iter函数。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-50cf9176885a38d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 读数据整体流程"></p>
+<p>像写数据一样，读数据也分为Direct读和缓存读两种形式，Direct读是从磁盘直接读取数据，而缓存读则需要先将磁盘数据读到页缓存，然后在将数据拷贝到用户的缓冲区。本文照例只介绍缓存读的场景，对于Direct读请自行阅读代码理解。</p>
+<p>对于缓存读的流程，概括起来分为两个主要步骤，<strong>一个是查找页缓存（如果没有则分配新的），第二步是根据页缓存的状态从磁盘读取数据并填充页缓存（如果页缓存数据最新则不需要从磁盘读取数据）</strong>。</p>
+<h2 id="缓存命中"><a href="#缓存命中" class="headerlink" title="缓存命中"></a>缓存命中</h2><p>其实上图是一个比较复杂的函数调用关系图，这里处理了缓存没有命中的情况下的读数据的流程。如果缓存命中，整个读数据的流程将非常简单，我们可以简化为图2所示。可以看出此时在VFS的函数do_generic_file_read中即可完成整个数据的读取过程。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-60153183383057b5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 读数据缓存命中"></p>
+<p>在VFS函数do_generic_file_read中的主要流程如图3所示。这里假设缓存中存储的数据是最新的，也即页缓存的数据新于磁盘的数据。这样整个读取过程可以分为两步，首先通过find_get_page获取缓存页；然后判断页缓存的标记满足条件后直接调用copy_page_to_iter将页缓存的内容拷贝到用户态的缓冲区。当然实际还有其它一些情况的存在，比如虽然页缓存存在但不是最新，则需要从磁盘读取数据。或者页缓存存在，但正在进行预读操作，则需要等待预读完成等。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-05d20ddc2e57b298.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 读数据缓存命中"></p>
+<p>总之来说，缓存命中的常见还是比较简单的，下面我们介绍一下缓存不命中的场景。</p>
+<h2 id="非缓存命中"><a href="#非缓存命中" class="headerlink" title="非缓存命中"></a>非缓存命中</h2><p>如果没有缓存命中，此时就需要做两件事情，一个是分配页缓存并建立与磁盘位置映射，另一个是向磁盘提交读取数据的请求，完成数据的读取。为了提高读取数据的效率，这里其实实现了一个称为“预读”的功能，所谓预读就是提前从磁盘读取比较多的数据，为下次读数据做准备。这个特性对顺序读非常有效，可以明显的减少磁盘请求的数量，从而提升读数据的性能。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-1fdc0d6f65fdffd1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 读数据缓存命中"></p>
+<p>预读的基本规则主要包含两个，一个是在读请求中读到缺失页面(missing page)，进行同步预读；另一个是读到预读页面(PG_readahead page)，则进行异步预读。如图4是预读的基本示意图，tx代表请求时间序列。<br>1） t0触发同步预读，也就是文件系统除了读取请求的数据外，还会额外读取一部分数据；<br>2） t1时由于读到的缓存页有预读标记，因此会触发异步预读；<br>3） t2时由于缓存已经存在，因此直接从缓存读取后返回；<br>以此类推，当再次碰到有预读标记的页时进行异步预读。另外，这里面有个概念叫“预读窗口”，预读窗口是指一次从磁盘预读数据的多少。预读窗口是滑动的，也就是大小会根据命中情况进行变化，如果命中则会变大，这样可以有效的提高读取的效率。如下是用于滑动窗口的数据结构。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">file_ra_state</span> &#123;</span></span><br><span class="line">	<span class="keyword">pgoff_t</span> start;			<span class="comment">/* where readahead started */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> size;		<span class="comment">/* # of readahead pages */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> async_size;	<span class="comment">/* do asynchronous readahead when</span></span><br><span class="line"><span class="comment">					   there are only # of pages ahead */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> ra_pages;		<span class="comment">/* Maximum readahead window */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> mmap_miss;		<span class="comment">/* Cache miss stat for mmap accesses */</span></span><br><span class="line">	<span class="keyword">loff_t</span> prev_pos;		<span class="comment">/* Cache last read() position */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>理解了上述概念之后，我们分析一下整个读操作的流程。由图1，同步预读和异步预读的起始逻辑在函数do_generic_file_read中。其中find_get_page用于查找是否有缓存并返回找到的缓存页。如果没有找到缓存页则运行红色方框的流程，进行同步预读。如果找到缓存页，并且该缓存页有预读标记则运行绿色方框的流程，进行异步预读。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-c44efcf5e97ef057.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 读数据缓存基本逻辑"></p>
+<p>对比一下同步预读和异步预读的主要调用流程，可以看出最终都会调用到<strong>do_page_cache_readahead函数。实现逻辑的差异主要在ondemand_readahead函数中。基本差异是对滑动窗口的计算，对于同步预读由于要考虑随机读的情况，避免读过多的内容；而对于异步预读则根据达到预读标记则调整一个比较大的滑动窗口。<br>`page_cache_sync_readahead-&gt;ondemand_readahead-&gt;</strong>do_page_cache_readahead<code></code>page_cache_async_readahead-&gt;ondemand_readahead-&gt;__do_page_cache_readahead`</p>
+<p>数据读取操作的最终实现在__do_page_cache_readahead函数中，这里面主要完成两个功能，一个是分配页缓存(page_cache_alloc_readahead)，另一个是提交读请求到块设备层(read_pages)。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-dd30b5ac06972787.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 读数据缓存基本逻辑"></p>
+<p>上图中的函数指针具体实现是Ext2文件系统ext2_readpages函数，该函数的调用流程大致如图7所示。该函数主要实现缓存页的映射和从磁盘读取数据的操作。磁盘读取调用的块设备层的submit_bio函数。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ce88c83a26626c5c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图7 读数据缓存基本逻辑"></p>
+<p>至此，将磁盘上的数据读取到了页缓存中，其后的流程与缓存命中场景一致，也即拷贝页缓存的内容到用户态缓冲区等。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_write_base/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -399,7 +573,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-16 12:10:17" itemprop="dateModified" datetime="2019-05-16T12:10:17+00:00">2019-05-16</time>
+                <time title="修改时间：2019-05-16 12:19:47" itemprop="dateModified" datetime="2019-05-16T12:19:47+00:00">2019-05-16</time>
               
             
           </span>
@@ -524,190 +698,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Sunny Zhang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/itworld_logo_300.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SunnyZhang的IT世界">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/05/01/linux/filesystem/ext2/ext2/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 磁盘空间分配</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-05-16 12:10:17" itemprop="dateModified" datetime="2019-05-16T12:10:17+00:00">2019-05-16</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>在实际写数据到磁盘之前需要分配磁盘上的空间。这里的写数据包括写文件数据、在目录中创建文件和添加扩展属性等等。但凡需要存储新数据的场景都需要分配磁盘空间。分配磁盘空间的主要功能在函数<code>ext2_get_blocks</code>中实现，该函数的原型如下所示：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ext2_get_blocks</span><span class="params">(struct inode *inode,</span></span></span><br><span class="line"><span class="function"><span class="params">                           <span class="keyword">sector_t</span> iblock, <span class="keyword">unsigned</span> <span class="keyword">long</span> maxblocks,</span></span></span><br><span class="line"><span class="function"><span class="params">                           struct buffer_head *bh_result,</span></span></span><br><span class="line"><span class="function"><span class="params">                           <span class="keyword">int</span> create)</span></span></span><br></pre></td></tr></table></figure>
-<p>该函数原型中，重点需要说明的是iblock参数，该参数表示文件的逻辑位置，位置以文件系统的块大小为单位，值为文件系统的以0为起始位置逻辑地址。举个简单的例子，加入文件系统格式化时块大小是2K，而此时写入数据的偏移为4K，那么此时iblock就是2。也就是说，该函数通过数据在文件中的逻辑位置计算需要分配多少磁盘空间。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-81172e6a9ebf0ff4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 磁盘空间分配主流程"></p>
-<p>函数ext2_get_blocks的主流程如图1所示，该函数主要完成三方面的工作：</p>
-<ol>
-<li><strong>计算并获取存储路径</strong>，我们知道文件数据是通过间接块的方式存储的，因此这里主要是根据数据逻辑地址计算出其存储的路径情况，并获得该路径。</li>
-<li>计算需要分配的块的数量和期望的磁盘物理位置。</li>
-<li><strong>分配磁盘空间</strong>，计算出需要的磁盘空间的数量后，最后该函数调用ext2_alloc_branch来分配需要的磁盘空间，具体就是将空间管理的位图置位。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-917f2044a4904607.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 Ext2间接块数组组织形式"></li>
-</ol>
-<p>为了容易理解磁盘整个分配磁盘空间的流程，我们先回顾一下Ext2的间接块结构，如图2所示（具体解释请参考本号历史文章）。为了理解更清楚一些，我们假设请求的数据位置需要二级间接块，因此，我们将该关系放大，如图3所示。我们知道对于Ext2来说，其地址是32位的，因此在间接块中的数据其实可以理解为无符号整型的大数组。其中数组中的每一项就是一个下一级磁盘数据块的地址。这样我们根据数据在文件中的逻辑地址就可以计算出来需要几级间接块及位置数据在该间接块中存放的位置。</p>
-<p><img src="https://upload-images.jianshu.io/upload_images/11058170-982b4d64f56d30da.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 二级间接块路径示例"></p>
-<p>有了间接块需要的数据，我们在结合数据本身需要的磁盘空间，就可以计算出本次请求需要申请的磁盘空间。最后就是根据这些来分配磁盘空间了。下面我们分布详细介绍一下各个流程的实现细节。</p>
-<h2 id="计算存储路径"><a href="#计算存储路径" class="headerlink" title="计算存储路径"></a>计算存储路径</h2><p>所谓计算存储路径是指计文件数据逻辑地址在间接块中存储的物理地址表示。仍然以上述图3为例，对于二级间接块可存储的情况，在分配磁盘空间之前需要计算出其在一级间接块和二级间接块中的位置。这样，在后续的数据查找流程，根据这些间接块中存储的地址信息就可以找到文件某个位置的数据在磁盘的物理地址。<br>函数<code>ext2_block_to_path</code>用于计算数据在间接块数组中存放的路径。<strong>该函数的功能主要是根据逻辑地址计算出在深度及每一层的位置</strong>。前文我们已经知道文件数据的放置方式，结合图3以比较清楚的理解本函数的代码。这里根据数据的逻辑地址分为4种情况，分别如下：</p>
-<ol>
-<li><strong> 不需要间接块 </strong>： 也就是数据目的位置（以文件块大小为单位）在12以内，则说明是直接引用，不需要间接块，此时在数组的前12个元素中的一个。</li>
-<li><strong> 一级间接块 </strong>： 数据范围在一级间接块可表示的范围内，此时表示路径的数组的第一个元素是inode数组中的第12个元素，而第二个元素则是在间接块中的具体位置。比如i_block是18，此时通过直接寻址无法满足要求，因此需要一级间接块。这样，offsets中第一个元素的值是12，表示是一级间接块；offsets的第二个元素是6，因为直接索引可以表示12个数据块，因此在间接块中的分别可以存储从第13到256+12的数据范围，对于位置为18的数据在间接块的位置就是6。</li>
-<li><strong> 二三级间接块 </strong>： 以此类推，根据逻辑地址的大小可能会需要二级甚至三级间接块，依照这种算法可以计算出每一级间接块的位置。这里不在赘述。</li>
-</ol>
-<p>下面是本函数的代码，本文加了一些注释，代码本身比较简单，本文不在赘述。这里需要注意的是，除了返回深度和每一层的位置外，还会返回在最后的间接块上可容纳的地址的数量。比如计算出来在最后一级间接块的位置是250，那么最多可容纳6个地址。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">static int ext2_block_to_path(struct inode *inode,</span><br><span class="line">                        long i_block, int offsets[4], int *boundary)</span><br><span class="line">&#123;</span><br><span class="line">        int ptrs = EXT2_ADDR_PER_BLOCK(inode-&gt;i_sb);  	//这里计算出每个间接块可以存储多少地址</span><br><span class="line">        int ptrs_bits = EXT2_ADDR_PER_BLOCK_BITS(inode-&gt;i_sb);  //块大小的位数</span><br><span class="line">        const long direct_blocks = EXT2_NDIR_BLOCKS,  	//直接块的数量</span><br><span class="line">                indirect_blocks = ptrs,					//间接块可存储地址的数量</span><br><span class="line">                double_blocks = (1 &lt;&lt; (ptrs_bits * 2)); //二级间接块可存储地址的数量</span><br><span class="line">        int n = 0; </span><br><span class="line">        int final = 0; </span><br><span class="line"></span><br><span class="line">        if (i_block &lt; 0) &#123; </span><br><span class="line">                ext2_msg(inode-&gt;i_sb, KERN_WARNING,</span><br><span class="line">                        &quot;warning: %s: block &lt; 0&quot;, __func__);</span><br><span class="line">        &#125; else if (i_block &lt; direct_blocks) &#123;</span><br><span class="line">                offsets[n++] = i_block;</span><br><span class="line">                final = direct_blocks;</span><br><span class="line">        &#125; else if ( (i_block -= direct_blocks) &lt; indirect_blocks) &#123;</span><br><span class="line">                offsets[n++] = EXT2_IND_BLOCK;</span><br><span class="line">                offsets[n++] = i_block;</span><br><span class="line">                final = ptrs;</span><br><span class="line">        &#125; else if ((i_block -= indirect_blocks) &lt; double_blocks) &#123;</span><br><span class="line">                offsets[n++] = EXT2_DIND_BLOCK;</span><br><span class="line">                offsets[n++] = i_block &gt;&gt; ptrs_bits;</span><br><span class="line">                offsets[n++] = i_block &amp; (ptrs - 1);</span><br><span class="line">                final = ptrs;</span><br><span class="line">        &#125; else if (((i_block -= double_blocks) &gt;&gt; (ptrs_bits * 2)) &lt; ptrs) &#123;</span><br><span class="line">                offsets[n++] = EXT2_TIND_BLOCK;</span><br><span class="line">                offsets[n++] = i_block &gt;&gt; (ptrs_bits * 2);</span><br><span class="line">                offsets[n++] = (i_block &gt;&gt; ptrs_bits) &amp; (ptrs - 1);</span><br><span class="line">                offsets[n++] = i_block &amp; (ptrs - 1);</span><br><span class="line">                final = ptrs;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">                ext2_msg(inode-&gt;i_sb, KERN_WARNING,</span><br><span class="line">                        &quot;warning: %s: block is too big&quot;, __func__);</span><br><span class="line">        &#125;</span><br><span class="line">        if (boundary)</span><br><span class="line">                *boundary = final - 1 - (i_block &amp; (ptrs - 1));</span><br><span class="line"></span><br><span class="line">        return n;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="获取存储路径"><a href="#获取存储路径" class="headerlink" title="获取存储路径"></a>获取存储路径</h2><p>前面逻辑计算出了深度和每一级间接块应该存储的信息，但具体的间接块目前处于什么情况并不清楚。仍然以上述二级间接块为例，可能会出现如下几种情况：</p>
-<ol>
-<li>用户访问的数据位置所需要的间接块已经全部分配了</li>
-<li>一级间接块已经具备了，但二级间接块不具备</li>
-<li>所有间接块都不具备</li>
-</ol>
-<p>因此，这里的工作就是根据当前信息及上一步计算出的信息进行综合判断，确定已经具备的间接块，并返回关键信息，为后续流程分配磁盘空间做准备。具体实现在函数ext2_get_branch中。该函数的输入是上一个函数的计算结果，输出是需要分配的间接块的信息（chain）。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">static Indirect *ext2_get_branch(struct inode *inode,</span><br><span class="line">                                 int depth,</span><br><span class="line">                                 int *offsets,</span><br><span class="line">                                 Indirect chain[4],</span><br><span class="line">                                 int *err)</span><br></pre></td></tr></table></figure></p>
-<h2 id="分配磁盘空间"><a href="#分配磁盘空间" class="headerlink" title="分配磁盘空间"></a>分配磁盘空间</h2><p>完成间接块情况分析之后，再经过简单的计算，就可以计算出总共需要分配的磁盘块的数量。然后就可以调用ext2_alloc_branch函数分配磁盘空间了。该函数主要调用了2个函数，具体如图3所示。其中ext2_alloc_blocks用户分配磁盘块，本质是将管理磁盘空间的位图的对应位进行置位操作；另外一个函数sb_getblk用于从磁盘读取该块的数据，并进行初始化。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-5ec6130362f2f167.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 空间分配函数主流程"></p>
-<p>初始化的目的比较明确，因为间接块用来存储地址信息，如果是从磁盘读取的新间接块数据可能是未知值，因此需要清零操作，并且完成本请求地址的初始化操作。</p>
-<p>至此，磁盘空间分配的主要流程执行完成，但仍然有一些小的处理流程，比如更新inode中的记录最后一次分配位置、更新时间和将inode变脏等等。这些细节读者可以自行阅读代码理解。</p>
-<p>另外，为了简化，本文有些内容没有介绍，比如预留窗口，还有就是跨越间接块的处理等问题。这些问题相对复杂一些，我们后续文章会继续介绍。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -770,7 +760,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-16 12:10:17" itemprop="dateModified" datetime="2019-05-16T12:10:17+00:00">2019-05-16</time>
+                <time title="修改时间：2019-05-16 12:19:47" itemprop="dateModified" datetime="2019-05-16T12:19:47+00:00">2019-05-16</time>
               
             
           </span>
@@ -884,6 +874,750 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2018/12/14/linux/filesystem/ocfs2/OCFS2文件写数据流程分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2018/12/14/linux/filesystem/ocfs2/OCFS2文件写数据流程分析/" class="post-title-link" itemprop="url">OCFS2文件写数据流程分析</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-12-14 19:37:02" itemprop="dateCreated datePublished" datetime="2018-12-14T19:37:02+00:00">2018-12-14</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-16 12:29:50" itemprop="dateModified" datetime="2019-05-16T12:29:50+00:00">2019-05-16</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>本文主要介绍一下OCFS2文件系统写数据的流程，以及数据在磁盘的布局情况。在OCFS2文件系统中，文件数据的管理分为2种模式，对于非常小的文件，可以直接放在inode节点所在的区域，也就是inode内部；而对于inode无法容纳的数据则通过B+树的方式放在inode外的其它存储区域，通过inode内的成员指向数据的位置。</p>
+<p>将数据直接放置在inode内部的方式成为inline模式，这种模式是最简单的，因此我们先介绍这种模式。另外，本文章的目的是理解OCFS2的具体代码实现，因此在介绍的过程中会贴一部分代码，但不会太多，主要考虑到太多的代码可能会影响全文的连贯性。为了便于从整体上理解，本文包含了部分VFS内容的介绍。</p>
+<p>写文件的操作通常由用户态的程序发起，比如在开发的过程中调用系统API（write）。如图是从用户态发起一直到调用OCFS2函数的整个调用流程。从用户态到内核态是触发了一个中断，这里我们不关心其具体实现，其作用是触发对内核函数的调用。最开始的内核函数是VFS的函数，VFS是一个中间抽象层，其目的是为用户提供统一的接口，屏蔽不同文件系统间的差异。VFS会调用具体文件系统的函数，这里是调用OCFS2文件系统的ocfs2_file_write_iter函数，能够调用该文件系统的接口是因为inode在初始化的时候填充了该文件系统的一个<code>文件操作的结构体</code>实现，关于具体细节本文不做解释，后续再另起文详述。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-5f8e7ff139093d19.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 整体调用流程"></p>
+<p>OCFS2文件系统文件操作的结构体实现如代码所示，这里包含了OCFS2文件系统实现的可以对文件进行的操作。包括对文件内容的读写、查找和缓存同步等等，还有文件加锁等操作。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">ocfs2_fops</span> = &#123;</span></span><br><span class="line">        .llseek         = ocfs2_file_llseek,</span><br><span class="line">        .mmap           = ocfs2_mmap,</span><br><span class="line">        .fsync          = ocfs2_sync_file,</span><br><span class="line">        .release        = ocfs2_file_release,</span><br><span class="line">        .open           = ocfs2_file_open,</span><br><span class="line">        .read_iter      = ocfs2_file_read_iter,</span><br><span class="line">        .write_iter     = ocfs2_file_write_iter,</span><br><span class="line">        .unlocked_ioctl = ocfs2_ioctl,</span><br><span class="line">#ifdef CONFIG_COMPAT</span><br><span class="line">        .compat_ioctl   = ocfs2_compat_ioctl,</span><br><span class="line">#endif</span><br><span class="line">        .lock           = ocfs2_lock,</span><br><span class="line">        .flock          = ocfs2_flock,</span><br><span class="line">        .splice_read    = ocfs2_file_splice_read,</span><br><span class="line">        .splice_write   = iter_file_splice_write,</span><br><span class="line">        .fallocate      = ocfs2_fallocate,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>下面是VFS文件系统写操作的代码实现，由该代码可以看出在该函数中将调用具体文件系统的写数据的接口。可能涉及2种情况，视文件系统的具体实现而定。本文ocfs2文件系统实现的是ocfs2_file_write_iter，因此最终会调用该函数（具体在new_sync_write中调用，这里包了一层）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ssize_t</span> __vfs_write(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *p, <span class="keyword">size_t</span> count,</span><br><span class="line">                    <span class="keyword">loff_t</span> *pos)</span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">if</span> (file-&gt;f_op-&gt;write)</span><br><span class="line">                <span class="keyword">return</span> file-&gt;f_op-&gt;write(file, p, count, pos);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (file-&gt;f_op-&gt;write_iter)</span><br><span class="line">                <span class="keyword">return</span> new_sync_write(file, p, count, pos);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">                <span class="keyword">return</span> -EINVAL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过上面描述，我们基本知道了用户态的接口调用是如何触发到文件系统的函数了，也就是如何调到ocfs2_file_write_iter函数，后面我们详细介绍一下文件系统的实现。</p>
+<h2 id="公共实现"><a href="#公共实现" class="headerlink" title="公共实现"></a>公共实现</h2><p>无论是inline模式还是extent模式，对ocfs2文件系统来说都使用<code>ocfs2_file_write_iter</code>函数作为入口，只是在其内部进行了区分。为了保证写数据的安全性，避免进程之间的竟态导致数据的不一致，在写数据的时候会有一些锁。为了抓住主要逻辑，本文暂时不介绍参数合法性检查和锁等其它逻辑内容，这些内容后续专门介绍。</p>
+<p>如图2所示，其中绿色的是写流程的主要函数，该函数实现磁盘空间分配和实际的写数据的操作，主要业务逻辑也在该函数中。而函数<code>filemap_fdatawrite_range</code>则是在文件具备同步刷写属性的情况下，实现缓存写数据的同步刷写，保证数据从缓存刷写到磁盘后在返回。因此，本文重点介绍__generic_file_write_iter函数，这个函数是整个文件写数据的核心。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-833562442e4cfbe6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 ocfs2写流程"></p>
+<p>该函数并不是ocfs2文件系统的函数，而是一个公共函数（mm/filemap.c中实现）。在该函数中，针对用户打开文件时设置的属性有两种不同的执行分支，如果设置了O_DIRECT属性，则调用<code>generic_file_direct_write</code>函数进行直写的流程；如果没有设置该属性，则调用函数<code>generic_perform_write</code>执行缓存写的流程。</p>
+<h3 id="直写流程"><a href="#直写流程" class="headerlink" title="直写流程"></a>直写流程</h3><p>所有文件系统的直写都有一个公共的入口generic_file_direct_write，这个函数在框架中实现（mm/filemap.c）。该函数流程相对比较简单，主要调用了4个函数，具体如图所示。前面两个函数是对目的区域的缓存进行刷写，并使缓存页失效。进行这一步的主要原因是缓存中可能有脏数据，如果不进行处理可能会导致缓存的数据覆盖直写的数据，从而导致数据不一致。第3个函数direct_IO是文件系统的实现，直写真正的写数据操作。最后一个函数在上面已经执行过，主要是避免预读等操作导致缓存数据与磁盘数据的不一致。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-b77f62a80c4e4d1b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 直写流程"></p>
+<h3 id="缓存写流程"><a href="#缓存写流程" class="headerlink" title="缓存写流程"></a>缓存写流程</h3><p>与直写类似，缓存写也有一个公共函数，其名称为generic_perform_write。缓存写整体的主要流程也有4个主要步骤，分配磁盘空间和缓存页，将数据从用户态拷贝到内核态内存、收尾和页缓存均衡。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-bdc1b8d31d4dcde5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 缓存写调用流程"></p>
+<p>其中分配磁盘空间和缓存页以及收尾工作实在具体文件系统中做的。页缓存均衡的作用是检查目前页缓存的容量，保证页缓存的总容量不超过设置的水线大小，避免占用系统内存太多。上图中是函数指针方式的调用，具体到文件系统有各自的实现，对于ocfs2来说实现如下代码所示（在aops.c中）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">address_space_operations</span> <span class="title">ocfs2_aops</span> = &#123;</span></span><br><span class="line">        .readpage               = ocfs2_readpage,</span><br><span class="line">        .readpages              = ocfs2_readpages,</span><br><span class="line">        .writepage              = ocfs2_writepage,</span><br><span class="line">        .write_begin            = ocfs2_write_begin,</span><br><span class="line">        .write_end              = ocfs2_write_end,</span><br><span class="line">        .bmap                   = ocfs2_bmap,</span><br><span class="line">        .direct_IO              = ocfs2_direct_IO,</span><br><span class="line">        .invalidatepage         = block_invalidatepage,</span><br><span class="line">        .releasepage            = ocfs2_releasepage,</span><br><span class="line">        .migratepage            = buffer_migrate_page,</span><br><span class="line">        .is_partially_uptodate  = block_is_partially_uptodate,</span><br><span class="line">        .error_remove_page      = generic_error_remove_page,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>上面都是公共框架的工作，对于所有文件系统都是一样的，整体逻辑也比较简单。了解了公共框架的部分的工作后，我们后续介绍ocfs2文件系统所做的工作。对于直写部分的逻辑本文暂时不做介绍，主要集中在缓存写逻辑的相关内容。我们知道根据文件大小的不同，ocfs2数据布局可以是inline和extent两种模式，虽然其代码实现是混在一起的，但为了方便理解，本文分别进行介绍。</p>
+<h2 id="inline模式写数据"><a href="#inline模式写数据" class="headerlink" title="inline模式写数据"></a>inline模式写数据</h2><p>在ocfs2文件系统中，inline模式是最简单的情况，在这种情况下文件的数据直接存储在inode的剩余空间中。在OCFS2的inode里面有一个名称为id2的联合体成员，对于inline模式情况下，该成员为ocfs2_inline_data类型的结构体。如下是截取的inode代码片段，该代码片段只包含联合体部分。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*C0*/</span>  <span class="keyword">union</span> &#123;</span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_super_block</span>        <span class="title">i_super</span>;</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_local_alloc</span>        <span class="title">i_lab</span>;</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_chain_list</span>         <span class="title">i_chain</span>;</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_extent_list</span>        <span class="title">i_list</span>;</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_truncate_log</span>       <span class="title">i_dealloc</span>;</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_inline_data</span>        <span class="title">i_data</span>;</span></span><br><span class="line">                __u8                            i_symlink[<span class="number">0</span>];</span><br><span class="line">        &#125; id2;</span><br></pre></td></tr></table></figure>
+<p>为了简化，本文做了一个关于ocfs2的inode的示意图，具体如下。如图5所示，在inode结构体偏移0xC0的地方是该成员开始的地方，然后包含id_count成员变量和id_data变量，其中id_count表示可用于存储数据的字节数，id_data变量是一个字符型的数组，就是存储文件数据的起始位置（如图红色部分）。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-a6f230051e314042.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 inode示意图"></p>
+<h3 id="主要流程"><a href="#主要流程" class="headerlink" title="主要流程"></a>主要流程</h3><p>根据前文的描述我们知道，跟ocfs2相关的代码逻辑其实只有ocfs2_write_begin和ocfs2_write_end两个函数。因此，本文也以这两个函数为起点进行介绍。我们按照先后顺序进行介绍，首先介绍ocfs2_write_begin函数，这个函数进行磁盘空间分配和页缓存的分配。</p>
+<p>进入该函数后，首先判断文件系统是否支持inline模式（根据超级块中的属性是否具有OCFS2_FEATURE_INCOMPAT_INLINE_DATA进行判断），如果支持则直接进入inline模式的处理流程。在该种情况下ocfs2_write_begin函数的整体处理流程比较简单，具体如图6所示。另外，本文暂时不考虑本次写数据太大，导致inode无法容纳数据，需要转换为extent的情况。因为这种情况其实与纯extent模式差异不大，因此可以参考后面章节理解，本文不单独介绍。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-876f64f690816210.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 inode示意图"></p>
+<p>由图可见，这里只涉及2个函数，其中ocfs2_alloc_write_ctxt函数只是初始化一个中间变量，起辅助作用。因此，整个处理逻辑中的关键其实是<code>ocfs2_try_to_write_inline_data</code>函数，在该函数中满足inline写的情况下直接调用了ocfs2_write_begin_inline函数，如图7是ocfs2_write_begin_inline函数内部的实现逻辑。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-d9e2719c84e400b1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图7 inode示意图"></p>
+<p>关于ocfs2_write_begin_inline函数的流程，包含3部分逻辑功能，分别是：</p>
+<ol>
+<li>事务相关逻辑，包括ocfs2_start_trans、ocfs2_journal_access_di和ocfs2_commit_trans，分别是启动事务、添加需要事务处理的逻辑块和完成事务提交。由于这里涉及元数据的操作，因此启动了一个事务，防止由于断电等原因导致损坏文件系统。这里我们只要了解到这里就行，暂时不需要深入了解。</li>
+<li>分配缓存页，函数find_or_create_page用于分配一个缓存页，这个缓存页用于存储用户层写的数据。这个函数首先会从inode的基数树查找是否已经存在，如果不存在则从系统申请一个新的页。</li>
+<li>读取磁盘数据，这个逻辑不是必需的，如果缓存页中的数据是最新的数据，则不需要该步骤。如果是新分配的缓存页，则需要先从磁盘读取数据，并填充到缓存页中。进行该步的主要原因是用户写的数据未必能够覆盖整个缓存页。</li>
+</ol>
+<p>好了，我们整体介绍一下这个流程，其大意就是要申请一个缓存页用于存储用户传输的数据，为了保证数据不发生冲突，可能需要提前从磁盘读取数据填充该缓存页。这里需要注意的是，因为inline情况下数据最终是存储在inode内部的，因此<code>这里并没有分配磁盘空间的流程</code>。</p>
+<p>根据总体流程图4，这里有一步从用户态拷贝数据到内核态的流程，其目的内存空间就是上一步分配的缓存页。这样，后面就可以使用该缓存页，将数据写到inode的数据区域。</p>
+<p>最后，函数cfs2_write_end进行收尾工作。关键路径是这样的<code>ocfs2_write_end-&gt;ocfs2_write_end_nolock-&gt;ocfs2_write_end_inline</code>。最后一个函数的实现如下代码（删除了一些非关键代码），可以看出数据被拷贝到inode的id_data成员所在的位置。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">ocfs2_write_end_inline</span><span class="params">(struct inode *inode, <span class="keyword">loff_t</span> pos,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   <span class="keyword">unsigned</span> len, <span class="keyword">unsigned</span> *copied,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   struct ocfs2_dinode *di,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   struct ocfs2_write_ctxt *wc)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">void</span> *kaddr;</span><br><span class="line">		... ...</span><br><span class="line">        kaddr = kmap_atomic(wc-&gt;w_target_page);</span><br><span class="line">        <span class="built_in">memcpy</span>(di-&gt;id2.i_data.id_data + pos, kaddr + pos, *copied);</span><br><span class="line">        kunmap_atomic(kaddr);</span><br><span class="line">        ... ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>至此，完成了inline模式下写数据的整个流程，整体来看，逻辑还是比较简单的。</p>
+<h2 id="extent模式"><a href="#extent模式" class="headerlink" title="extent模式"></a>extent模式</h2><p>在extent模式下场景比较多，如果多个场景混合在一起介绍势必比较复杂，也比较混乱。因此，本文先集中一种场景，基于这种场景理解其中最为核心的流程。这样，之后其它场景的理解也就变得比较简单。本文先介绍支持稀疏文件（spare）且没有reflink的场景。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ca374bcc3372d053.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图8 文件inode示意图"></p>
+<p>在该种场景下，ocfs2的inode中的id2成员的类型就变成了ocfs2_extent_list结构体，具体如上图所示。此时inode中的该成员可以理解成为B+<br>树的树根。如果文件比较大，且写数据的时候存在很多空洞的情况下，就会形成一个比较复杂的B+树。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-0ffbcae2c6c5fa45.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图9 文件B+树示意图"></p>
+<p>如上图是B+树的示意图，其中涉及的数据结构在图上都做了标注。同时，对于数据成员的偏移地址也做了标注。通过上图应该可以很清晰的了解涉及的数据结构（ocfs2_dinode/ocfs2_extent_block/ocfs2_extent_list/ocfs2_extent_rec）及关系，为了不使本文太乱，这里就不过多的贴代码了。本文只贴一下ocfs2_extent_rec结构体的代码。该结构体可以理解为是一个extent，其在不同情况下定义不同，分两种场景，一种是作为中间节点，另外一种是叶子节点。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_extent_rec</span> &#123;</span></span><br><span class="line"><span class="comment">/*00*/</span>  __le32 e_cpos;          <span class="comment">/* Offset into the file, in clusters */</span></span><br><span class="line">        <span class="keyword">union</span> &#123;</span><br><span class="line">                __le32 e_int_clusters; <span class="comment">/* 如果为非叶子节点时使用，Clusters covered by all children */</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">                        __le16 e_leaf_clusters; <span class="comment">/* 叶子节点时使用，表示该extent覆盖的簇的数量。</span></span><br><span class="line"><span class="comment">                                                   Clusters covered by this</span></span><br><span class="line"><span class="comment">                                                   extent */</span></span><br><span class="line">                        __u8 e_reserved1;</span><br><span class="line">                        __u8 e_flags; <span class="comment">/* Extent flags */</span></span><br><span class="line">                &#125;;</span><br><span class="line">        &#125;;</span><br><span class="line">        __le64 e_blkno;         <span class="comment">/* Physical disk offset, in blocks */</span></span><br><span class="line"><span class="comment">/*10*/</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>作为中间节点的情况下，该结构体中联合体成员为e_int_clusters类型，该成员描述了该中间节点下所有子节点包含的簇的数量。在叶子节点的情况下，该联合体定义为一个结构体，其中e_leaf_clusters成员描述了该extent涵盖的簇的数量。</p>
+<h3 id="主要流程-1"><a href="#主要流程-1" class="headerlink" title="主要流程"></a>主要流程</h3><p>如图是从入口函数开始主干调用关系，其中具体实现在ocfs2_write_begin_nolock函数中。在该函数中我们可以总结为3步，分别是：</p>
+<ol>
+<li>生成write_desc并计算需要的簇的数量（ocfs2_populate_write_desc），write_desc用于描述没一个extent的簇的使用情况。</li>
+<li>获取页缓存(ocfs2_grab_pages_for_write)，根据簇的数量获取对应的页缓存，为后面将用户态内容拷贝到内核态做准备。</li>
+<li>分配簇(ocfs2_write_cluster_by_desc)，根据write_desc的描述分配簇，这里主要是将簇管理结构体中位图（bitmap）的对应位进行置位操作。另外还会对第2步中的页进行处理，建立页与磁盘块之间的映射关系。<br>上述3步中有一种情况没有介绍，就是写请求的偏移大于文件大小的情况下会做一个特殊处理（ocfs2_zero_tail），这个我们后续在详细介绍。</li>
+</ol>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-2841a57f21bdc73b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图10 extent主要处理流程"></p>
+<p>结合图3，完成上述操作后，在VFS中就可以将用户态的数据拷贝到这里准备的页缓存当中，然后调用ocfs2_write_end函数更新页的状态（脏页状态），以便于内核可以将页缓存中的数据写入磁盘。</p>
+<h3 id="计算簇的数量"><a href="#计算簇的数量" class="headerlink" title="计算簇的数量"></a>计算簇的数量</h3><p>在支持稀疏文件的场景下文件的情况会比较复杂。由于文件可能会存在任何形式的空洞，而稀疏文件模式下为了节省磁盘的空间在分配簇的时候一般都是连续的，这样在后续写数据时情况就比较复杂。如图所示为文件数据与磁盘数据的对应关系，左边是文件数据，右边是磁盘数据。为了简单我们假设图中蓝色方框为1个簇大小的数据，空洞的大小也是1个簇的大小。假设一开始写文件的时候为每间隔1个簇写1个簇的数据，这样在磁盘上的数据通常是连续的。然后我们对该文件进行修改，在第一个空洞的地方写入1个簇的数据，这个时候在磁盘上显然没有与上一个簇地址连续的磁盘空间，因此需要分配新的磁盘空间（可能会会追加到当前数据的末尾，但不一定）。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-10b1183366b5fc54.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图11 空洞文件示意图"></p>
+<p>这个例子只是一个最简单的例子，实际生产环境可能会产生各式各样的文件，因此文件逻辑位置与磁盘物理位置的关系会非常复杂。</p>
+<p>计算需要簇数量并填充ocfs2_write_cluster_desc的实现在<code>ocfs2_populate_write_desc</code>函数中。该函数中一个非常重要的参数就是ocfs2_write_ctxt结构体，该结构体用于写数据时各个函数间关键信息的传递。而函数<code>ocfs2_populate_write_desc</code>则是用于填充其成员变量w_desc的，两种之间的关系如下代码所示。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_write_ctxt</span> &#123;</span></span><br><span class="line">	... ...</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_write_cluster_desc</span> <span class="title">w_desc</span>[<span class="title">OCFS2_MAX_CLUSTERS_PER_PAGE</span>];</span></span><br><span class="line">    ... ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>本文上面代码省略了一些不必要的代码，w_desc成员是一个数组，其主要针对大页内存情景而存在，该数组大小与大页的大小有关。由于ocfs2簇最小为4K，因此这里定义数组的大小定义为页大小除以4K的商，也就是页大小对于4K的倍数。这样就可以通过该成员变量描述每一个簇的情况（包括簇的逻辑地址、物理地址和一些附加属性）。后续流程正式通过该成员遍历确定是否需要分配新的簇来存储数据。</p>
+<p>为了便于理解，我们这里举一个例子，假设操作系统页大小为512K，ocfs2文件系统簇大小为128K。此时，由于ocfs2簇最小为4K，因此上述w_desc数组的大小为128个（512/4），但在使用的时候不会全部使用上，如果格式化的时候簇大小是4K可能会全部用上。如图右面的方格代表文件的逻辑地址，每一个方格大小是128K，蓝色代表有数据，白色代表是空洞。中间是本次期望写入的数据，大小是128K*3，也即需要使用3个簇。左面是w_desc数组，用于对簇进行描述。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-f267b227d1980751.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图12 desc填充示意图"></p>
+<p>在函数ocfs2_populate_write_desc中，由于待写如数据第一个簇在现有文件上是一个空洞，因此需要新分配一个簇，此时按照规则填充desc0，其中比较重要的是由于当前没有对应的簇，因此物理地址为0。对于第二个簇由于已经有数据，以及对应的物理簇，因此其物理地址是该物理簇的地址。以此类推，填充每一个desc。</p>
+<p>如果计算出来需要分配新的簇，此时会调用ocfs2_lock_allocators函数，该函数用于检查空间分配inode是否有足够的空间，如果一切顺利的情况下，会对其进行锁定，阻塞其它进程的访问。</p>
+<h3 id="获取缓存页"><a href="#获取缓存页" class="headerlink" title="获取缓存页"></a>获取缓存页</h3><p>通过调用函数ocfs2_grab_pages_for_write分配需要的缓存页，该函数比较简单，不再过多介绍了。</p>
+<h3 id="分配需要的簇"><a href="#分配需要的簇" class="headerlink" title="分配需要的簇"></a>分配需要的簇</h3><p>最后，调用ocfs2_write_cluster_by_desc函数进行实际的空间分配,函数根据之前desc的描述信息逐一分配簇。如下代码，这里删除了一些不必要的代码。从代码可以看出空间分配的核心是ocfs2_write_cluster函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ocfs2_write_cluster_by_desc</span><span class="params">(struct address_space *mapping,</span></span></span><br><span class="line"><span class="function"><span class="params">                                       struct ocfs2_alloc_context *data_ac,</span></span></span><br><span class="line"><span class="function"><span class="params">                                       struct ocfs2_alloc_context *meta_ac,</span></span></span><br><span class="line"><span class="function"><span class="params">                                       struct ocfs2_write_ctxt *wc, </span></span></span><br><span class="line"><span class="function"><span class="params">                                       <span class="keyword">loff_t</span> pos, <span class="keyword">unsigned</span> len)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        ... ...</span><br><span class="line">        <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; wc-&gt;w_clen; i++) &#123;</span><br><span class="line">                desc = &amp;wc-&gt;w_desc[i];</span><br><span class="line">                ... ...</span><br><span class="line"></span><br><span class="line">                ret = ocfs2_write_cluster(mapping, desc-&gt;c_phys,</span><br><span class="line">                                          desc-&gt;c_unwritten,</span><br><span class="line">                                          desc-&gt;c_needs_zero,</span><br><span class="line">                                          data_ac, meta_ac,</span><br><span class="line">                                          wc, desc-&gt;c_cpos, pos, local_len);</span><br><span class="line">				... ...</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>函数ocfs2_write_cluster主要做两件事情，一个是进行磁盘空间的分配（ocfs2_add_inode_data），另一个是对缓存页进行映射（ocfs2_prepare_page_for_write），建立缓存页与磁盘物理位置的关系。ocfs2_add_inode_data函数负责分配磁盘空间，分配的方式就是根据位图确定那些簇是可以用的，然后将位图置位（__ocfs2_claim_clusters），完成之后对extent的B+树进行更新（ocfs2_insert_extent）。关于磁盘空间分配部分的内容可以单独可以单独写一篇同样长度的文章，本文暂时不过多介绍，读者只需要了解包含上述两个主要步骤即可。ocfs2_prepare_page_for_write函数负责建立缓存页与磁盘逻辑地址的映射关系，这个函数实现逻辑比较简单，可以自行分析。</p>
+<p>关注作者微信公众号，更及时的获取原创IT技术文章。<br><img src="http://upload-images.jianshu.io/upload_images/11058170-4470c25a65d72f02.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="公众号二维码"></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2018/12/08/linux/filesystem/ocfs2/OCFS2文件系统磁盘布局与基本管理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2018/12/08/linux/filesystem/ocfs2/OCFS2文件系统磁盘布局与基本管理/" class="post-title-link" itemprop="url">OCFS2文件系统磁盘布局与基本管理</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-12-08 13:25:12" itemprop="dateCreated datePublished" datetime="2018-12-08T13:25:12+00:00">2018-12-08</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-16 12:30:58" itemprop="dateModified" datetime="2019-05-16T12:30:58+00:00">2019-05-16</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>前文已经大概介绍过OCFS2的<a href="http://www.itworld123.com/2018/11/17/ocfs2%e9%9b%86%e7%be%a4%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e5%8f%8a%e7%8e%af%e5%a2%83%e6%90%ad%e5%bb%ba/">部署和应用场景</a>，本文及后续文章重点介绍OCFS2文件系统的具体实现。为了便于后续代码的理解，本文首先介绍一下该文件系统关键数据的磁盘布局情况。理解磁盘布局是理解OCFS2文件系统的基础，只有理解了布局，才能更好的理解代码中的各种处理流程。</p>
+<blockquote>
+<p>本文介绍基于Linux4.1.12内核，其它版本内核可能稍有不同，但不影响理解。<br>本文示例文件系统格式化采用默认参数，也即4K逻辑块大小和128K簇块大小</p>
+</blockquote>
+<p>本文首先介绍文件系统在<code>整个磁盘的布局</code>情况，然后介绍<code>文件夹内数据</code>和<code>文件内数据</code>的布局。整体原则是从整体到局部，从轮廓到细节的顺序。</p>
+<h2 id="整体磁盘布局"><a href="#整体磁盘布局" class="headerlink" title="整体磁盘布局"></a>整体磁盘布局</h2><p>整体布局主要介绍OCFS2文件系统如何实现对整个磁盘的管理。如下图OCFS2文件系统与Ext4文件系统类似，将磁盘划分为若干组进行管理，Ext4文件系统叫块组（block group），这里成为簇组（cluster group），虽然概念不同，但大体用途基本一致。如果不了解Ext4文件系统也没有关系，下图能很清楚的说明磁盘的整体布局情况。如图所示最上面方框（第一行方框）表示的是簇组（cluster group），分别是Cluster Group0、Cluster Group1等等。对于文件系统将磁盘划分为簇组（可以简单理解为组）类似于超市将一层楼的空间划分为若干个货架来摆放货物，而不是堆到一起。通过货架来摆放物品明显可以提高货物查找的便捷性。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-96a6374a95fa6a2d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1\. 磁盘布局总图"></p>
+<p>如上图所示除了第一个簇组（Cluster Group0）比较特殊之外，其它簇组都是一样的，也就是最前面一个块是簇组描述信息，其后为<code>数据簇</code>（Cluster），也就是被管理的单元。第一个簇组特殊的原因是其中包含了很多元数据（管理数据），包括文件系统的超级块、系统文件夹和系统文件等内容，但管理的原理是一致的。</p>
+<blockquote>
+<p>OCFS2在管理磁盘空间时同时采用两种管理单元，一种叫做逻辑块，大小范围从512B到4K，大小必需是512B的2的幂整数倍（也即512B、1K等以此类推）；另外一种叫簇组，大小范围是4KB到1MB，大小必需是4KB的2的幂整数倍。</p>
+</blockquote>
+<p>如下图行所示为管理磁盘空间的基本原理。在簇组的最前面有一个簇组描述信息，其中一部分是位图（Bitmap），位图的每一位（Bit）与该空间的一个簇对应，如果对应的位为1，则标明相应的簇已经分配出去了，如果为0则说明没有被使用。因此文件系统可以根据位图中的相应<code>位</code>来确认那些簇是可以使用的。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-0a3d5dacea2ac930.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2\. 磁盘管理原理"></p>
+<p>前文已述，OCFS2第一个簇组（Cluster Group0）相对特殊，主要是包含很多元数据。如图1所示，主要包含如下几部分内容：<br>– <code>预留块</code>：在磁盘最开始的2个逻辑块为预留块，这个主要是为了与第一版本（OCFS）进行区分，因为两者是完全不兼容的。<br>– <code>簇组描述符</code>：簇组描述符是一个数据结构，里面包含描述簇组的所有信息，包含该簇组的使用情况、可用位的数量和本描述的偏移等等信息。<br>– <code>数据簇</code>：实际存储数据的部分</p>
+<p>了解了这些基本概念之后，还有一个问题没有解决。那就是簇组的大小是如何确定的呢？前文我们已经知道簇组通过其前面的簇组描述符进行管理，而该描述符默认占用一个块（4K）的空间，而该描述符前面基本描述信息占了64B，因此位图剩余的可用空间为4032(4096-64)B，也就是大3225位（Bit），因此最多可以管理32256个簇，也即4032M（32256*128KB）。</p>
+<p>另外，OCFS2还有一个本地管理的概念，由于OCFS2是集群文件系统，为了保证各个节点的协同，必然需要一种跨节点的网络锁（分布式锁），这样势必造成文件系统整体性能的下降。因此OCFS2在设计的时候增加了一个本地分配的功能，其基本原理是预先占用全局分配中的一块区域，然后在本节点内独自对该空间进行管理。</p>
+<p>对于本地分配的最大管理空间，由于使用的ocfs2_dinode进行管理（后面详述原理），也是占用1个块（4K），前面描述信息占用了208B，因此剩余的空间可以管理的最大空间为3888M。上文是以128K簇为例描述的，不同簇大小，簇组大小和本地分配的最大空间会有相应的变化，具体如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th>cluster size</th>
+<th>group size</th>
+<th>local alloc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4K</td>
+<td>126M</td>
+<td>121M</td>
+</tr>
+<tr>
+<td>8K</td>
+<td>252M</td>
+<td>243M</td>
+</tr>
+<tr>
+<td>16K</td>
+<td>504M</td>
+<td>486M</td>
+</tr>
+<tr>
+<td>32K</td>
+<td>1008M</td>
+<td>972M</td>
+</tr>
+<tr>
+<td>64K</td>
+<td>2016M</td>
+<td>1944M</td>
+</tr>
+<tr>
+<td>128K</td>
+<td>4032M</td>
+<td>3888M</td>
+</tr>
+<tr>
+<td>256K</td>
+<td>8064M</td>
+<td>7776M</td>
+</tr>
+<tr>
+<td>512K</td>
+<td>16128M</td>
+<td>15552M</td>
+</tr>
+<tr>
+<td>1024K</td>
+<td>32256M</td>
+<td>31104M</td>
+</tr>
+</tbody>
+</table>
+<h2 id="磁盘空间的管理"><a href="#磁盘空间的管理" class="headerlink" title="磁盘空间的管理"></a>磁盘空间的管理</h2><p>上面一节主要描述了OCFS2文件系统关于磁盘布局的基本内容及涉及的几个关键概念。本节将介绍一下该文件系统是如何对磁盘空间进行管理的。OCFS2比较特殊的地方在于，其都是通过inode进行管理的，每种不同的资源有不同的inode。在该文件系统中有一个用户看不到的文件夹，这里成为<code>系统文件夹</code>，其中存储这管理用的inode，也就是本文件系统的基本元数据。具体如表所示，本表不是全量，选择几个关键的inode进行介绍。</p>
+<table>
+<thead>
+<tr>
+<th>inode编号</th>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>65</td>
+<td>根目录</td>
+<td>这个是本文件系统的根目录，文件系统挂载后呈现给用户的根目录</td>
+</tr>
+<tr>
+<td>66</td>
+<td>系统目录</td>
+<td>本文件系统的管理目录，这个目录对用户不可见，用于实现对磁盘空间的管理</td>
+</tr>
+<tr>
+<td>68</td>
+<td>global_inode_alloc</td>
+<td>系统inode分配管理的inode，也就是该inode用于管理系统inode分配和回收</td>
+</tr>
+<tr>
+<td>71</td>
+<td>global_bitmap</td>
+<td>全局位图，用于实现对簇组簇的全局管理，访问时需要通过分布式锁进行保护</td>
+</tr>
+<tr>
+<td>80</td>
+<td>extent_alloc:0000</td>
+<td>元数据分配，带有0000是集群节点相关的，具体数量与槽位数相同，例如0000,0001等</td>
+</tr>
+<tr>
+<td>88</td>
+<td>inode_alloc:0000</td>
+<td>用于本地inode的分配管理，这个是用户的inode</td>
+</tr>
+<tr>
+<td>104</td>
+<td>local_alloc:0000</td>
+<td>该inode用于实现本地磁盘空间的管理</td>
+</tr>
+</tbody>
+</table>
+<h2 id="文件夹数据"><a href="#文件夹数据" class="headerlink" title="文件夹数据"></a>文件夹数据</h2><p>本文首先介绍文件夹是因为文件系统挂载后，首先呈现给用户的就是一个文件夹。挂载成功后，用户可以在其上创建文件，写读数据。文件名称和子文件夹其实就是文件夹内的数据，因此首先介绍文件夹的数据布局。</p>
+<p>文件夹中数据的存储有两种模式，如果开启了inline-data特性，那么起始情况下这些数据（文件名称和inode等信息）是存放在文件夹的inode的所在的区域内的。由于一个inode默认情况下占用4K的空间，因此对于文件数量不太多的文件夹，通过这块区域就可以存储，不需要额外申请空间。如果在文件夹中有海量文件的情况下，inode节点空间不足以存储这些信息，此时就会通过extent的方式存储这些数据。另外，为了便于文件夹内文件的检索，OCFS2有实现了一个索引树，可以通过该索引树快速检索文件。</p>
+<h3 id="inline模式"><a href="#inline模式" class="headerlink" title="inline模式"></a>inline模式</h3><p>inline模式比较简单，数据就存储在inode的内部，其位置是通过inode成员遍历id2确定。该成员是一个联合体，在不同的场景下类型不同，在文件夹inline模式下为一个ocfs2_inline_data的结构体，具体如图所示。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-65d5d26bbed00931.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3\. inline模式文件夹inode格式"></p>
+<p>id2对象内部成员id_count表示该文件夹内部项目的数量，id_data指向具体存储文件夹内部项目的信息。具体项目是通过一个名为ocfs2_dir_entry的结构体描述的。文件夹内部的这些项目线性的排布在id_data分配的存储空间中。如图是文件夹内部项目排布示意图和ocfs2_dir_entry结构体定义。这里需要重点说明的是ocfs2_dir_entry的rec_len成员，这里记录了该结构体的长度，这样根据起始位置id_data和前一个成员的长度，就能找到下一个成员的位置，也即进行项目的遍历。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-70825b228b0d8873.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4\. 数据排布示意图"></p>
+<h3 id="extent模式"><a href="#extent模式" class="headerlink" title="extent模式"></a>extent模式</h3><p>在extent模式则相对复杂一些，该种模式下extent其实是以B+树的方式存储文件夹内部的数据的。关于B+树的概念超出了本文的范围，具体实现请参考其它文章，本文仅仅介绍该种场景下文件夹数据的布局情况。如前文所示，不同的模式下inode的id2成员的类型不同，在extent模式下，该成员为ocfs2_extent_list类型的结构体。此时该inode的结构体定义如图所示。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-2374504fbd65b509.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5\. extent模式文件夹inode格式"></p>
+<p>对于文件夹数据所组成的B+树，是以ocfs2_dinode为根的一颗树，如下图灰色虚线指示的为树的父子节点之间的关系。红色虚线指示的是对结构体的进一步细化。本例中为B+树的高度为2，其中树根指向下一级节点，该级节点全部为叶子节点。叶子节点中有相关的记录项，记录了逻辑位置与磁盘物理位置的关系，而此时物理块的 数据就是目录项。实际情况可能树高可能为1，此时inode中的id2成员中的数据记录了逻辑位置与磁盘物理位置的关系。也可能树高更改，此时中间层存储的映射到的物理块并不是存储目录项的内容，而是进一步的映射关系。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-78b3a10bf5da2dad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6\. 数据排布示意图"></p>
+<p>在extent模式下一共涉及4种数据结构，分别是ocfs2_inode、ocfs2_extent_block、ocfs2_extent_list和ocfs2_extent_rec。其中ocfs2_extent_list是树中一个节点维护记录列表的数据结构，其中l_recs成员是一个ocfs2_extent_rec类型的数组，每一项记录了一个映射关系（逻辑地址到磁盘物理地址）。ocfs2_extent_block结构体可以理解为B+树非根节点的描述，其中也包含一个ocfs2_extent_list类型的成员，通过其内部的记录可以指向下一级节点（非叶子节点场景），或者其本身就可以指向存储文件夹数据的磁盘块（叶子节点场景）。</p>
+<h2 id="文件内数据"><a href="#文件内数据" class="headerlink" title="文件内数据"></a>文件内数据</h2><p>文件内数据的存储方式与文件夹类似，也存在这两种模式。文件的数据布局的基本原理与文件夹是一样的，差异是其中存储的是文件的具体数据。具体实现可以阅读代码，本文不在赘述。</p>
+<p>关注作者微信公众号，更及时的获取原创IT技术文章。<br><img src="http://upload-images.jianshu.io/upload_images/11058170-b2a7bfdc2a9e9487.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="公众号二维码"></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2018/12/01/linux/filesystem/ocfs2/OCFS2文件系统的集群管理及分布式锁/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2018/12/01/linux/filesystem/ocfs2/OCFS2文件系统的集群管理及分布式锁/" class="post-title-link" itemprop="url">OCFS2文件系统的集群管理及分布式锁</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-12-01 16:37:02" itemprop="dateCreated datePublished" datetime="2018-12-01T16:37:02+00:00">2018-12-01</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-16 12:30:58" itemprop="dateModified" datetime="2019-05-16T12:30:58+00:00">2019-05-16</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h2><p>OCFS2文件系统整体比较复杂，涉及的内核模块多达七八个。各个内核模块的名称及调用关系如图1所示。为了便于理解，我们对这个软件模块关系进行简化。简化后如图2所示。关于各个模块的详细分析我们放在后面，这样更利于理解。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-d3d837b0c89abb58.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 软件架构"></p>
+<p>简化后的软件栈变得比较简单，大概分为3层。从下网上分别是集群层，分布式锁和OCFS2文件系统。集群层用于建立一个集群的联系，也就是联通网络通信。分布式锁（DLM）层是分布式锁的具体实现，向文件系统层面提供抽象的、简单的锁接口。文件系统层是OCFS2文件系统的具体实现，其实现方式与常规文件系统并没有什么明显差异，只是在某些地方调用了分布式锁，以避免集群场景下多个节点对资源的冲突访问。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-be09a2f43193330a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 简化架构"><br>通过图2可以看到，下层是上层的基础，因此我们从下往上逐层介绍OCFS2文件系统各个组件的实现原理。为了便于后续阅读OCFS2文件系统的代码，本文会偶尔提到一些代码的信息，但不会大篇幅的贴源代码。</p>
+<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>集群管理的核心实现在ocfs2_nodemanager内核模块中。其代码在内核树的fs/ocfs2/cluster文件夹内，网络通信基于TCP协议。在集群各个节点启动起来之后，每个节点会根据配置文件中的节点信息向集群中其它节点发起连接请求，从而建立其网络通信的连接。如果以3个节点为例，最后形成的集群如图3所示，其中虚线是TCP连接。整个集群的所有节点其实是一个网状结构。这里需要说明的一点是节点在发起连接和接受连接的时候都会对双方的节点id进行判断，确保接收方的id小于发送方的id的情况才建立连接，否则不建立连接。这样保证在任意两个节点之间只有一个TCP连接，避免不必要的浪费。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-4b1b793360222495.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 网络连接"></p>
+<h3 id="集群初始化"><a href="#集群初始化" class="headerlink" title="集群初始化"></a>集群初始化</h3><p>在OCFS2文件系统中有一个o2cb服务，这个服务实现了对OCFS2文件系统的基本管理。其中比较重要的一点是其根据配置文件（/etc/ocfs2/cluster.conf）生成一个configfs目录树。里面包含整个文件系统集群的几乎全部管理信息，例如集群节点（含节点详情）、心跳间隔、重连间隔等等，如图所示是该目录树的整体结构。但需要注意的是，<code>heartbeat</code>目录及其下内容并不是在此时创建的，而是文件系统挂载的时候由mount.ocfs2命令（该命令会调用一个名为ocfs2_hb_ctl的子命令）创建的。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-9dad47dfc32821d6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 配置文件系统结构"></p>
+<p>OCFS2文件系统的网络通信是基于TCP协议。我们知道在TCP建立连接是需要服务的进行监听，而客户端进行连接。OCFS2的集群模块建立连接的大概流程是这样的。在configfs构建目录树创建集群节点（上图中ocfstest-&gt;node-&gt;ol6u9ext4路径）相关内容时，如果判断某个节点下local的值为1，也即该配置项节点就是本物理服务节点（注：这里物理服务节点并不是指物理服务器，可以是虚拟机等任何计算节点），那么就会起一个TCP的监听。同时需要了解的是，在设置节点编号（node-&gt;ol6u9ext4-&gt;num）时会对集群结构体（o2nm_cluster）中的cl_nodes成员进行填充，该成员是一个o2nm_node类型的数组，后续DLM中会用到相关的内容。</p>
+<p>前面已描述，本地监听是configfs构建目录项的时候触发的。其具体实现在ocfs2/cluster/nodemanager.c文件中，该文件中定义了在构建（和查看）目录树每一级目录项时会触发的动作。而上文中所说的，对某个节点下local项写数据时会触发o2nm_node_local_write函数，正是该函数触发了监听的建立。函数调用过程如下。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">o2nm_node_local_write-&gt;o2net_start_listening-&gt;o2net_open_listening_sock</span><br></pre></td></tr></table></figure>
+<p>在函数o2net_open_listening_sock内部调用内核的系统创建套接字等一系列API完成了监听的发起。同时在此时注册了一个回调函数，当有客户端发起连接时会触发回调函数进行具体的处理。</p>
+<p>除了完成套接字监听的建立外，这里还同时创建了一个名为o2net的独立线程工作队列（变量名为o2net_wq），另外创建变量名为o2net_listen_work工作任务（回调函数为o2net_accept_many）。当有客户端的连接请求时，套接字的回调函数会将上述工作任务提交给该工作队列进行处理。而该任务的作用就是接受连接请求，并创建一个新的套接字用于跟客户端进行通信。</p>
+<p>同理，TCP的连接请求也是在构建目录的时候发起的，但不同点在于，连接请求是在挂载文件系统时通过mount命令构建heartbeat目录时发起的。在构建heartbeat目录并完成基本信息的填充后，会触发内核启动一个内核线程。在该内核线程（o2hb_thread）内部会不断的触发心跳检测流程，在符合条件的情况下会发起网络连接请求。这样，由于有前面的监听和这里的发起连接的请求，最终会建立各个节点之间的网络通信，最后形成一个通信网络。这里形成的通信网络作为后续分布式锁的实现基础，分布式锁的整个通信就是依赖该通信网络。</p>
+<h3 id="磁盘心跳"><a href="#磁盘心跳" class="headerlink" title="磁盘心跳"></a>磁盘心跳</h3><p>除了网络连接之外，OCFS2文件系统的核心心跳机制其实是磁盘心跳，因为对于网络心跳，在2节点的情况下，如果出现网络连接的异常，节点是无法进行决策的。比如出现网络交换机故障，两个节点可能都会判断对方死亡，从而出现对磁盘的访问冲突。因此，这种情况下磁盘心跳就很必要了。磁盘心跳就不存在这样的问题，只要是节点对应区域的磁盘心跳信息没有更新，那必然是节点无法访问该磁盘（可能是节点宕机或者连接磁盘的链路故障），因此也不会出现磁盘访问冲突的问题。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-0d1f6c364694ed63.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 磁盘心跳"></p>
+<p>如图所示，OCFS2会在磁盘上划分一块磁盘区域用于做磁盘心跳，该区域按照512大小进行划分切割，每个节点可以使用一块。节点可以使用的区域以本节点的编号进行区分。这样不同的节点可以访问不同的磁盘区域，避免访问冲突。</p>
+<h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><p>OCFS2的分布式锁基于Kristin Thomas提出的理论实现。分布式锁是在集群环境下实现多个节点协同的，确保被访问的资源不会因为并发而出现不一致的情况。可以对比本地锁的概念理解分布式锁。</p>
+<h3 id="架构概述"><a href="#架构概述" class="headerlink" title="架构概述"></a>架构概述</h3><p>关于分布式锁的具体实现，需要关注的是有两个概念，一个是锁资源（lock resource），另外一个是锁（lock）。被锁的项被定义为锁资源，在一个应用第一次请求对资源进行加锁时，锁管理器会创建一个锁资源，锁资源是与实际资源相关联的。需要注意的是，一个锁资源可能会与多个锁相关联，但一个锁只能与一个锁资源关联。</p>
+<p>分布式锁的架构上并没有定义集群主节点的概念，而是以资源为粒度定义资源的主节点，这样每个节点都可以成为主节点，只不过是针对不同的资源。在OCFS2中，分布式锁资源是以inode为粒度进行的。由于没有集群主节点的概念，这样就可以将负载分摊在集群的所有节点上，从而避免单节点导致的性能瓶颈，同时也减少了主节点宕机时选择新主节点后的信息重构时间。</p>
+<p>锁资源在概念上需要包含3类组件，分别是：</p>
+<ul>
+<li>名称，作为锁资源的唯一性标识</li>
+<li>一个锁值块（lock value block， 简称LVB）</li>
+<li>一个锁队列的集合</li>
+</ul>
+<p>OCFS2具体实现的UML类图如图6所示，这里省略了部分成员。其中lockname是锁资源的名称，lvb是存储锁值块的字符数组，而granted、converting和blocked则是相关的队列。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-5e0977a90ca626ef.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 锁资源类图"></p>
+<h3 id="分布式锁的模式"><a href="#分布式锁的模式" class="headerlink" title="分布式锁的模式"></a>分布式锁的模式</h3><p>在DLM中，锁被定义为多种模式，以便于适应不同的应用场景。如表是各个模式的解释及互斥情况。</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>正在请求的进程</th>
+<th>其它进程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Null (NL)</td>
+<td>无连接</td>
+<td>可以进行读或者写</td>
+</tr>
+<tr>
+<td>并发读 (CR)</td>
+<td>只允许读</td>
+<td>读或者写</td>
+</tr>
+<tr>
+<td>并发写 (CW)</td>
+<td>读或者写</td>
+<td>读或者写</td>
+</tr>
+<tr>
+<td>保护读 (PR)</td>
+<td>只允许读</td>
+<td>只允许读</td>
+</tr>
+<tr>
+<td>保护写 (PW)</td>
+<td>读或者写</td>
+<td>只允许读</td>
+</tr>
+<tr>
+<td>互斥 (EX)</td>
+<td>读或者写</td>
+<td>不允许访问</td>
+</tr>
+</tbody>
+</table>
+<h3 id="基本流程"><a href="#基本流程" class="headerlink" title="基本流程"></a>基本流程</h3><p>分布式锁模块涉及的流程很多，本文重点描述一下加锁的流程，其它流程后续介绍。OCFS2文件系统在具体实现的时候实现了一个粘合层，增加该粘合层的目的是为了在不同栈的情况下，为上层提供统一的接口。如图7为加锁接口的模块栈，最上层为ocfs2文件系统模块，然后依次是ocfs2_stackglue、ocfs2_stack_o2cb和ocfs2_dlm。</p>
+<p><strong>ocfs2_stackglue</strong>就是前面说的粘合层，这个为ocfs2文件系统提供统一的接口。<br><strong>ocfs2_stack_o2cb</strong>是栈插件，这个就是o2cb插件，是OCFS2默认使用的插件。<br><strong>ocfs2_dlm</strong>是分布式锁的具体实现，具体的锁协议在该模块中实现。</p>
+<p>这里还有另外的栈插件，这样可以使用用户态的集群管理软件，增加了OCFS2文件系统的普适性。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-36e1f4a567720d7f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图7 模块栈"></p>
+<p>分布式锁的核心实现在dlmlock函数中，这个函数是ocfs2_dlm模块的一个函数。另外还有一个dlmunlock的函数，实现解锁的功能。我们先看一下这2个函数的声明。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">enum</span> dlm_status <span class="title">dlmlock</span><span class="params">(struct dlm_ctxt *dlm, <span class="keyword">int</span> mode,</span></span></span><br><span class="line"><span class="function"><span class="params">                        struct dlm_lockstatus *lksb, <span class="keyword">int</span> flags,</span></span></span><br><span class="line"><span class="function"><span class="params">                        <span class="keyword">const</span> <span class="keyword">char</span> *name, <span class="keyword">int</span> namelen, <span class="keyword">dlm_astlockfunc_t</span> *ast,</span></span></span><br><span class="line"><span class="function"><span class="params">                        <span class="keyword">void</span> *data, <span class="keyword">dlm_bastlockfunc_t</span> *bast)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">enum</span> dlm_status <span class="title">dlmunlock</span><span class="params">(struct dlm_ctxt *dlm, struct dlm_lockstatus *lksb,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">int</span> flags, <span class="keyword">dlm_astunlockfunc_t</span> *unlockast, <span class="keyword">void</span> *data)</span></span></span><br></pre></td></tr></table></figure>
+<p>前文已经说了，OCFS2的主节点是以资源为粒度，也就是以被锁的对象为粒度的。因此，OCFS2在调用dlmlock进行加锁的时候，首先需要做的事情就是选主的过程。在OCFS2的分布式锁中实现了一个二阶段的算法的选主算法。当一个节点想对资源进行加锁时，首先在本第创建一个锁资源，然后会向集群其它节点发送成为主节点的请求。如果所有节点回复其本节点不是主，你可以成为主，则该节点会成为主节点，如果有一个节点回复本节点已经是主节点，则发送请求的节点将该节点作为主节点处理。完成选主之后，下面流程判断自己是否为主节点，如果是则走本地锁的流程，如果不是则向主节点发送锁请求。</p>
+<p>从描述上就是这么简单，但实际实现还是比较复杂的，主要是需要处理各种异常情况。比如在选主过程中出现节点宕机、两个或者多个节点同时对同一个资源选主等等。本文先介绍到这里，关于分布式锁的更多的细节，后续文章在逐渐介绍。</p>
+<p>关注作者微信公众号，更及时的获取原创IT技术文章。<br><img src="http://upload-images.jianshu.io/upload_images/11058170-b2a7bfdc2a9e9487.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="公众号二维码"></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -932,7 +1666,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -996,7 +1730,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">17</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
