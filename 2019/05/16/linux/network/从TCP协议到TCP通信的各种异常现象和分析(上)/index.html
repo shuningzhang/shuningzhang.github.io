@@ -99,7 +99,7 @@
   <meta name="description" content="很多人总觉得学习TCP/IP协议没什么用，觉得日常编程开发只需要知道socket接口怎么用就可以了。如果大家定位过线上问题就会知道，实际上并非如此。如果应用在局域网内，且设备一切正常的情况下可能确实如此，但如果一旦出现诸如中间交换机不稳定、物理服务器宕机或者其它异常情况时，此时引起的问题如果只停留在套接字接口的理解层面将无法解决。因此，深入理解TCP/IP协议，对我们分析异常问题有很大的帮助。 下">
 <meta name="keywords" content="TCP,网络,问题分析">
 <meta property="og:type" content="article">
-<meta property="og:title" content="从TCP协议到TCP通信的各种异常现象和分析">
+<meta property="og:title" content="从TCP协议到TCP通信的各种异常现象和分析（上）">
 <meta property="og:url" content="http://www.itworld123.com/2019/05/16/linux/network/从TCP协议到TCP通信的各种异常现象和分析(上)/index.html">
 <meta property="og:site_name" content="SunnyZhang的IT世界">
 <meta property="og:description" content="很多人总觉得学习TCP/IP协议没什么用，觉得日常编程开发只需要知道socket接口怎么用就可以了。如果大家定位过线上问题就会知道，实际上并非如此。如果应用在局域网内，且设备一切正常的情况下可能确实如此，但如果一旦出现诸如中间交换机不稳定、物理服务器宕机或者其它异常情况时，此时引起的问题如果只停留在套接字接口的理解层面将无法解决。因此，深入理解TCP/IP协议，对我们分析异常问题有很大的帮助。 下">
@@ -111,9 +111,9 @@
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-99111eb72c27dd28?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-aa8272fb4f85d333?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-9bcd409f5a9786b8?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-05-16T12:42:58.955Z">
+<meta property="og:updated_time" content="2019-05-17T12:23:13.993Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="从TCP协议到TCP通信的各种异常现象和分析">
+<meta name="twitter:title" content="从TCP协议到TCP通信的各种异常现象和分析（上）">
 <meta name="twitter:description" content="很多人总觉得学习TCP/IP协议没什么用，觉得日常编程开发只需要知道socket接口怎么用就可以了。如果大家定位过线上问题就会知道，实际上并非如此。如果应用在局域网内，且设备一切正常的情况下可能确实如此，但如果一旦出现诸如中间交换机不稳定、物理服务器宕机或者其它异常情况时，此时引起的问题如果只停留在套接字接口的理解层面将无法解决。因此，深入理解TCP/IP协议，对我们分析异常问题有很大的帮助。 下">
 <meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/11058170-591ab42101f47555?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
@@ -133,7 +133,7 @@
   };
 </script>
 
-  <title>从TCP协议到TCP通信的各种异常现象和分析 | SunnyZhang的IT世界</title>
+  <title>从TCP协议到TCP通信的各种异常现象和分析（上） | SunnyZhang的IT世界</title>
   
 
 
@@ -366,7 +366,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">从TCP协议到TCP通信的各种异常现象和分析
+          <h1 class="post-title" itemprop="name headline">从TCP协议到TCP通信的各种异常现象和分析（上）
 
               
             
@@ -392,12 +392,24 @@
                 
               
 
-              <time title="创建时间：2019-05-16 19:37:02 / 修改时间：12:42:58" itemprop="dateCreated datePublished" datetime="2019-05-16T19:37:02+00:00">2019-05-16</time>
+              <time title="创建时间：2019-05-16 19:37:02" itemprop="dateCreated datePublished" datetime="2019-05-16T19:37:02+00:00">2019-05-16</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-17 12:23:13" itemprop="dateModified" datetime="2019-05-17T12:23:13+00:00">2019-05-17</time>
               
             
           </span>
@@ -521,6 +533,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2019/05/17/linux/network/2019-05-16-从TCP协议到TCP通信的各种异常现象和分析（下）/" rel="prev" title="从TCP协议到TCP通信的各种异常现象和分析（下）">
+                从TCP协议到TCP通信的各种异常现象和分析（下） <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -590,7 +606,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-count">17</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
