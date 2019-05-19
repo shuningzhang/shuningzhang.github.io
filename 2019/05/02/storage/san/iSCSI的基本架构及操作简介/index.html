@@ -106,7 +106,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-f6032bba0a55acfa?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-776598fb9f59b7fc?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-05-18T12:59:16.759Z">
+<meta property="og:updated_time" content="2019-05-19T11:41:08.567Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iSCSI的基本架构及操作简介">
 <meta name="twitter:description" content="iSCSI是由IBM发明的基于以太网的存储协议，该协议与SUN的NFS协议都是为了解决存储资源共享问题的解决方案。两者意图一致，只不过两者是不同的实现方式，前者在客户机上呈现的是一个块设备，而后者则是一个目录树。关于两者的区别，可以参考本号之前的文章（分布式存储与传统SAN、NAS相比，有什么优势与劣势？），本位不再赘述。 本文今天主要介绍一下iSCSI的整体架构，以及在Linux平台上启动器端（">
@@ -404,7 +404,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-18 12:59:16" itemprop="dateModified" datetime="2019-05-18T12:59:16+00:00">2019-05-18</time>
+                <time title="修改时间：2019-05-19 11:41:08" itemprop="dateModified" datetime="2019-05-19T11:41:08+00:00">2019-05-19</time>
               
             
           </span>
@@ -461,8 +461,8 @@
 <h1 id="启动器端配置"><a href="#启动器端配置" class="headerlink" title="启动器端配置"></a>启动器端配置</h1><p>Linux的启动器包含内核态的启动器、用户态的守护进程和命令行工具3部分内容，整体架构还是比较复杂的。但是如果不想理解其原理，只是一般使用的话，还是比较简单方便的。下面我们介绍一下其操作步骤（<strong>这里假设已经有一个存储设备</strong>），关于更详细的原理我们后续再进行详细的介绍。</p>
 <p><strong>启动iscsi守护进程</strong></p>
 <p>在启动器端是有一个守护进程的，首先要保证该守护进程是处于正常运行状态。如果没有运行的情况下需要启动该服务。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>service iscsi start</span><br></pre></td></tr></table></figure>
-<p>默认情况下，系统启动后此进程会自动运行的。如果没有自动运行可以通过下面命令进行控制和查看。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> chkconfig iscsi on</span><br><span class="line"><span class="meta">#</span> chkconfig iscsi --list （查看ISCSI启动状态）</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">service iscsi start</span></span><br></pre></td></tr></table></figure>
+<p>默认情况下，系统启动后此进程会自动运行的。如果没有自动运行可以通过下面命令进行控制和查看。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> chkconfig iscsi on</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> chkconfig iscsi --list （查看ISCSI启动状态）</span></span><br></pre></td></tr></table></figure></p>
 <p><strong>发现目标</strong></p>
 <p>默认情况下，iscsi发起方和目标方之间通过端口3260连接。假设已知iscsi的目标方IP是192.168.1.1，运行下列命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># iscsiadm -m discovery -t sendtargets -p 192.168.1.1:3260</span><br></pre></td></tr></table></figure></p>
 <p>如果一切正常，过此时找到并拥有了一个目标（target）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.1.1:3260,1 iqn.1997-05.com.test:itworld123</span><br></pre></td></tr></table></figure></p>
@@ -604,7 +604,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-count">18</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -621,7 +621,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">2</span>
+                      
+                    
+                    <span class="site-state-item-count">3</span>
                     <span class="site-state-item-name">分类</span>
                   
                 </div>
@@ -672,7 +674,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
