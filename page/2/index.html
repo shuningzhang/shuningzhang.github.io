@@ -337,6 +337,205 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/02/storage/san/iSCSI的基本架构及操作简介/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/02/storage/san/iSCSI的基本架构及操作简介/" class="post-title-link" itemprop="url">iSCSI的基本架构及操作简介</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-02 16:57:01" itemprop="dateCreated datePublished" datetime="2019-05-02T16:57:01+00:00">2019-05-02</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>iSCSI是由IBM发明的基于以太网的存储协议，该协议与SUN的NFS协议都是为了解决存储资源共享问题的解决方案。两者意图一致，只不过两者是不同的实现方式，前者在客户机上呈现的是一个块设备，而后者则是一个目录树。<strong>关于两者的区别，可以参考本号之前的文章（<a href="https://www.toutiao.com/i6640939526892028429/?group_id=6640939526892028429" target="_blank" rel="noopener">分布式存储与传统SAN、NAS相比，有什么优势与劣势？</a>），本位不再赘述</strong>。</p>
+<p>本文今天主要介绍一下iSCSI的整体架构，以及在Linux平台上<strong>启动器端</strong>（可以理解为客户端，后续介绍该概念）如何实现对存储设备（系统）的配置和访问。</p>
+<h1 id="整体架构概述"><a href="#整体架构概述" class="headerlink" title="整体架构概述"></a>整体架构概述</h1><p>概括的说，iSCSI是一种存储设备远程映射技术，它可以将一个远程服务器上的存储设备映射到本地，并呈现为一个块设备（大白话就是磁盘）。从普通用户的角度，映射过来的磁盘与本地安装的磁盘毫无差异。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-f6032bba0a55acfa?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<p>这种映射方式基于是基于SCSI协议的，SCSI协议是计算机与外围设备（例如硬盘、光盘等）通信的协议。而iSCSI则是通过TCP协议对SCSI进行封装的一种协议，也就是通过以太网传输SCSI协议的内容。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-776598fb9f59b7fc?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<p>从上图可以看出来，iSCSI其实也是一种典型的客户端服务器架构（CS架构），其中访问存储系统的计算机成为客户端，其中负责连接的软件成为<strong>启动器</strong>。而提供存储服务的计算机成为服务端，其中的软件成为<strong>目标器</strong>。</p>
+<p>由于iSCSI是基于TCP协议的，因此启动器和目标器可以是纯软件实现，也可以基于硬件实现。如果是硬件实现，硬件实现主要是对SCSI命令封装和解析等，这样可以释放CPU资源。目前在Linux下面，启动器和目标器都有纯软件的实现，比如启动器的实现Open-iSCSI，目标器的实现LIO、SCST和TGT等。</p>
+<h1 id="基本概念介绍"><a href="#基本概念介绍" class="headerlink" title="基本概念介绍"></a>基本概念介绍</h1><p>本节介绍关于iSCSI的一些基本概念，理解这些概念便于我们理解iSCSI的原理及后续阅读iSCSI的开源代码。</p>
+<p><strong>Network Portal</strong>: 网络端口。网络实体的一个组成部分，它有一个 TCP/IP 地址。 网络端口在 initiator 用 IP 地址标识， 在 target 用 IP 地址＋侦听的 TCP 端口标识。</p>
+<p><strong>Session</strong>:  连接 initiator 和 target 的一组 TCP 连接构成一个 session(可以简单理解为 I_T nexus)。可以向 session 添加 TCP 连接，也可以把 TCP 连接从 session 删除。 也就是说一个session中是可以有多个连接的。通过一个 session 的所有连接，initiator 只看到同一个 target。</p>
+<p><strong>Connection </strong>: 一个 TCP 连接。Initiator 和 target 之间使用一或者多个 TCP 连接通信。</p>
+<p><strong>CID(Connection ID)</strong>: 一个 session 里的每个 connection 用 CID 进行标识，该标识在 session 范围内是唯一。CID 由 initiator 产生，在 login 请求和使用 logout 关闭 连接时传递给 target。</p>
+<p><strong>SSID（Session ID）</strong>：一个 iSCSI Initiator 与 iSCSI Target 之间的会话（Session）由会话ID（SSID）定义，该会话ID是一个由发起方部分（ISID）和目标部分（Target Portal Group Tag）组成的元组。 ISID 在会话建立时由发起者明确指定。 Target Portal Group Tag 由发起者在连接建立时选择的 TCP端口来隐式指定。 当给定 TargetName 时，TargetPortalGroupTag 也必须由目标在连接建立期间作为确认返回。</p>
+<p><strong>Portal Groups</strong>: 网络端口组。iSCSI session 支持多连接，一些实现能把通过多个端口建立的多个连接捆绑到一个 session。 一个 iSCSI 网络实体的多个网络端口被定义为一个网络端口组，把该组和一个 session 联系起来，该 session 就可以捆绑通过该组内多个端口建立的多个连接，再使它们一起协同工作以达到捆绑的目的。每一个该组的 session 并不需要包括该组的所有网络端口。一个 iSCSI 节点可能有一或者多个网络端口组，但是每一个 iSCSI 使用的网络端口只能属于 iSCSI 节点的一个组。</p>
+<p><strong>Target Portal Group Tag</strong>: 网络端口组标识。使用 16 比特的数标识一个网络端口组。在 一个 iSCSI 节点里，所有具有同样组标志的端口构成一个网络端口组。</p>
+<p><strong>iSCSI Task</strong>:  一个 iSCSI 任务是指一个需要响应的 iSCSI 请求。</p>
+<p><strong>I_T nexus</strong>:  I_T nexus 是指一个 SCSI initiator 的端口和一个 SCSI target 端口之间 的关系。 对于 iSCSI， 这个关系对应一个 session， 它指 session 的 initiator 端和 iSCSI target 网络端口组之间的关系。I_T nexus 的标识是一对端口名称(iSCSI initiator 名称＋i＋ISID，iSCSI target 名称＋t＋网络端口组标识)。 PDU (Protocol Data Unit): initiator 和 target 之间通信时把信息分割为消息。这些 消息称为 iSCSI PDU。 SSID (Session ID): iSCSI initiator 和 iSCSI target 之间的 session 用 SSID 进行标识， 该标识由 initiator 部分的 ISID 和 target 部分的 TPGT 构成。</p>
+<p><strong>ISID（The initiator part of the Session Identifier）</strong>：发起方会话标识，由 initiator 在 session 建立的时候明确给出，</p>
+<p><strong>TSIH (Target Session Identifying Handle)</strong>: Target 分配给与特定名称 initiator 建立的 session 的标识。 但是 0 值被保留着用于 initiator 告知 target 这是一个新 session。 在为一个 session 添加一个 connect 时，TSIH 已经隐含指明。</p>
+<h1 id="启动器端配置"><a href="#启动器端配置" class="headerlink" title="启动器端配置"></a>启动器端配置</h1><p>Linux的启动器包含内核态的启动器、用户态的守护进程和命令行工具3部分内容，整体架构还是比较复杂的。但是如果不想理解其原理，只是一般使用的话，还是比较简单方便的。下面我们介绍一下其操作步骤（<strong>这里假设已经有一个存储设备</strong>），关于更详细的原理我们后续再进行详细的介绍。</p>
+<p><strong>启动iscsi守护进程</strong></p>
+<p>在启动器端是有一个守护进程的，首先要保证该守护进程是处于正常运行状态。如果没有运行的情况下需要启动该服务。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">service iscsi start</span></span><br></pre></td></tr></table></figure>
+<p>默认情况下，系统启动后此进程会自动运行的。如果没有自动运行可以通过下面命令进行控制和查看。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> chkconfig iscsi on</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> chkconfig iscsi --list （查看ISCSI启动状态）</span></span><br></pre></td></tr></table></figure></p>
+<p><strong>发现目标</strong></p>
+<p>默认情况下，iscsi发起方和目标方之间通过端口3260连接。假设已知iscsi的目标方IP是192.168.1.1，运行下列命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># iscsiadm -m discovery -t sendtargets -p 192.168.1.1:3260</span><br></pre></td></tr></table></figure></p>
+<p>如果一切正常，过此时找到并拥有了一个目标（target）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.1.1:3260,1 iqn.1997-05.com.test:itworld123</span><br></pre></td></tr></table></figure></p>
+<p><strong>登入节点</strong></p>
+<p>以上面被发现的目标为例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># iscsiadm -m node –T iqn.1997-05.com.test:itworld123 -p 192.168.1.1：3260 -l</span><br></pre></td></tr></table></figure></p>
+<p>其中iqn.1997-05.com.test:itworld123是目标名。</p>
+<p><strong>查看磁盘信息</strong></p>
+<p>正常来说，如果登录成功后在客户端操作系统中就可以看到新增的硬盘了。可以通过下面命令查看。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># fdisk –l</span><br></pre></td></tr></table></figure></p>
+<p><strong>格式化设备</strong></p>
+<p>iSCSI设备的使用与普通硬盘没有任何差异，比如我们想把该设备格式化为ext4文件系统，运行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># mkfs.ext4 /dev/sdb</span><br></pre></td></tr></table></figure></p>
+<p>具体使用我们这里就不再解释，使用方法与本地磁盘完全一致。</p>
+<p><strong>登出节点</strong></p>
+<p>有些情况下我们可能需要登出节点，此时将端口启动器和目标器之间的连接，磁盘也会消失。登出之前需要先停止对磁盘的使用。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># umount /mnt/iscsi_itworld123</span><br></pre></td></tr></table></figure></p>
+<p>执行如下命令可以登出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># iscsiadm -m node –T iqn.1997-05.com.test:raid -p 192.168.1.1:3260 –u</span><br></pre></td></tr></table></figure></p>
+<p><strong>登入需验证码的节点</strong></p>
+<p>为了保证存储设备的安全，可以对存储设备设置权限认证，这样只有合法用户才能访问存储设备。下面是具有认证的存储的登录方法。</p>
+<p><strong>1）开启认证</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iscsiadm -m node -T [装置] -o update --name node.session.auth.authmethod --value=CHAP *.使用-o同--op</span><br></pre></td></tr></table></figure></p>
+<p><strong>2）添加用户</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iscsiadm -m node -T [装置] --op update --name node.session.auth.username --value=[用户名]</span><br></pre></td></tr></table></figure></p>
+<p><strong>3）添加密码</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iscsiadm –m node –T [装置] –op update –name node.session.auth.password –value=[密码]</span><br></pre></td></tr></table></figure></p>
+<p>好了，今天先到这。我们今天主要介绍iSCSI的基本架构以及启动器端的使用。这个主要是让大家有个感性的认识，为后面介绍启动器的实现打下基础。<strong>后续我们将介绍启动器用户态管理程序的架构和实现，以及内核态启动器的实现。</strong></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/02/storage/从DAS到分布式存储_存储形式总结/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -399,7 +598,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -525,6 +724,182 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_layout/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_layout/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 数据的磁盘布局</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Ext2文件系统将磁盘划分为大小相等的逻辑块进行管理，其默认大小是4KB（不做特殊说明，本文后续内容都采用该默认值）。文件系统逻辑块的大小在格式化的时候可以指定的。文件系统将磁盘划分为逻辑块就好像一个大厦划分为若干个房间，或者超市规划为若干货架一样。同时为了便于管理和避免访问冲突，其将若干个逻辑块组成一个大的逻辑块，称为块组（Block Group）。块组是Ext2文件系统的管理单元，块组中又包含若干管理数据（元数据）实现对块组中的逻辑块的管理，比如那些逻辑块是什么功能，那些逻辑块已经被使用等等。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ff373fa444ffedd2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 磁盘的块组划分"></p>
+<p>通过一个大厦对一个磁盘进行类比在形象不过了。大厦框架好比磁盘；而房间是对大厦规划后的结果，好比对磁盘的格式化；大厦每层的布局图好比元数据。我们可以通过楼层和每层的布局图很容易的找到房间。文件系统与此类似，它通过元数据查找和管理逻辑块。</p>
+<p>如图2是某货架示意图。每层都被划分为不同的货架，每个货架都有编号，且防止固定类型的商品。比如有些放酸奶，有些放调料还有放奶粉等，并规划。我们通过示意图和房间号可以很容易找到具体位置。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-b04dec1db0725f4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 超市货架图"></p>
+<p>如图3是Ext2文件系统的磁盘布局图。如中间蓝色为磁盘的逻辑空间，它被划分为若干个块组。每个块组的大小相等。如果我们在格式化的时候采用的是默认参数，此时块组的大小是128MB（后面介绍为什么是128MB），每个逻辑块的大小是4KB。</p>
+<h2 id="整体布局"><a href="#整体布局" class="headerlink" title="整体布局"></a>整体布局</h2><p>每个块组内部都有相关的元数据对该块组进行管理。如图3所示，第一个块组中的元数据包括<code>引导块、超级块、块组描述符、预留GDT块、数据块位图、inode位图、inode表</code>和其它数据块。后续块组中有些是对超级块的备份，有些则没有第一个块组这么完整的元数据信息，而只有数据块位图、inode位图和inode表等元数据信息。也就是说块组其实分为两种，一种是有超级块的，比较复杂的块组（如图3下面淡棕色所示），另外一种是没有超级块的，比较简单的块组（如图3上面淡绿色所示）。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-120bc6923ddbc9ad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 块组及内部细节"></p>
+<p>引导块是作为引导操作系统用的，在文件系统作为根文件系统时使用。在系统加电启动是，其内容有BIOS自动装载并执行。它包含一个启动装载程序，用于从计算机安装的操作系统中选择一个启动，还负责继续启动过程。因此Ext2文件系统把这个区域预留出来，不作为文件系统管理的磁盘区域。</p>
+<p>超级块是文件系统起始位置，用于整个文件系统，它作为文件系统的入口，记录了整个文件系统的关键信息。而上面提到的其它元数据则只针对本块组。下面本文介绍一下每个元数据的具体作用。</p>
+<h3 id="超级块（SuperBlock）"><a href="#超级块（SuperBlock）" class="headerlink" title="超级块（SuperBlock）"></a>超级块（SuperBlock）</h3><p>超级块记录了整个文件系统的各种信息，包括逻辑块的数量、inode数量、支持的特性和维护信息等内容。为了保证整个文件系统的完整性，例如突然断电或者系统崩溃等场景，文件系统出现元数据损坏的情况，Ext2文件系统对超级块进行了备份。这样可以保证即使在第一个超级块出现损坏的情况下，仍然可以通过其它块组中的超级块进行恢复，不至于整个文件系统都不可访问。</p>
+<p>超级块位于第1个逻辑块内，由于第一个块组预留了1KB的内容作为系统引导，因此在该块组超级块的位置在1KB偏移处，而其它备份块组中的超级块都在该块组偏移为0的地方。超级块会占用1个逻辑块的空间（实际占用空间要小于该值），也就是说块组描述符（ext2_group_desc）是在4KB偏移的地方。如下代码是超级块在磁盘存放的结构体，磁盘数据被读出来后按照该结构体的格式进行解析，其中变量__lexx表示变量是小端对齐，使用是需要转换为CPU的对齐方式。在文件系统中还有另外一个结构体super_block，这个结构体用于代码逻辑中使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">struct ext2_super_block &#123;</span><br><span class="line">        __le32  s_inodes_count;         /* 整个文件系统inode的数量 */</span><br><span class="line">        __le32  s_blocks_count;         /* 整个文件系统逻辑块的数量 */</span><br><span class="line">        __le32  s_r_blocks_count;       /* Reserved blocks count */</span><br><span class="line">        __le32  s_free_blocks_count;    /* 文件系统剩余逻辑块的数量 */</span><br><span class="line">        __le32  s_free_inodes_count;    /* 文件系统剩余inode的数量 */</span><br><span class="line">        __le32  s_first_data_block;     /* First Data Block */</span><br><span class="line">        __le32  s_log_block_size;       /* Block size */</span><br><span class="line">        __le32  s_log_frag_size;        /* Fragment size */</span><br><span class="line">        __le32  s_blocks_per_group;     /* 每一个块组中逻辑块的数量 */</span><br><span class="line">        __le32  s_frags_per_group;      /* # Fragments per group */</span><br><span class="line">        __le32  s_inodes_per_group;     /* 每一个块组中inode的数量 */</span><br><span class="line">        __le32  s_mtime;                /* 挂载时间 */</span><br><span class="line">        __le32  s_wtime;                /* 写时间 */</span><br><span class="line">        __le16  s_mnt_count;            /* 挂载数量 */</span><br><span class="line">        __le16  s_max_mnt_count;        /* Maximal mount count */</span><br><span class="line">        __le16  s_magic;                /* Magic signature */</span><br><span class="line">        __le16  s_state;                /* File system state */</span><br><span class="line">        __le16  s_errors;               /* Behaviour when detecting errors */</span><br><span class="line">        __le16  s_minor_rev_level;      /* minor revision level */</span><br><span class="line">        __le32  s_lastcheck;            /* time of last check */</span><br><span class="line">        __le32  s_checkinterval;        /* max. time between checks */</span><br><span class="line">        __le32  s_creator_os;           /* OS */</span><br><span class="line">        __le32  s_rev_level;            /* Revision level */</span><br><span class="line">        __le16  s_def_resuid;           /* Default uid for reserved blocks */</span><br><span class="line">        __le16  s_def_resgid;           /* Default gid for reserved blocks */</span><br><span class="line">        __le32  s_first_ino;            /* 第一个非保留inode的id，ext2有一些保留的inode，比如2用于根目录 */</span><br><span class="line">        __le16   s_inode_size;          /* inode结构体的大小 */</span><br><span class="line">        __le16  s_block_group_nr;       /* 本超级块所位于的块组的编号 */</span><br><span class="line">        __le32  s_feature_compat;       /* compatible feature set */</span><br><span class="line">        __le32  s_feature_incompat;     /* incompatible feature set */</span><br><span class="line">        __le32  s_feature_ro_compat;    /* readonly-compatible feature set */</span><br><span class="line">        __u8    s_uuid[16];             /* 128-bit uuid for volume */</span><br><span class="line">        char    s_volume_name[16];      /* volume name */</span><br><span class="line">        char    s_last_mounted[64];     /* directory where last mounted */</span><br><span class="line">        __le32  s_algorithm_usage_bitmap; /* For compression */</span><br><span class="line">        /*</span><br><span class="line">         * Performance hints.  Directory preallocation should only</span><br><span class="line">         * happen if the EXT2_COMPAT_PREALLOC flag is on.</span><br><span class="line">         */</span><br><span class="line">        __u8    s_prealloc_blocks;      /* Nr of blocks to try to preallocate*/</span><br><span class="line">        __u8    s_prealloc_dir_blocks;  /* Nr to preallocate for dirs */</span><br><span class="line">        __u16   s_padding1;</span><br><span class="line">        ... ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><strong>块组描述符</strong></p>
+<p>块组描述符，顾名思义是对该块组的描述，其中包括该块组中数据块位图的位置、inode位图位置和inode表位置等信息。另外，还包括数据块和inode的剩余情况等信息。块组描述符位于第2个逻辑块，占用一个逻辑块的空间。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">struct ext2_group_desc</span><br><span class="line">&#123;                                                   </span><br><span class="line">        __le32  bg_block_bitmap;                /* Blocks bitmap block */ </span><br><span class="line">        __le32  bg_inode_bitmap;                /* Inodes bitmap block */</span><br><span class="line">        __le32  bg_inode_table;         /* Inodes table block */</span><br><span class="line">        __le16  bg_free_blocks_count;   /* Free blocks count */</span><br><span class="line">        __le16  bg_free_inodes_count;   /* Free inodes count */</span><br><span class="line">        __le16  bg_used_dirs_count;     /* Directories count */</span><br><span class="line">        __le16  bg_pad;</span><br><span class="line">        __le32  bg_reserved[3];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p><strong>数据块位图</strong></p>
+<p>数据块位图标识了块组中那个数据块被使用了，那个没有被使用。磁盘中每个被管理的逻辑块在该位图中用1bit进行表示，0为未使用，1为已经使用。数据块位图占用1个逻辑块，对于默认块大小(4KB)情况，可以管理4096<em>8个逻辑块，也即4096</em>8*4096=128MB的空间。当然如果格式化的时候块大小为8KB，则管理的空间会更大一些。</p>
+<p><strong>inode位图</strong></p>
+<p>inode位图与逻辑块位图类似，描述inode的使用情况。inode用于唯一标识一个文件，其为一个编号。文件系统根据这个编号查找具体的问题。在inode位图中每一位标识inode表中的个inode是否被使用。关于什么是inode表，请参考下面的描述。<br>默认情况inode位图占用的空间也为4KB。</p>
+<p><strong>inode表</strong></p>
+<p>inode表一列表的形式保存了文件的元数据信息，包括文件大小、扩展属性和时间等内容。由于inode结构的大小根据格式化文件系统的属性而有差异，因此该表占用的磁盘空间不定，大概若干个逻辑块的大小。关于文件名称与inode数据结构的关系是通过inode的id确定的，在文件夹中的文件存储包含文件名和inode的id信息，而通过该id可以计算出inode数据结构位于的块组位置和inode表位置。</p>
+<p>本文简要介绍一下Ext4文件系统的磁盘布局情况，后续会更加详细的介绍每一部分的细节。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -587,7 +962,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -771,7 +1146,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -827,182 +1202,6 @@
 <p>上图中的函数指针具体实现是Ext2文件系统ext2_readpages函数，该函数的调用流程大致如图7所示。该函数主要实现缓存页的映射和从磁盘读取数据的操作。磁盘读取调用的块设备层的submit_bio函数。</p>
 <p><img src="http://upload-images.jianshu.io/upload_images/11058170-ce88c83a26626c5c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图7 读数据缓存基本逻辑"></p>
 <p>至此，将磁盘上的数据读取到了页缓存中，其后的流程与缓存命中场景一致，也即拷贝页缓存的内容到用户态缓冲区等。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_layout/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Sunny Zhang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/itworld_logo_300.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SunnyZhang的IT世界">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/05/01/linux/filesystem/ext2/ext2_layout/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 数据的磁盘布局</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Ext2文件系统将磁盘划分为大小相等的逻辑块进行管理，其默认大小是4KB（不做特殊说明，本文后续内容都采用该默认值）。文件系统逻辑块的大小在格式化的时候可以指定的。文件系统将磁盘划分为逻辑块就好像一个大厦划分为若干个房间，或者超市规划为若干货架一样。同时为了便于管理和避免访问冲突，其将若干个逻辑块组成一个大的逻辑块，称为块组（Block Group）。块组是Ext2文件系统的管理单元，块组中又包含若干管理数据（元数据）实现对块组中的逻辑块的管理，比如那些逻辑块是什么功能，那些逻辑块已经被使用等等。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ff373fa444ffedd2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 磁盘的块组划分"></p>
-<p>通过一个大厦对一个磁盘进行类比在形象不过了。大厦框架好比磁盘；而房间是对大厦规划后的结果，好比对磁盘的格式化；大厦每层的布局图好比元数据。我们可以通过楼层和每层的布局图很容易的找到房间。文件系统与此类似，它通过元数据查找和管理逻辑块。</p>
-<p>如图2是某货架示意图。每层都被划分为不同的货架，每个货架都有编号，且防止固定类型的商品。比如有些放酸奶，有些放调料还有放奶粉等，并规划。我们通过示意图和房间号可以很容易找到具体位置。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-b04dec1db0725f4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 超市货架图"></p>
-<p>如图3是Ext2文件系统的磁盘布局图。如中间蓝色为磁盘的逻辑空间，它被划分为若干个块组。每个块组的大小相等。如果我们在格式化的时候采用的是默认参数，此时块组的大小是128MB（后面介绍为什么是128MB），每个逻辑块的大小是4KB。</p>
-<h2 id="整体布局"><a href="#整体布局" class="headerlink" title="整体布局"></a>整体布局</h2><p>每个块组内部都有相关的元数据对该块组进行管理。如图3所示，第一个块组中的元数据包括<code>引导块、超级块、块组描述符、预留GDT块、数据块位图、inode位图、inode表</code>和其它数据块。后续块组中有些是对超级块的备份，有些则没有第一个块组这么完整的元数据信息，而只有数据块位图、inode位图和inode表等元数据信息。也就是说块组其实分为两种，一种是有超级块的，比较复杂的块组（如图3下面淡棕色所示），另外一种是没有超级块的，比较简单的块组（如图3上面淡绿色所示）。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-120bc6923ddbc9ad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 块组及内部细节"></p>
-<p>引导块是作为引导操作系统用的，在文件系统作为根文件系统时使用。在系统加电启动是，其内容有BIOS自动装载并执行。它包含一个启动装载程序，用于从计算机安装的操作系统中选择一个启动，还负责继续启动过程。因此Ext2文件系统把这个区域预留出来，不作为文件系统管理的磁盘区域。</p>
-<p>超级块是文件系统起始位置，用于整个文件系统，它作为文件系统的入口，记录了整个文件系统的关键信息。而上面提到的其它元数据则只针对本块组。下面本文介绍一下每个元数据的具体作用。</p>
-<h3 id="超级块（SuperBlock）"><a href="#超级块（SuperBlock）" class="headerlink" title="超级块（SuperBlock）"></a>超级块（SuperBlock）</h3><p>超级块记录了整个文件系统的各种信息，包括逻辑块的数量、inode数量、支持的特性和维护信息等内容。为了保证整个文件系统的完整性，例如突然断电或者系统崩溃等场景，文件系统出现元数据损坏的情况，Ext2文件系统对超级块进行了备份。这样可以保证即使在第一个超级块出现损坏的情况下，仍然可以通过其它块组中的超级块进行恢复，不至于整个文件系统都不可访问。</p>
-<p>超级块位于第1个逻辑块内，由于第一个块组预留了1KB的内容作为系统引导，因此在该块组超级块的位置在1KB偏移处，而其它备份块组中的超级块都在该块组偏移为0的地方。超级块会占用1个逻辑块的空间（实际占用空间要小于该值），也就是说块组描述符（ext2_group_desc）是在4KB偏移的地方。如下代码是超级块在磁盘存放的结构体，磁盘数据被读出来后按照该结构体的格式进行解析，其中变量__lexx表示变量是小端对齐，使用是需要转换为CPU的对齐方式。在文件系统中还有另外一个结构体super_block，这个结构体用于代码逻辑中使用。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">struct ext2_super_block &#123;</span><br><span class="line">        __le32  s_inodes_count;         /* 整个文件系统inode的数量 */</span><br><span class="line">        __le32  s_blocks_count;         /* 整个文件系统逻辑块的数量 */</span><br><span class="line">        __le32  s_r_blocks_count;       /* Reserved blocks count */</span><br><span class="line">        __le32  s_free_blocks_count;    /* 文件系统剩余逻辑块的数量 */</span><br><span class="line">        __le32  s_free_inodes_count;    /* 文件系统剩余inode的数量 */</span><br><span class="line">        __le32  s_first_data_block;     /* First Data Block */</span><br><span class="line">        __le32  s_log_block_size;       /* Block size */</span><br><span class="line">        __le32  s_log_frag_size;        /* Fragment size */</span><br><span class="line">        __le32  s_blocks_per_group;     /* 每一个块组中逻辑块的数量 */</span><br><span class="line">        __le32  s_frags_per_group;      /* # Fragments per group */</span><br><span class="line">        __le32  s_inodes_per_group;     /* 每一个块组中inode的数量 */</span><br><span class="line">        __le32  s_mtime;                /* 挂载时间 */</span><br><span class="line">        __le32  s_wtime;                /* 写时间 */</span><br><span class="line">        __le16  s_mnt_count;            /* 挂载数量 */</span><br><span class="line">        __le16  s_max_mnt_count;        /* Maximal mount count */</span><br><span class="line">        __le16  s_magic;                /* Magic signature */</span><br><span class="line">        __le16  s_state;                /* File system state */</span><br><span class="line">        __le16  s_errors;               /* Behaviour when detecting errors */</span><br><span class="line">        __le16  s_minor_rev_level;      /* minor revision level */</span><br><span class="line">        __le32  s_lastcheck;            /* time of last check */</span><br><span class="line">        __le32  s_checkinterval;        /* max. time between checks */</span><br><span class="line">        __le32  s_creator_os;           /* OS */</span><br><span class="line">        __le32  s_rev_level;            /* Revision level */</span><br><span class="line">        __le16  s_def_resuid;           /* Default uid for reserved blocks */</span><br><span class="line">        __le16  s_def_resgid;           /* Default gid for reserved blocks */</span><br><span class="line">        __le32  s_first_ino;            /* 第一个非保留inode的id，ext2有一些保留的inode，比如2用于根目录 */</span><br><span class="line">        __le16   s_inode_size;          /* inode结构体的大小 */</span><br><span class="line">        __le16  s_block_group_nr;       /* 本超级块所位于的块组的编号 */</span><br><span class="line">        __le32  s_feature_compat;       /* compatible feature set */</span><br><span class="line">        __le32  s_feature_incompat;     /* incompatible feature set */</span><br><span class="line">        __le32  s_feature_ro_compat;    /* readonly-compatible feature set */</span><br><span class="line">        __u8    s_uuid[16];             /* 128-bit uuid for volume */</span><br><span class="line">        char    s_volume_name[16];      /* volume name */</span><br><span class="line">        char    s_last_mounted[64];     /* directory where last mounted */</span><br><span class="line">        __le32  s_algorithm_usage_bitmap; /* For compression */</span><br><span class="line">        /*</span><br><span class="line">         * Performance hints.  Directory preallocation should only</span><br><span class="line">         * happen if the EXT2_COMPAT_PREALLOC flag is on.</span><br><span class="line">         */</span><br><span class="line">        __u8    s_prealloc_blocks;      /* Nr of blocks to try to preallocate*/</span><br><span class="line">        __u8    s_prealloc_dir_blocks;  /* Nr to preallocate for dirs */</span><br><span class="line">        __u16   s_padding1;</span><br><span class="line">        ... ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p><strong>块组描述符</strong></p>
-<p>块组描述符，顾名思义是对该块组的描述，其中包括该块组中数据块位图的位置、inode位图位置和inode表位置等信息。另外，还包括数据块和inode的剩余情况等信息。块组描述符位于第2个逻辑块，占用一个逻辑块的空间。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">struct ext2_group_desc</span><br><span class="line">&#123;                                                   </span><br><span class="line">        __le32  bg_block_bitmap;                /* Blocks bitmap block */ </span><br><span class="line">        __le32  bg_inode_bitmap;                /* Inodes bitmap block */</span><br><span class="line">        __le32  bg_inode_table;         /* Inodes table block */</span><br><span class="line">        __le16  bg_free_blocks_count;   /* Free blocks count */</span><br><span class="line">        __le16  bg_free_inodes_count;   /* Free inodes count */</span><br><span class="line">        __le16  bg_used_dirs_count;     /* Directories count */</span><br><span class="line">        __le16  bg_pad;</span><br><span class="line">        __le32  bg_reserved[3];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<p><strong>数据块位图</strong></p>
-<p>数据块位图标识了块组中那个数据块被使用了，那个没有被使用。磁盘中每个被管理的逻辑块在该位图中用1bit进行表示，0为未使用，1为已经使用。数据块位图占用1个逻辑块，对于默认块大小(4KB)情况，可以管理4096<em>8个逻辑块，也即4096</em>8*4096=128MB的空间。当然如果格式化的时候块大小为8KB，则管理的空间会更大一些。</p>
-<p><strong>inode位图</strong></p>
-<p>inode位图与逻辑块位图类似，描述inode的使用情况。inode用于唯一标识一个文件，其为一个编号。文件系统根据这个编号查找具体的问题。在inode位图中每一位标识inode表中的个inode是否被使用。关于什么是inode表，请参考下面的描述。<br>默认情况inode位图占用的空间也为4KB。</p>
-<p><strong>inode表</strong></p>
-<p>inode表一列表的形式保存了文件的元数据信息，包括文件大小、扩展属性和时间等内容。由于inode结构的大小根据格式化文件系统的属性而有差异，因此该表占用的磁盘空间不定，大概若干个逻辑块的大小。关于文件名称与inode数据结构的关系是通过inode的id确定的，在文件夹中的文件存储包含文件名和inode的id信息，而通过该id可以计算出inode数据结构位于的块组位置和inode表位置。</p>
-<p>本文简要介绍一下Ext4文件系统的磁盘布局情况，后续会更加详细的介绍每一部分的细节。</p>
 
           
         
@@ -1121,7 +1320,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -1308,7 +1507,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -1499,7 +1698,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -1723,7 +1922,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -2010,7 +2209,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -2170,7 +2369,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -2214,7 +2413,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-count">21</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2294,7 +2493,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">24</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>

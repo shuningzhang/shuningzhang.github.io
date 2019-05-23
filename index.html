@@ -337,6 +337,172 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/23/storage/ceph/Ceph块存储客户端架构及流程简析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/23/storage/ceph/Ceph块存储客户端架构及流程简析/" class="post-title-link" itemprop="url">Ceph块存储客户端架构及流程简析</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-23 21:16:21 / 修改时间：10:55:17" itemprop="dateCreated datePublished" datetime="2019-05-23T21:16:21+00:00">2019-05-23</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Ceph/" itemprop="url" rel="index"><span itemprop="name">Ceph</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Ceph可以提供文件、块和对象三种类型的存储形式，<strong>但最为主要的存储形式就是块存储</strong>。Ceph块存储可以直接与云计算平台进行对接，比如OpenStack等。另外，Ceph提供了访问块存储的API和内核模块。内核模块解决了通过裸机访问Ceph块存储的问题。本文主要介绍一下用户态块存储客户端的架构和基本的读写流程，后续再详细介绍内核模块客户端的实现。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-93bbc0751d50dd94.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 Ceph的块存储"><br>在介绍客户端实现之前我们有必要介绍一下Ceph块存储实现的基本原理。我们知道块存储（磁盘）在用户端呈现的其实就是一个线性空间，如图2蓝色长条。Ceph的做法是将该空间切割为等长的段，并用对象存储表示，而对象名称就是磁盘的LBA。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-794430faa13b5ea7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 Ceph块存储原理"><br>比如我们创建了一个1G的块存储，并采用Ceph默认的策略（每4MB用一个对象存储）。那么，如果在磁盘的开头有写数据（比如1KB），客户端就会创建一个4MB的对象，名称格式为image_hash_lba。如图3是一个块存储存储数据的对象的实例，其中红色方框中的内容正是数据的LBA。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-3b61eb02b8dd1bf6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 块存储对象的名称实例"><br>总的来说，<strong>Ceph的块存储是转换为对象来存储的</strong>。</p>
+<h1 id="Ceph的块存储API"><a href="#Ceph的块存储API" class="headerlink" title="Ceph的块存储API"></a>Ceph的块存储API</h1><p>在后续分析块存储架构之前，我们先了解一下客户端的API及使用方法。下面给出一些代码片段，这里并非完整的代码，也没有异常处理，仅仅用于说明基本流程。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 访问块存储需要定义的对象 */</span></span><br><span class="line">librados::Rados rados; <span class="comment">/* rados集群 */</span></span><br><span class="line">librados::IoCtx io_ctx;   <span class="comment">/* IO上下文 */</span></span><br><span class="line">librbd::RBD rbd;          <span class="comment">/* 块设备 */</span></span><br><span class="line">librbd::Image image;   <span class="comment">/* 具体的磁盘 */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 下面是基本的访问流程 */</span></span><br><span class="line"><span class="comment">/* 集群初始化工作，完成与Rados集群的连接 */</span></span><br><span class="line">ret = rados.init(<span class="string">"admin"</span>);</span><br><span class="line">rados.conf_read_file(<span class="string">"/etc/ceph/ceph.conf"</span>);</span><br><span class="line">rados.connect();</span><br><span class="line"><span class="comment">/* 创建一个IO上下文，用于对象级的读写 */</span></span><br><span class="line">rados.ioctx_create(pool_name, io_ctx);</span><br><span class="line"><span class="comment">/* 块设备的访问，构建image，并使用其方法 */</span></span><br><span class="line">rbd.open(io_ctx, image, image_name);</span><br><span class="line">image.write2(ofs_w, len_w, bl_r, <span class="number">0</span>);</span><br></pre></td></tr></table></figure></p>
+<p>了解到上述流程后，我们知道与块存储相关的有2个类，分别是RBD和Image。其中RBD是块存储系统相关的类，用于实现块存储相关的<strong>管理操作</strong>，比如创建删除镜像、创建镜像组和镜像的复制配对等等操作。而Image类则用于具体镜像（磁盘）的操作，比如镜像数据的读写、镜像属性和快照的创建删除等等。</p>
+<h1 id="Ceph块存储客户端基本架构"><a href="#Ceph块存储客户端基本架构" class="headerlink" title="Ceph块存储客户端基本架构"></a>Ceph块存储客户端基本架构</h1><p>在介绍块存储架构之前，我们先看一下块存储的使用流程。从上面代码可以看到这里核心的有2点，一个是创建一个IO上下文，这个是实现对象级数据读写的，我们在librados中曾经介绍过；另外一个是通过rbd.open打开一个块存储设备，<strong>而这里面最为重要的是传入了IO上下文参数（IoCtx）</strong>。<br>如果我们再继续深入介绍之前，我们先看一下rbd.open函数，如下是该函数的源代码（省略了部分不重要的内容）。从代码中可以看出这里的核心是创建了一个ImageCtx对象，并且通过参数传出。而传出的参数就是我们后面需要使用的访问磁盘的对象。同时，这里还需要注意的是构建ImageCtx对象时讲IO上下文传入其中，因此后续的IO操作就可以通过该上下文接口实现。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> RBD::open(IoCtx&amp; io_ctx, Image&amp; image, <span class="keyword">const</span> <span class="keyword">char</span> *name,</span><br><span class="line">              <span class="keyword">const</span> <span class="keyword">char</span> *snap_name)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">/* 构建一个ImageCtx对象，这里表示一个磁盘设备 */</span></span><br><span class="line">  ImageCtx *ictx = <span class="keyword">new</span> ImageCtx(name, <span class="string">""</span>, snap_name, io_ctx, <span class="literal">false</span>);</span><br><span class="line">  TracepointProvider::initialize&lt;tracepoint_traits&gt;(get_cct(io_ctx)); </span><br><span class="line">  ... ...</span><br><span class="line">  <span class="keyword">int</span> r = ictx-&gt;state-&gt;open(<span class="literal">false</span>);</span><br><span class="line">  <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123; </span><br><span class="line">    tracepoint(librbd, open_image_exit, r);</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">  &#125;    </span><br><span class="line"></span><br><span class="line">  image.ctx = (<span class="keyword">image_ctx_t</span>) ictx;</span><br><span class="line">  tracepoint(librbd, open_image_exit, <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对于Ceph块存储客户端可以简单的划分为3层，分别是<strong>API接口层、块存储逻辑层和lirados层</strong>。当然，实际情况比这个要复杂的多（例如前文librados就包含4层），我们这里为了简化描述，暂且认为只包含这3层。后续，我们将深入介绍没一层。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-1ee8d70ca211dee5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 块设备基本架构"><br>结合上述3层架构，我们看一下每层涉及的类。在API层主要包括RBD和Image 2个类，关于这两个类的作用我们在前文已经做过介绍，这里不在赘述。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-7fa926ac7f1c463c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 块存储结构类图"><br>在<strong>块存储逻辑层</strong>最主要的类是ImageCtx类，其中主要包含CephContext、ImageRquestWQ和ObjectDispatcher类。其中<code>ImageCtx</code>类为块设备（Image）上下文类，该类负责处理块设备相关的，核心是实现块设备线性空间到对象存储之间的转换。除此之外，还包括一些高级功能，包括磁盘镜像、快照和磁盘组等。<br>上述<code>ImageRequestWQ</code>类是一个IO相关的队列类，接口层的异步请求会缓存到该队列中，并通过起内部接口实现IO的发送。而<code>ObjectDispatcher</code>类则负责将转换后的请求（对象请求）发送到RADOS集群中。</p>
+<h1 id="写数据的流程浅析"><a href="#写数据的流程浅析" class="headerlink" title="写数据的流程浅析"></a>写数据的流程浅析</h1><p>前面了解了RBD的基本架构及涉及的主要类，下面我们以写数据为例介绍一下其主要的流程。写流程的发起是以Image类的write函数开始的。整个调用流程如图4所示。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-ac99e3b71d839536.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 写数据基本流程"><br>具体细节我们不做介绍，这里需要注意的一点是调用了一个名为<code>file_to_extents</code>的函数，该函数将块设备的IO请求转化为对对象的IO请求。在该函数中，会根据块层IO的偏移和镜像的属性将IO切割为适合进行对象操作的IO序列。并且进一步的交给下层进行具体的处理。<br>好了，今天先到这里，今天我们介绍了Ceph块存储客户端的基本架构和写数据的流程，并对涉及的类进行了简单的介绍。后续，我们将进一步的深入细节，介绍块存储关键流程的实现。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/22/storage/ceph/Ceph的客户端接口及架构分析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -382,12 +548,24 @@
                 
               
 
-              <time title="创建时间：2019-05-22 21:16:21 / 修改时间：13:19:54" itemprop="dateCreated datePublished" datetime="2019-05-22T21:16:21+00:00">2019-05-22</time>
+              <time title="创建时间：2019-05-22 21:16:21" itemprop="dateCreated datePublished" datetime="2019-05-22T21:16:21+00:00">2019-05-22</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -563,7 +741,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -776,7 +954,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -962,7 +1140,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -1156,7 +1334,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -1509,7 +1687,7 @@ DNS协议运行在UDP协议之上，使用端口号53
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -1721,7 +1899,7 @@ DNS协议运行在UDP协议之上，使用端口号53
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -1902,7 +2080,7 @@ DNS协议运行在UDP协议之上，使用端口号53
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -2104,7 +2282,7 @@ DNS协议运行在UDP协议之上，使用端口号53
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
+                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
               
             
           </span>
@@ -2225,210 +2403,11 @@ DNS协议运行在UDP协议之上，使用端口号53
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/02/storage/san/iSCSI的基本架构及操作简介/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Sunny Zhang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/itworld_logo_300.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SunnyZhang的IT世界">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/05/02/storage/san/iSCSI的基本架构及操作简介/" class="post-title-link" itemprop="url">iSCSI的基本架构及操作简介</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-05-02 16:57:01" itemprop="dateCreated datePublished" datetime="2019-05-02T16:57:01+00:00">2019-05-02</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-05-22 13:19:54" itemprop="dateModified" datetime="2019-05-22T13:19:54+00:00">2019-05-22</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>iSCSI是由IBM发明的基于以太网的存储协议，该协议与SUN的NFS协议都是为了解决存储资源共享问题的解决方案。两者意图一致，只不过两者是不同的实现方式，前者在客户机上呈现的是一个块设备，而后者则是一个目录树。<strong>关于两者的区别，可以参考本号之前的文章（<a href="https://www.toutiao.com/i6640939526892028429/?group_id=6640939526892028429" target="_blank" rel="noopener">分布式存储与传统SAN、NAS相比，有什么优势与劣势？</a>），本位不再赘述</strong>。</p>
-<p>本文今天主要介绍一下iSCSI的整体架构，以及在Linux平台上<strong>启动器端</strong>（可以理解为客户端，后续介绍该概念）如何实现对存储设备（系统）的配置和访问。</p>
-<h1 id="整体架构概述"><a href="#整体架构概述" class="headerlink" title="整体架构概述"></a>整体架构概述</h1><p>概括的说，iSCSI是一种存储设备远程映射技术，它可以将一个远程服务器上的存储设备映射到本地，并呈现为一个块设备（大白话就是磁盘）。从普通用户的角度，映射过来的磁盘与本地安装的磁盘毫无差异。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-f6032bba0a55acfa?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
-<p>这种映射方式基于是基于SCSI协议的，SCSI协议是计算机与外围设备（例如硬盘、光盘等）通信的协议。而iSCSI则是通过TCP协议对SCSI进行封装的一种协议，也就是通过以太网传输SCSI协议的内容。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-776598fb9f59b7fc?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
-<p>从上图可以看出来，iSCSI其实也是一种典型的客户端服务器架构（CS架构），其中访问存储系统的计算机成为客户端，其中负责连接的软件成为<strong>启动器</strong>。而提供存储服务的计算机成为服务端，其中的软件成为<strong>目标器</strong>。</p>
-<p>由于iSCSI是基于TCP协议的，因此启动器和目标器可以是纯软件实现，也可以基于硬件实现。如果是硬件实现，硬件实现主要是对SCSI命令封装和解析等，这样可以释放CPU资源。目前在Linux下面，启动器和目标器都有纯软件的实现，比如启动器的实现Open-iSCSI，目标器的实现LIO、SCST和TGT等。</p>
-<h1 id="基本概念介绍"><a href="#基本概念介绍" class="headerlink" title="基本概念介绍"></a>基本概念介绍</h1><p>本节介绍关于iSCSI的一些基本概念，理解这些概念便于我们理解iSCSI的原理及后续阅读iSCSI的开源代码。</p>
-<p><strong>Network Portal</strong>: 网络端口。网络实体的一个组成部分，它有一个 TCP/IP 地址。 网络端口在 initiator 用 IP 地址标识， 在 target 用 IP 地址＋侦听的 TCP 端口标识。</p>
-<p><strong>Session</strong>:  连接 initiator 和 target 的一组 TCP 连接构成一个 session(可以简单理解为 I_T nexus)。可以向 session 添加 TCP 连接，也可以把 TCP 连接从 session 删除。 也就是说一个session中是可以有多个连接的。通过一个 session 的所有连接，initiator 只看到同一个 target。</p>
-<p><strong>Connection </strong>: 一个 TCP 连接。Initiator 和 target 之间使用一或者多个 TCP 连接通信。</p>
-<p><strong>CID(Connection ID)</strong>: 一个 session 里的每个 connection 用 CID 进行标识，该标识在 session 范围内是唯一。CID 由 initiator 产生，在 login 请求和使用 logout 关闭 连接时传递给 target。</p>
-<p><strong>SSID（Session ID）</strong>：一个 iSCSI Initiator 与 iSCSI Target 之间的会话（Session）由会话ID（SSID）定义，该会话ID是一个由发起方部分（ISID）和目标部分（Target Portal Group Tag）组成的元组。 ISID 在会话建立时由发起者明确指定。 Target Portal Group Tag 由发起者在连接建立时选择的 TCP端口来隐式指定。 当给定 TargetName 时，TargetPortalGroupTag 也必须由目标在连接建立期间作为确认返回。</p>
-<p><strong>Portal Groups</strong>: 网络端口组。iSCSI session 支持多连接，一些实现能把通过多个端口建立的多个连接捆绑到一个 session。 一个 iSCSI 网络实体的多个网络端口被定义为一个网络端口组，把该组和一个 session 联系起来，该 session 就可以捆绑通过该组内多个端口建立的多个连接，再使它们一起协同工作以达到捆绑的目的。每一个该组的 session 并不需要包括该组的所有网络端口。一个 iSCSI 节点可能有一或者多个网络端口组，但是每一个 iSCSI 使用的网络端口只能属于 iSCSI 节点的一个组。</p>
-<p><strong>Target Portal Group Tag</strong>: 网络端口组标识。使用 16 比特的数标识一个网络端口组。在 一个 iSCSI 节点里，所有具有同样组标志的端口构成一个网络端口组。</p>
-<p><strong>iSCSI Task</strong>:  一个 iSCSI 任务是指一个需要响应的 iSCSI 请求。</p>
-<p><strong>I_T nexus</strong>:  I_T nexus 是指一个 SCSI initiator 的端口和一个 SCSI target 端口之间 的关系。 对于 iSCSI， 这个关系对应一个 session， 它指 session 的 initiator 端和 iSCSI target 网络端口组之间的关系。I_T nexus 的标识是一对端口名称(iSCSI initiator 名称＋i＋ISID，iSCSI target 名称＋t＋网络端口组标识)。 PDU (Protocol Data Unit): initiator 和 target 之间通信时把信息分割为消息。这些 消息称为 iSCSI PDU。 SSID (Session ID): iSCSI initiator 和 iSCSI target 之间的 session 用 SSID 进行标识， 该标识由 initiator 部分的 ISID 和 target 部分的 TPGT 构成。</p>
-<p><strong>ISID（The initiator part of the Session Identifier）</strong>：发起方会话标识，由 initiator 在 session 建立的时候明确给出，</p>
-<p><strong>TSIH (Target Session Identifying Handle)</strong>: Target 分配给与特定名称 initiator 建立的 session 的标识。 但是 0 值被保留着用于 initiator 告知 target 这是一个新 session。 在为一个 session 添加一个 connect 时，TSIH 已经隐含指明。</p>
-<h1 id="启动器端配置"><a href="#启动器端配置" class="headerlink" title="启动器端配置"></a>启动器端配置</h1><p>Linux的启动器包含内核态的启动器、用户态的守护进程和命令行工具3部分内容，整体架构还是比较复杂的。但是如果不想理解其原理，只是一般使用的话，还是比较简单方便的。下面我们介绍一下其操作步骤（<strong>这里假设已经有一个存储设备</strong>），关于更详细的原理我们后续再进行详细的介绍。</p>
-<p><strong>启动iscsi守护进程</strong></p>
-<p>在启动器端是有一个守护进程的，首先要保证该守护进程是处于正常运行状态。如果没有运行的情况下需要启动该服务。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">service iscsi start</span></span><br></pre></td></tr></table></figure>
-<p>默认情况下，系统启动后此进程会自动运行的。如果没有自动运行可以通过下面命令进行控制和查看。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> chkconfig iscsi on</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> chkconfig iscsi --list （查看ISCSI启动状态）</span></span><br></pre></td></tr></table></figure></p>
-<p><strong>发现目标</strong></p>
-<p>默认情况下，iscsi发起方和目标方之间通过端口3260连接。假设已知iscsi的目标方IP是192.168.1.1，运行下列命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># iscsiadm -m discovery -t sendtargets -p 192.168.1.1:3260</span><br></pre></td></tr></table></figure></p>
-<p>如果一切正常，过此时找到并拥有了一个目标（target）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.1.1:3260,1 iqn.1997-05.com.test:itworld123</span><br></pre></td></tr></table></figure></p>
-<p><strong>登入节点</strong></p>
-<p>以上面被发现的目标为例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># iscsiadm -m node –T iqn.1997-05.com.test:itworld123 -p 192.168.1.1：3260 -l</span><br></pre></td></tr></table></figure></p>
-<p>其中iqn.1997-05.com.test:itworld123是目标名。</p>
-<p><strong>查看磁盘信息</strong></p>
-<p>正常来说，如果登录成功后在客户端操作系统中就可以看到新增的硬盘了。可以通过下面命令查看。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># fdisk –l</span><br></pre></td></tr></table></figure></p>
-<p><strong>格式化设备</strong></p>
-<p>iSCSI设备的使用与普通硬盘没有任何差异，比如我们想把该设备格式化为ext4文件系统，运行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># mkfs.ext4 /dev/sdb</span><br></pre></td></tr></table></figure></p>
-<p>具体使用我们这里就不再解释，使用方法与本地磁盘完全一致。</p>
-<p><strong>登出节点</strong></p>
-<p>有些情况下我们可能需要登出节点，此时将端口启动器和目标器之间的连接，磁盘也会消失。登出之前需要先停止对磁盘的使用。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># umount /mnt/iscsi_itworld123</span><br></pre></td></tr></table></figure></p>
-<p>执行如下命令可以登出：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># iscsiadm -m node –T iqn.1997-05.com.test:raid -p 192.168.1.1:3260 –u</span><br></pre></td></tr></table></figure></p>
-<p><strong>登入需验证码的节点</strong></p>
-<p>为了保证存储设备的安全，可以对存储设备设置权限认证，这样只有合法用户才能访问存储设备。下面是具有认证的存储的登录方法。</p>
-<p><strong>1）开启认证</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iscsiadm -m node -T [装置] -o update --name node.session.auth.authmethod --value=CHAP *.使用-o同--op</span><br></pre></td></tr></table></figure></p>
-<p><strong>2）添加用户</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iscsiadm -m node -T [装置] --op update --name node.session.auth.username --value=[用户名]</span><br></pre></td></tr></table></figure></p>
-<p><strong>3）添加密码</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iscsiadm –m node –T [装置] –op update –name node.session.auth.password –value=[密码]</span><br></pre></td></tr></table></figure></p>
-<p>好了，今天先到这。我们今天主要介绍iSCSI的基本架构以及启动器端的使用。这个主要是让大家有个感性的认识，为后面介绍启动器的实现打下基础。<strong>后续我们将介绍启动器用户态管理程序的架构和实现，以及内核态启动器的实现。</strong></p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -2472,7 +2451,7 @@ DNS协议运行在UDP协议之上，使用端口号53
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-count">21</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2552,7 +2531,11 @@ DNS协议运行在UDP协议之上，使用端口号53
                     
                       
                     
-                    <span class="site-state-item-count">24</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>

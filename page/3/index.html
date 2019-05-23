@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta property="og:type" content="website">
+<meta property="og:title" content="SunnyZhang的IT世界">
+<meta property="og:url" content="http://www.itworld123.com/page/3/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:locale" content="zh-CN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SunnyZhang的IT世界">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/page/3/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left 
+  page-home">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+  <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2016/05/12/storage/ceph/从零开始安装Ceph分布式存储_Ubuntu环境/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2016/05/12/storage/ceph/从零开始安装Ceph分布式存储_Ubuntu环境/" class="post-title-link" itemprop="url">从零开始安装Ceph分布式存储｜Ubuntu环境</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2016-05-12 21:16:21" itemprop="dateCreated datePublished" datetime="2016-05-12T21:16:21+00:00">2016-05-12</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-23 10:57:22" itemprop="dateModified" datetime="2019-05-23T10:57:22+00:00">2019-05-23</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Ceph/" itemprop="url" rel="index"><span itemprop="name">Ceph</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="版本信息"><a href="#版本信息" class="headerlink" title="版本信息"></a>版本信息</h1><p>具体安装之前对操作系统做如下限制，其它版本的操作系统不保证能够安装成功。</p>
+<blockquote>
+<p>操作系统：Ubuntu 14.04.3<br>Ceph版本号：Hammer V0.94.5</p>
+</blockquote>
+<h1 id="设备信息"><a href="#设备信息" class="headerlink" title="设备信息"></a>设备信息</h1><p>本安装教程假设有4台服务器（或者虚拟机），1台作为管理节点，另外3台作为存储节点。当然，也可以用存储节点中的一台作为管理节点。具体地址和主机名称如图所示。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-0ee45344346e5250?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 环境部署拓扑"></p>
+<p>需要在各个服务器上添加解析，方法是打开hosts文件，添加如下内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">192.168.1.100 ceph-u0-l0</span><br><span class="line">192.168.1.101 ceph-u0-m0</span><br><span class="line">192.168.1.102 ceph-u0-r0</span><br><span class="line">192.168.1.50 admin</span><br></pre></td></tr></table></figure></p>
+<h1 id="安装ceph-deploy"><a href="#安装ceph-deploy" class="headerlink" title="安装ceph-deploy"></a>安装ceph-deploy</h1><p>ceph-deploy是Ceph的远程部署工具，可以在管理节点实现分布式部署。<br>1. 配置Ceph安装源<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget -q -O- &apos;https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc&apos; | sudo apt-key add -</span><br></pre></td></tr></table></figure></p>
+<p>2. 将源信息加入repo，更新软件源，并按照ceph-deploy<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">echo deb http://ceph.com/debian-hammer/ $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph.list</span><br><span class="line">apt-get update</span><br><span class="line">apt-get install ceph-deploy</span><br></pre></td></tr></table></figure></p>
+<p><strong>安装NTP</strong><br>安装NTP，用于集群节点的时间同步。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install ntp</span><br></pre></td></tr></table></figure></p>
+<p><strong>确保SSH服务已被安装</strong><br>可能需要安装SSH服务，如果已经安装则忽略该步骤。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install openssh-server</span><br></pre></td></tr></table></figure></p>
+<p><strong>创建ceph部署账户</strong><br>在每个存储节点上创建ceph账户及ssh访问<br>每个节点上创建ceph用户<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo useradd -d /home/cephd -m cephd</span><br><span class="line">sudo passwd cephd</span><br></pre></td></tr></table></figure></p>
+<p><strong>确保具有sudo权限</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;cephd ALL = (root) NOPASSWD:ALL&quot; | sudo tee /etc/sudoers.d/cephd</span><br><span class="line">sudo chmod 0440 /etc/sudoers.d/cephd</span><br></pre></td></tr></table></figure></p>
+<p><strong>配置无密码访问</strong><br>配置管理节点可以实现对其它节点的无密码访问，在管理节点执行如下命令。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen</span><br></pre></td></tr></table></figure></p>
+<p><strong>所有提示采用默认配置，直接回车。</strong></p>
+<p>生成公钥/私钥对，并拷贝到其它节点<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ssh-copy-id cephd@ceph-u0-m0</span><br><span class="line">ssh-copy-id cephd@ceph-u0-r0</span><br><span class="line">ssh-copy-id cephd@ceph-u0-l0</span><br></pre></td></tr></table></figure></p>
+<p>ssh-copy-id 将本机的公钥复制到远程机器的authorized_keys文件中(~/.ssh/authorized_keys)<br>默认采用cephd用户，修改(新建)/root/.ssh/config文件，增加如下内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Host ceph-u0-l0</span><br><span class="line"> Hostname ceph-u0-l0</span><br><span class="line"> User cephd</span><br><span class="line">Host ceph-u0-m0</span><br><span class="line"> Hostname ceph-u0-m0</span><br><span class="line"> User cephd</span><br><span class="line">Host ceph-u0-r0</span><br><span class="line"> Hostname ceph-u0-r0</span><br><span class="line"> User cephd</span><br></pre></td></tr></table></figure></p>
+<p>通过ssh命令测试一下，是否可以无密码访问。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh ceph-u0-m0</span><br></pre></td></tr></table></figure></p>
+<h1 id="创建集群"><a href="#创建集群" class="headerlink" title="创建集群"></a>创建集群</h1><p><strong>创建ceph集群</strong></p>
+<p>本集群部署情况，为ceph-u0-m0部署一个monitor节点，同时在ceph-u0-l0和ceph-u0-r0上各部署一个osd节点。</p>
+<p>在管理节点的/root目录下执行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir my-cluster</span><br><span class="line">cd my-cluster</span><br></pre></td></tr></table></figure></p>
+<p>如果需要(新安装的系统通常不需要)，部署之前确保ceph每个节点没有ceph数据包（先清空之前所有的ceph数据，如果是新装不用执行此步骤，如果是重新部署的话也执行下面的命令）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@ceph-deploy]# ceph-deploy purge ceph-deploy ceph-u0-m0 ceph-u0-l0 ceph-u0-r0</span><br><span class="line">[root@ceph-deploy]# ceph-deploy purgedata ceph-deploy ceph-u0-m0 ceph-u0-l0 ceph-u0-r0</span><br><span class="line">[root@ceph-deploy]# ceph-deploy forgetkeys</span><br></pre></td></tr></table></figure></p>
+<p>如果是干净环境，直接执行如下命令，该命令在my-cluster文件夹生成集群必须的文件。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph-deploy new ceph-u0-l0</span><br></pre></td></tr></table></figure></p>
+<p>修改ceph.conf配置文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[global]</span><br><span class="line">fsid = c70a17e3-f677-46cb-8744-b628592d69d6</span><br><span class="line">mon_initial_members = ceph-u0-l0</span><br><span class="line">mon_host = 192.168.32.2</span><br><span class="line">auth_cluster_required = cephx</span><br><span class="line">auth_service_required = cephx</span><br><span class="line">auth_client_required = cephx</span><br><span class="line">filestore_xattr_use_omap = true</span><br><span class="line">osd pool default size = 3</span><br><span class="line">public network = 192.168.1.0/24</span><br><span class="line">[osd]</span><br><span class="line">osd journal size = 20000</span><br></pre></td></tr></table></figure></p>
+<p><strong>安装软件包</strong></p>
+<p>更改国内源<br>新部署的物理服务器缺少源信息，在/etc/apt/source.list.d/ 下面新建文件aliyun.list，并添加如下内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">deb http://mirrors.aliyun.com/ubuntu/ trusty main restricted universe multiverse</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ trusty-security main restricted universe multiverse</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ trusty-updates main restricted universe multiverse</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ trusty-proposed main restricted universe multiverse</span><br><span class="line">deb http://mirrors.aliyun.com/ubuntu/ trusty-backports main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ trusty main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ trusty-security main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ trusty-updates main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ trusty-proposed main restricted universe multiverse</span><br><span class="line">deb-src http://mirrors.aliyun.com/ubuntu/ trusty-backports main restricted universe multiverse</span><br></pre></td></tr></table></figure></p>
+<p>admin节点向各节点安装ceph<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph-deploy install ceph-u0-l0 ceph-u0-m0 ceph-u0-r0 --repo-url=http://eu.Ceph.com/debian-hammer/ --gpg-url=http://eu.ceph.com/keys/release.asc</span><br></pre></td></tr></table></figure></p>
+<p>添加初始监控节点并收集密钥</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph-deploy mon create-initial</span><br></pre></td></tr></table></figure>
+<p>此时，查看my-cluster目录多了下面几个文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ceph.bootstrap-mds.keyring</span><br><span class="line">ceph.bootstrap-osd.keyring</span><br><span class="line">ceph.bootstrap-rgw.keyring</span><br><span class="line">ceph.client.admin.keyring</span><br></pre></td></tr></table></figure>
+<p><strong>添加osd节点</strong></p>
+<p>OSD是存储数据的单元，新建完集群后需要添加OSD节点</p>
+<p>ceph-deploy osd prepare ceph-u0-l0:sdb ceph-u0-m0:sdb ceph-u0-r0:sdb</p>
+<p>ceph-deploy osd activate ceph-u0-l0:sdb1 ceph-u0-m0:sdb1 ceph-u0-r0:sdb1</p>
+<p>复制ceph配置文件及密钥到mon、osd节点</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph-deploy admin ceph-u0-l0 ceph-u0-m0 ceph-u0-r0</span><br></pre></td></tr></table></figure>
+<p>确保有正确的ceph.client.admin.keyring权限</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo chmod +r /etc/ceph/ceph.client.admin.keyring</span><br></pre></td></tr></table></figure>
+<p>查看集群运行状态</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ceph -s</span><br></pre></td></tr></table></figure>
+<p>状态大致如图所示，根据实际配置略有不同。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-c7c089d01f0470c0?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="从零开始安装Ceph分布式存储｜Ubuntu环境"></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+  </section>
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+  </nav>
+
+
+
+          </div>
+          
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
