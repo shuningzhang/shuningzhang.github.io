@@ -337,6 +337,406 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/04/data_structure/单向链表的概念及面试题大全/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/04/data_structure/单向链表的概念及面试题大全/" class="post-title-link" itemprop="url">单向链表的概念及面试题大全</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-04 09:31:15" itemprop="dateCreated datePublished" datetime="2019-05-04T09:31:15+00:00">2019-05-04</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>链表是最基本的数据结构，面试官也常常用链表来考察面试者的基本能力，而且链表相关的操作相对而言比较简单，也适合考察写代码的能力。链表的操作也离不开指针，指针又很容易导致出错。综合多方面的原因，链表题目在面试中占据着很重要的地位。</p>
+<h1 id="1-单向链表的定义"><a href="#1-单向链表的定义" class="headerlink" title="1. 单向链表的定义"></a>1. 单向链表的定义</h1><p>想必大家对数组都非常熟悉，数组在存储空间（内存）上是连续的。因此，我们可以根据偏移量轻易的找到数组中的数据。但数组最大的问题是大小是固定的，很多场景是无法预判需要的空间大小的。</p>
+<h2 id="1-1-什么是单向链表"><a href="#1-1-什么是单向链表" class="headerlink" title="1.1 什么是单向链表"></a>1.1 什么是单向链表</h2><p>链表也是一种线性数据结构，但它最大的优势是可以动态的调整大小。这样，我们再也不用担心应该分配多少空间了。</p>
+<blockquote>
+<p>链表是一种物理存储单元上非连续、非顺序的存储结构，元素的逻辑顺序是通过链表中的指针链接次序实现的</p>
+</blockquote>
+<p>链表在日常开发中通常通过数据结构和指针的方式实现，其中包含一个本数据结构的next指针，用于指向下一个元素，这样指下去，就形成了一个单向链表。如下是数据结构的定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">list_node</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">        <span class="keyword">void</span> *data;				<span class="comment">/* 存储的数据，通过void指针，可以适配多种数据类型 */</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">list_node</span> *<span class="title">next</span>;</span>	<span class="comment">/* 指向下一个节点，如果为尾节点则指向NULL */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>为了便于链表的管理和使用，我们在实际定义的时候通常还会定义个专门的链表头，链表头的定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">list</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">        <span class="keyword">int</span> size;</span><br><span class="line">        <span class="keyword">void</span> (*print_node)(<span class="keyword">void</span> *data);</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">list_node</span> *<span class="title">head</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">list_node</span> *<span class="title">tail</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>通过增加一个链表头可以方便链表的管理，同时通过增加的元数据可以很方便的得到一些链表的信息，从而提高效率。这样，整个链表的结构大概如图1所示。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/11058170-d4e3fcb541aea46b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 单向链表示意图"></p>
+<h2 id="1-2-单向链表的接口"><a href="#1-2-单向链表的接口" class="headerlink" title="1.2 单向链表的接口"></a>1.2 单向链表的接口</h2><p>单向链表最主要的接口就是初始化、插入元素和删除元素等操作了。当然，为了方便使用，还有返回链表头元素，链表尾元素和链表大小等等。我们这里先看一下几个主要的函数接口。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*  初始化链表 */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">list_init</span><span class="params">(struct <span class="built_in">list</span> *<span class="built_in">list</span>, <span class="keyword">void</span> (*print_node)(<span class="keyword">void</span> *data))</span></span>;</span><br><span class="line"><span class="comment">/* 向链表中添加一个元素，其中node为插入的位置，也就是</span></span><br><span class="line"><span class="comment">   插到该元素的后面，如果node为NULL则插到首节点。  */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">list_insert_next</span><span class="params">(struct <span class="built_in">list</span> *<span class="built_in">list</span>, struct list_node *node, <span class="keyword">void</span> *data)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">list_rem_next</span><span class="params">(struct <span class="built_in">list</span> *<span class="built_in">list</span>, struct list_node *node, <span class="keyword">void</span> **data)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>下面我们给出插入操作的代码实现，其它操作类似，也比较简单，这里就不罗列代码了。具体可以参考本文的配套<a href="https://github.com/shuningzhang/data_structure.git" target="_blank" rel="noopener">github库</a>。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">list_insert_next</span><span class="params">(struct <span class="built_in">list</span> *<span class="built_in">list</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">                     struct list_node *node,</span></span></span><br><span class="line"><span class="function"><span class="params">                     <span class="keyword">void</span> *data)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">list_node</span> *<span class="title">new_node</span>;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">NULL</span> == <span class="built_in">list</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;       </span><br><span class="line"></span><br><span class="line">        new_node = (struct list_node*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(struct list_node));</span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">NULL</span> == new_node) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        new_node-&gt;data = data;</span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">NULL</span> == node) &#123;</span><br><span class="line">                <span class="keyword">if</span> (list_size(<span class="built_in">list</span>) == <span class="number">0</span>)</span><br><span class="line">                        <span class="built_in">list</span>-&gt;tail = new_node;</span><br><span class="line">                new_node-&gt;next = <span class="built_in">list</span>-&gt;head;</span><br><span class="line">                <span class="built_in">list</span>-&gt;head = new_node;          </span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="literal">NULL</span> == node-&gt;next) &#123;</span><br><span class="line">                        <span class="built_in">list</span>-&gt;tail = new_node;</span><br><span class="line">                &#125;</span><br><span class="line">                new_node-&gt;next = node-&gt;next;</span><br><span class="line">                node-&gt;next = new_node;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">list</span>-&gt;size ++;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="2-单向链表的算法（面试题）"><a href="#2-单向链表的算法（面试题）" class="headerlink" title="2. 单向链表的算法（面试题）"></a>2. 单向链表的算法（面试题）</h1><p>关于单向链表的面试题很多，我们这里尽量的都收集过来。目前有些复杂的没有答案，但我们后续会陆续写文章将答案收集起来。</p>
+<h2 id="2-1-求单链表中结点的个数"><a href="#2-1-求单链表中结点的个数" class="headerlink" title="2.1 求单链表中结点的个数"></a>2.1 求单链表中结点的个数</h2><p>这个题目是比较简单的，基本做法就是对单向链表进行遍历。在进行遍历的时候有一个计数的变量，每遍历一个节点，计数增1，直到完成链表的遍历。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">list_node_count</span><span class="params">(struct <span class="built_in">list</span> *<span class="built_in">list</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> ret = <span class="number">0</span>;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">list_node</span> *<span class="title">cur_node</span>;</span></span><br><span class="line">        <span class="comment">/* 注意list指针非法的情况 */</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">NULL</span> == <span class="built_in">list</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> ret;</span><br><span class="line">        &#125;   </span><br><span class="line"></span><br><span class="line">        cur_node = <span class="built_in">list</span>-&gt;head;</span><br><span class="line">        <span class="keyword">while</span> (cur_node) &#123;</span><br><span class="line">                ret ++; </span><br><span class="line">                cur_node = cur_node-&gt;next;</span><br><span class="line">        &#125;   </span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="2-2-单链表反转-leetcode-206"><a href="#2-2-单链表反转-leetcode-206" class="headerlink" title="2.2 单链表反转 (leetcode 206)"></a>2.2 单链表反转 (leetcode 206)</h2><p>将链表中的节点指向反过来，比如原来的指向为1-&gt;2-&gt;3-&gt;4-&gt;5，那么反转后为5-&gt;4-&gt;3-&gt;2-&gt;1。链表反转其实是调整节点的next指针的指向。具体如图所示。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-14404f873ce52b73.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 链表反转示意图"></p>
+<h2 id="2-3-截取出单链表中的后K个结点（k-gt-0）"><a href="#2-3-截取出单链表中的后K个结点（k-gt-0）" class="headerlink" title="2.3 截取出单链表中的后K个结点（k&gt;0）"></a>2.3 截取出单链表中的后K个结点（k&gt;0）</h2><h2 id="2-4-判断一个单链表中是否有环-若带环，求环的长度和入口点"><a href="#2-4-判断一个单链表中是否有环-若带环，求环的长度和入口点" class="headerlink" title="2.4 判断一个单链表中是否有环(若带环，求环的长度和入口点)"></a>2.4 判断一个单链表中是否有环(若带环，求环的长度和入口点)</h2><h2 id="2-5-去除有序链表中的重复元素-leetcode-83"><a href="#2-5-去除有序链表中的重复元素-leetcode-83" class="headerlink" title="2.5 去除有序链表中的重复元素(leetcode 83)"></a>2.5 去除有序链表中的重复元素(leetcode 83)</h2><p>给定一个有序的链表，删除所有重复的元素，保证每个元素在链表中只出现一次。</p>
+<h2 id="2-6-合并两个排好序的链表-leetcode-21"><a href="#2-6-合并两个排好序的链表-leetcode-21" class="headerlink" title="2.6 合并两个排好序的链表(leetcode 21)"></a>2.6 合并两个排好序的链表(leetcode 21)</h2><h2 id="2-7-链表的中间节点-leetcode-876"><a href="#2-7-链表的中间节点-leetcode-876" class="headerlink" title="2.7 链表的中间节点(leetcode 876)"></a>2.7 链表的中间节点(leetcode 876)</h2><p>给定一个带有头结点 head 的非空单链表，返回链表的中间结点。如果有两个中间结点，则返回第二个中间结点。</p>
+<blockquote>
+<p>输入：[1,2,3,4,5]<br>输出：此列表中的结点 3 (序列化形式：[3,4,5])<br>返回的结点值为 3 。 (测评系统对该结点序列化表述是 [3,4,5])。</p>
+</blockquote>
+<h2 id="2-7-删除链表中的节点-leetcode-237"><a href="#2-7-删除链表中的节点-leetcode-237" class="headerlink" title="2.7 删除链表中的节点 (leetcode 237)"></a>2.7 删除链表中的节点 (leetcode 237)</h2><p>请编写一个函数，使其可以删除某个链表中给定的（非末尾）节点。也就是你仅知道要求被删除的节点。</p>
+<blockquote>
+<p>输入: head = [4,5,1,9], node = 5<br>输出: [4,1,9] </p>
+</blockquote>
+<p>解释: 给定你链表中值为 5 的第二个节点，那么在调用了你的函数之后，该链表应变为 4 -&gt; 1 -&gt; 9.</p>
+<blockquote>
+<p>链表至少包含两个节点。<br>链表中所有节点的值都是唯一的。<br>给定的节点为非末尾节点并且一定是链表中的一个有效节点。<br>不要从你的函数中返回任何结果。</p>
+</blockquote>
+<h2 id="2-8-删除链表的倒数第N个节点-leetcode-19"><a href="#2-8-删除链表的倒数第N个节点-leetcode-19" class="headerlink" title="2.8 删除链表的倒数第N个节点(leetcode 19)"></a>2.8 删除链表的倒数第N个节点(leetcode 19)</h2><p>给定一个链表: 1-&gt;2-&gt;3-&gt;4-&gt;5, 和 n = 2.<br>当删除了倒数第二个节点后，链表变为 1-&gt;2-&gt;3-&gt;5.</p>
+<h2 id="2-9-删除链表中的节点-leetcode-203"><a href="#2-9-删除链表中的节点-leetcode-203" class="headerlink" title="2.9 删除链表中的节点(leetcode 203)"></a>2.9 删除链表中的节点(leetcode 203)</h2><p><strong>题目</strong><br>删除链表中等于给定值 val 的所有节点。<br><strong>示例</strong></p>
+<blockquote>
+<p>输入: 1-&gt;2-&gt;6-&gt;3-&gt;4-&gt;5-&gt;6, val = 6<br>输出: 1-&gt;2-&gt;3-&gt;4-&gt;5</p>
+</blockquote>
+<h2 id="2-10-约瑟夫环"><a href="#2-10-约瑟夫环" class="headerlink" title="2.10 约瑟夫环"></a>2.10 约瑟夫环</h2><p>约瑟夫环(约瑟夫问题)是一个数学的应用问题：已知n个人(以编号1，2，3…n分别表示)围坐在一张圆桌周围。从编号为k的人开始报数，数到m的那个人出列;他的下一个人又从1开始报数，数到m的那个人又出列;依此规律重复下去，直到圆桌周围的人全部出列。通常解决这类问题时我们把编号从0~n-1，最后结果+1即为原问题的解。</p>
+<h2 id="2-11-遍历一次，删除倒数第-k-个结点（k从1开始），不能用替换删除法"><a href="#2-11-遍历一次，删除倒数第-k-个结点（k从1开始），不能用替换删除法" class="headerlink" title="2.11 遍历一次，删除倒数第 k 个结点（k从1开始），不能用替换删除法"></a>2.11 遍历一次，删除倒数第 k 个结点（k从1开始），不能用替换删除法</h2><h2 id="2-12-将链表后k个节点移到链表头"><a href="#2-12-将链表后k个节点移到链表头" class="headerlink" title="2.12 将链表后k个节点移到链表头"></a>2.12 将链表后k个节点移到链表头</h2><p>给一个链表和整数k，将后k个节点移到链表头。 </p>
+<blockquote>
+<p>输入： 1-&gt;2-&gt;3-&gt;4-&gt;5-&gt;NULL , k =2,<br>输出： 4-&gt;5-&gt;1-&gt;2-&gt;3-&gt;NULL.</p>
+</blockquote>
+<h2 id="2-13-逆序打印单链表"><a href="#2-13-逆序打印单链表" class="headerlink" title="2.13 逆序打印单链表"></a>2.13 逆序打印单链表</h2><h2 id="2-14-不允许遍历链表-在-pos之前插入"><a href="#2-14-不允许遍历链表-在-pos之前插入" class="headerlink" title="2.14 不允许遍历链表, 在 pos之前插入"></a>2.14 不允许遍历链表, 在 pos之前插入</h2><h2 id="2-15-单链表的冒泡排序"><a href="#2-15-单链表的冒泡排序" class="headerlink" title="2.15 单链表的冒泡排序"></a>2.15 单链表的冒泡排序</h2><h2 id="2-16-旋转单链表"><a href="#2-16-旋转单链表" class="headerlink" title="2.16 旋转单链表"></a>2.16 旋转单链表</h2><p>题目：给定一个链表，旋转链表，使得每个节点向右移动k个位置，其中k是一个非负数。</p>
+<blockquote>
+<p>输入： 1-&gt;2-&gt;3-&gt;4-&gt;5-&gt;NULL 给定值 k = 2,<br>输出： 4-&gt;5-&gt;1-&gt;2-&gt;3-&gt;NULL.</p>
+</blockquote>
+<h2 id="2-17-划分链表"><a href="#2-17-划分链表" class="headerlink" title="2.17 划分链表"></a>2.17 划分链表</h2><p>题目 ： 按某个给定值将链表划分为左边小于这个值，右边大于这个值的新链表 如一个链表 为 1 -&gt; 4 -&gt; 5 -&gt; 2 给定一个数 3 则划分后的链表为 1-&gt; 2 -&gt; 4 -&gt; 5</p>
+<h2 id="2-18-链表相加求和"><a href="#2-18-链表相加求和" class="headerlink" title="2.18 链表相加求和"></a>2.18 链表相加求和</h2><p>题目： 假设链表中每一个节点的值都在 0-9 之间，那么链表整体可以代表一个整数。<br>例如： 9-&gt;3-&gt;7 可以代表 937<br>给定两个这样的链表，头节点为 head1 head2 生成链表相加的新链表。<br>如 9-&gt;3-&gt;7 和 6 -&gt; 3 生成的新链表应为 1 -&gt; 0 -&gt; 0 -&gt; 0</p>
+<h2 id="2-19-重排链表"><a href="#2-19-重排链表" class="headerlink" title="2.19 重排链表"></a>2.19 重排链表</h2><p>题目 给定一个单链表L： L0→L1→…→Ln-1→Ln, 重新排列后为 L0→Ln→L1→Ln-1→L2→Ln-2→… 要求必须在不改变节点值的情况下进行原地操作。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/03/data_structure/二叉树的概念及面试题大全/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/03/data_structure/二叉树的概念及面试题大全/" class="post-title-link" itemprop="url">二叉树的概念及面试题大全</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-03 19:01:02" itemprop="dateCreated datePublished" datetime="2019-05-03T19:01:02+00:00">2019-05-03</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/数据结构与算法/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/数据结构与算法/二叉树/" itemprop="url" rel="index"><span itemprop="name">二叉树</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="1-二叉树（Binary-Tree-的定义"><a href="#1-二叉树（Binary-Tree-的定义" class="headerlink" title="1. 二叉树（Binary Tree)的定义"></a>1. 二叉树（Binary Tree)的定义</h1><h2 id="1-1-什么是二叉树（Binary-Tree"><a href="#1-1-什么是二叉树（Binary-Tree" class="headerlink" title="1.1 什么是二叉树（Binary Tree)"></a>1.1 什么是二叉树（Binary Tree)</h2><p><strong>每个结点至多拥有两棵子树的树结构</strong>(即二叉树中不存在度大于2的结点)。并且，二叉树的子树<strong>有左右之分</strong>，其次序不能任意颠倒。</p>
+<blockquote>
+<p>上面概念中提到了“度”的概念，“度”其实就是某个节点<strong>子节点</strong>的数量。如果某个节点的子节点数量为1，则该节点的度为1，如果有8个子节点，则度为8，以此类推。</p>
+</blockquote>
+<h2 id="1-2-二叉树的术语"><a href="#1-2-二叉树的术语" class="headerlink" title="1.2 二叉树的术语"></a>1.2 二叉树的术语</h2><p>除了二叉树的定义外，还有许多相关的术语。单纯介绍术语可能不容易理解，这里给出一幅图进行说明。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-1d4ae943e20c1f97.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 二叉树的主要概念"></p>
+<p>下面是对二叉树中主要术语的解释：<br><strong>结点的度（Degree）</strong>：结点的子树个数；<br><strong>树的度</strong>：树的所有结点中最大的度数；<br><strong>叶结点（Leaf）</strong>：度为0的结点；<br><strong>父结点（Parent）</strong>：有子树的结点是其子树的根节点的父结点；<br><strong>子结点/孩子结点（Child）</strong>：若A结点是B结点的父结点，则称B结点是A结点的子结点；<br><strong>兄弟结点（Sibling）</strong>：具有同一个父结点的各结点彼此是兄弟结点；<br><strong>路径和路径长度</strong>：从结点n1到nk的路径为一个结点序列n1，n2，…，nk。ni是ni+1的父结点。路径所包含边的个数为路径的长度；<br><strong>祖先结点（Ancestor）</strong>：沿树根到某一结点路径上的所有结点都是这个结点的祖先结点；<br><strong>子孙结点（Descendant）</strong>：某一结点的子树中的所有结点是这个结点的子孙；<br><strong>结点的层次（Level）</strong>：规定根结点在1层，其他任一结点的层数是其父结点的层数加1；<br><strong>树的深度（Depth）</strong>：树中所有结点中的最大层次是这棵树的深度；</p>
+<h2 id="1-3-二叉树的性质"><a href="#1-3-二叉树的性质" class="headerlink" title="1.3 二叉树的性质"></a>1.3 二叉树的性质</h2><p>我们设定二叉树的<strong>根节点为为第1层</strong>，则二叉树有如下性质。这些性质可以通过数学方式进行证明，但本文暂时不做证明，大家了解即可，对于理解后续概念有一些帮助：<br>性质1：二叉树第i层上最多有 2^（i-1） 个结点(i≥1)；<br>性质2：深度（高度）为k的二叉树至多有2^(k)-1个结点(k≥1，深度k也就是树的最大层级)；<br>性质3：包含n个结点的二叉树的深度（高度）至少为log2 (n+1)；<br>性质4：在任意一棵二叉树中，如果其叶子结点(度为0)数为m, 度为2的结点数为n, 则m = n + 1。</p>
+<h2 id="1-4-二叉树的数据存储"><a href="#1-4-二叉树的数据存储" class="headerlink" title="1.4 二叉树的数据存储"></a>1.4 二叉树的数据存储</h2><p>二叉树在C语言中可以通过结构体表示，其定义的方式可以是如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bitree_node</span> &#123;</span></span><br><span class="line">        <span class="keyword">int</span> b_data;                <span class="comment">//数据域，指向具体的数据</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">bitree_node</span> *<span class="title">left</span>;</span>  <span class="comment">//指向左子节点</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">bitree_node</span> *<span class="title">right</span>;</span> <span class="comment">//指向右子节点</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>在这个实例中，为了简单，我们假设其存储的数据类型为整型数，当然最好的方式是void指针的形式。这样，二叉树就是一个通用的数据结构，可以存储任何类型的数据。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/11058170-014c85a9016ebfda.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 二叉树的数据存储"></p>
+<h1 id="2-二叉树的特例"><a href="#2-二叉树的特例" class="headerlink" title="2. 二叉树的特例"></a>2. 二叉树的特例</h1><p>根据二叉树存储数据组织结构的差异，二叉树有很多特例。比如有些二叉树所有节点只有左子节点，或者非叶子节点的每个二叉树的节点都有2个子节点等等。下面我们分别进行介绍。</p>
+<h2 id="2-1-斜二叉树"><a href="#2-1-斜二叉树" class="headerlink" title="2.1 斜二叉树"></a><strong>2.1 斜二叉树</strong></h2><p>只有左子节点或只有右子节点的二叉树称为斜二叉树。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-dd8818bdfa15027e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 斜二叉树"></p>
+<h2 id="2-2-完美二叉树"><a href="#2-2-完美二叉树" class="headerlink" title="2.2 完美二叉树"></a>2.2 <strong>完美二叉树</strong></h2><p>一个深度为k(&gt;=-1)且有2^(k+1) - 1个结点的二叉树称为完美二叉树。完美二叉树也就是满二叉树，也就是所有非叶子节点都有2个叶子节点，并且每一次都是满的。如图所示：<br><img src="https://upload-images.jianshu.io/upload_images/11058170-b406169ba98ed0d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 完美二叉树"></p>
+<h2 id="2-3-完全二叉树-Complete"><a href="#2-3-完全二叉树-Complete" class="headerlink" title="2.3 完全二叉树(Complete)"></a>2.3 <strong>完全二叉树(Complete)</strong></h2><p>完全二叉树从根结点到倒数第二层满足完美二叉树，最后一层可以不完全填充，其叶子结点都靠左对齐。<br>下图就不是一棵完全(Complete)二叉树<br> <img src="https://upload-images.jianshu.io/upload_images/11058170-056ce846e85c4089.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 完全二叉树"></p>
+<h1 id="3-二叉树相关的算法（面试题）"><a href="#3-二叉树相关的算法（面试题）" class="headerlink" title="3. 二叉树相关的算法（面试题）"></a>3. 二叉树相关的算法（面试题）</h1><p>在面试和笔试的过程中，二叉树的题目是非常多的。除了常见的关于二叉树遍历的题目外，还有其它一些延伸的题目。本文今天先将二叉树相关的题目罗列到这里，后续会给出每个题目的解题思路和代码示例。</p>
+<h2 id="3-1-二叉树的前序遍历（递归-amp-非递归，下同）"><a href="#3-1-二叉树的前序遍历（递归-amp-非递归，下同）" class="headerlink" title="3.1 二叉树的前序遍历（递归&amp;非递归，下同）"></a>3.1 二叉树的前序遍历（递归&amp;非递归，下同）</h2><h2 id="3-2-二叉树的中序遍历"><a href="#3-2-二叉树的中序遍历" class="headerlink" title="3.2 二叉树的中序遍历"></a>3.2 二叉树的中序遍历</h2><h2 id="3-3-二叉树的后序遍历"><a href="#3-3-二叉树的后序遍历" class="headerlink" title="3.3 二叉树的后序遍历"></a>3.3 二叉树的后序遍历</h2><h2 id="3-4-二叉树层序遍历"><a href="#3-4-二叉树层序遍历" class="headerlink" title="3.4 二叉树层序遍历"></a>3.4 二叉树层序遍历</h2><h2 id="3-5-求二叉树的高度"><a href="#3-5-求二叉树的高度" class="headerlink" title="3.5 求二叉树的高度"></a>3.5 求二叉树的高度</h2><h2 id="3-6-求二叉树节点个数"><a href="#3-6-求二叉树节点个数" class="headerlink" title="3.6 求二叉树节点个数"></a>3.6 求二叉树节点个数</h2><h2 id="3-7-求二叉树第k层的节点个数"><a href="#3-7-求二叉树第k层的节点个数" class="headerlink" title="3.7 求二叉树第k层的节点个数"></a>3.7 求二叉树第k层的节点个数</h2><h2 id="3-8-求二叉树中叶子节点的个数"><a href="#3-8-求二叉树中叶子节点的个数" class="headerlink" title="3.8 求二叉树中叶子节点的个数"></a>3.8 求二叉树中叶子节点的个数</h2><h2 id="3-9-判断一个节点是否在一棵二叉树中"><a href="#3-9-判断一个节点是否在一棵二叉树中" class="headerlink" title="3.9 判断一个节点是否在一棵二叉树中"></a>3.9 判断一个节点是否在一棵二叉树中</h2><h2 id="3-10-判断两棵二叉树是否相同的树"><a href="#3-10-判断两棵二叉树是否相同的树" class="headerlink" title="3.10 判断两棵二叉树是否相同的树"></a>3.10 判断两棵二叉树是否相同的树</h2><h2 id="3-11-判断二叉树是不是平衡二叉树"><a href="#3-11-判断二叉树是不是平衡二叉树" class="headerlink" title="3.11 判断二叉树是不是平衡二叉树"></a>3.11 判断二叉树是不是平衡二叉树</h2><h2 id="3-12-求二叉树的镜像"><a href="#3-12-求二叉树的镜像" class="headerlink" title="3.12 求二叉树的镜像"></a>3.12 求二叉树的镜像</h2><h2 id="3-13-判断两个二叉树是否互相镜像"><a href="#3-13-判断两个二叉树是否互相镜像" class="headerlink" title="3. 13 判断两个二叉树是否互相镜像"></a>3. 13 判断两个二叉树是否互相镜像</h2><h2 id="3-14-从二叉树中查找结点"><a href="#3-14-从二叉树中查找结点" class="headerlink" title="3.14 从二叉树中查找结点"></a>3.14 从二叉树中查找结点</h2><h2 id="3-15-求二叉树中两个节点的最低公共祖先节点"><a href="#3-15-求二叉树中两个节点的最低公共祖先节点" class="headerlink" title="3.15 求二叉树中两个节点的最低公共祖先节点"></a>3.15 求二叉树中两个节点的最低公共祖先节点</h2><h2 id="3-16-判断是否为二分查找树BST"><a href="#3-16-判断是否为二分查找树BST" class="headerlink" title="3.16 判断是否为二分查找树BST"></a>3.16 判断是否为二分查找树BST</h2><h2 id="3-17-二叉搜索树中第K小的元素"><a href="#3-17-二叉搜索树中第K小的元素" class="headerlink" title="3.17 二叉搜索树中第K小的元素"></a>3.17 二叉搜索树中第K小的元素</h2><h2 id="3-18-填充每个节点的下一个右侧节点指针-完美二叉树"><a href="#3-18-填充每个节点的下一个右侧节点指针-完美二叉树" class="headerlink" title="3.18 填充每个节点的下一个右侧节点指针(完美二叉树)"></a>3.18 填充每个节点的下一个右侧节点指针(完美二叉树)</h2><h2 id="3-19-填充每个节点的下一个右侧节点指针（普通二叉树）"><a href="#3-19-填充每个节点的下一个右侧节点指针（普通二叉树）" class="headerlink" title="3.19 填充每个节点的下一个右侧节点指针（普通二叉树）"></a>3.19 填充每个节点的下一个右侧节点指针（普通二叉树）</h2><h2 id="3-20-表达式转二叉树"><a href="#3-20-表达式转二叉树" class="headerlink" title="3.20 表达式转二叉树"></a>3.20 表达式转二叉树</h2><h2 id="3-21-表达式求值"><a href="#3-21-表达式求值" class="headerlink" title="3.21 表达式求值"></a>3.21 表达式求值</h2><h2 id="3-22-求两个节点的最近公共祖先"><a href="#3-22-求两个节点的最近公共祖先" class="headerlink" title="3.22 求两个节点的最近公共祖先"></a>3.22 求两个节点的最近公共祖先</h2><h2 id="3-23-求二叉树中最远的两个节点的距离"><a href="#3-23-求二叉树中最远的两个节点的距离" class="headerlink" title="3.23 求二叉树中最远的两个节点的距离"></a>3.23 求二叉树中最远的两个节点的距离</h2><h2 id="3-24-由前序遍历和中序遍历重建二叉树"><a href="#3-24-由前序遍历和中序遍历重建二叉树" class="headerlink" title="3.24 由前序遍历和中序遍历重建二叉树"></a>3.24 由前序遍历和中序遍历重建二叉树</h2><h2 id="3-25-判断一棵树是否是完全二叉树"><a href="#3-25-判断一棵树是否是完全二叉树" class="headerlink" title="3.25 判断一棵树是否是完全二叉树"></a>3.25 判断一棵树是否是完全二叉树</h2><h2 id="3-26-将二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向"><a href="#3-26-将二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向" class="headerlink" title="3.26 将二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向"></a>3.26 将二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向</h2><h2 id="3-27-求二叉树的宽度"><a href="#3-27-求二叉树的宽度" class="headerlink" title="3.27 求二叉树的宽度"></a>3.27 求二叉树的宽度</h2><h2 id="3-28-判断一棵二叉树是否是平衡二叉树"><a href="#3-28-判断一棵二叉树是否是平衡二叉树" class="headerlink" title="3.28 判断一棵二叉树是否是平衡二叉树"></a>3.28 判断一棵二叉树是否是平衡二叉树</h2><h2 id="3-28-判断一颗二叉树是否是另一颗树的子树"><a href="#3-28-判断一颗二叉树是否是另一颗树的子树" class="headerlink" title="3.28 判断一颗二叉树是否是另一颗树的子树"></a>3.28 判断一颗二叉树是否是另一颗树的子树</h2><h2 id="3-29-二叉树的右视图（二叉树最右边节点）"><a href="#3-29-二叉树的右视图（二叉树最右边节点）" class="headerlink" title="3.29 二叉树的右视图（二叉树最右边节点）"></a>3.29 二叉树的右视图（二叉树最右边节点）</h2><h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ol>
+<li><a href="https://www.cnblogs.com/33debug/p/7252371.html" target="_blank" rel="noopener">https://www.cnblogs.com/33debug/p/7252371.html</a></li>
+<li><a href="https://www.cnblogs.com/33debug/p/7248822.html" target="_blank" rel="noopener">https://www.cnblogs.com/33debug/p/7248822.html</a></li>
+</ol>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/02/storage/san/iSCSI的基本架构及操作简介/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -399,7 +799,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
               
             
           </span>
@@ -598,7 +998,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
               
             
           </span>
@@ -724,6 +1124,197 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 扩展属性</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="什么是文件的扩展属性"><a href="#什么是文件的扩展属性" class="headerlink" title="什么是文件的扩展属性"></a>什么是文件的扩展属性</h2><p>扩展属性（xattrs）提供了一个机制用来将键值对（Key/Value）永久地关联到文件，让现有的文件系统得以支持在原始设计中未提供的功能。扩展属性是文件系统不可知论者，应用程序可以通过一个标准的接口来操纵他们，此接口不因文件系统而异。每个扩展属性可以通过唯一的键来区分，键的内容必须是有效的UTF-8，格式为namespace.attribute，每个键采用完全限定的形式，也就是键必需有一个确定的前缀（例如user）。</p>
+<p>Linux操作系统有如下集中扩展属性：</p>
+<ul>
+<li>system：用于实现利用扩展属性的内核功能，例如访问控制表。eg：system.posix_acl_access便是位于此用户空间的扩展属性，用户是否可以读取或写入这些属性取决于所使用的安全模块。</li>
+<li>security：用于实现安全模块。</li>
+<li>trusted：把受限制的信息存入用户空间。</li>
+<li>user：一般进程所使用的标准命名空间，经过一般文件权限位来控制此命名空间的访问。</li>
+</ul>
+<h2 id="Ext2扩展属性的数据布局"><a href="#Ext2扩展属性的数据布局" class="headerlink" title="Ext2扩展属性的数据布局"></a>Ext2扩展属性的数据布局</h2><p>本文主要介绍一下Ext2文件系统中扩展属性的相关内容，包括<strong>磁盘数据布局和创建流程</strong>等。在Ext2文件系统中，扩展属性存储在一个单独的磁盘逻辑块中，其位置由inode中的i_file_acl成员指定。如图所示是键值对在该逻辑块中的布局示意图。其前32个字节是一个描述头（ext2_xattr_header），描述该逻辑块基本使用情况。而下面紧跟着的是扩展属性项（ext2_xattr_entry），扩展属性项描述了扩展属性的键名称等信息，同时包含值的偏移等内容。这里需要说明的是<strong>扩展属性项是从上往下生长的，而值则是从下往上生长</strong>。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-a1a8c002946bdecf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 扩展属性布局图"></p>
+<p>如下代码是描述头（ext2_xattr_header）的结构体定义，里面有魔数、引用计数和哈希值等内容。这里魔数的作用是确认该逻辑块的内容是扩展属性逻辑块，避免代码Bug或者磁盘损坏等情况下给用户返回错误的结果。引用计数和哈希值的作用是实现多文件的扩展属性共享。所谓扩展属性共享是指，如果多个文件的扩展属性完全一样的情况下，这些文件的扩展属性将采用相同的磁盘逻辑块存储，这样可以大大的节省存储空间。另外，Ext2借用的哈希缓存，将文件属性的哈希值存储在其中，用于快速判断文件是否存在相同的扩展属性逻辑块。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ext2_xattr_header</span> &#123;</span></span><br><span class="line">        __le32  h_magic;        <span class="comment">/* magic number for identification */</span></span><br><span class="line">        __le32  h_refcount;     <span class="comment">/* reference count */</span></span><br><span class="line">        __le32  h_blocks;       <span class="comment">/* number of disk blocks used */</span></span><br><span class="line">        __le32  h_hash;         <span class="comment">/* hash value of all attributes */</span></span><br><span class="line">        __u32   h_reserved[<span class="number">4</span>];  <span class="comment">/* zero right now */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>扩展属性项在磁盘上是从上往下生长的，但需要注意的是由于每个扩展属性的键名称的长度不一定一样，因此该结构体的大小也是变化的。由于上述原因，我们无法直接找到某一个扩展属性项的位置，必需从头到位进行遍历。由于描述头的大小是确定的，这样第一个扩展属性项就可以找到，而下一个扩展属性项就可以根据本扩展属性项的位置及其中的e_name_len成员计算得到。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ext2_xattr_entry</span> &#123;</span></span><br><span class="line">        __u8    e_name_len;     <span class="comment">/* length of name */</span></span><br><span class="line">        __u8    e_name_index;   <span class="comment">/* attribute name index */</span></span><br><span class="line">        __le16  e_value_offs;   <span class="comment">/* offset in disk block of value */</span></span><br><span class="line">        __le32  e_value_block;  <span class="comment">/* disk block attribute is stored on (n/i) */</span></span><br><span class="line">        __le32  e_value_size;   <span class="comment">/* size of attribute value */</span></span><br><span class="line">        __le32  e_hash;         <span class="comment">/* hash value of name and value */</span></span><br><span class="line">        <span class="keyword">char</span>    e_name[<span class="number">0</span>];      <span class="comment">/* attribute name */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="VFS设置扩展流程分析"><a href="#VFS设置扩展流程分析" class="headerlink" title="VFS设置扩展流程分析"></a>VFS设置扩展流程分析</h2><p>操作系统提供了一些API来设置文件的扩展属性，分别是setxattr、fsetxattr和lsetxattr。这几个函数应用场景略有差异，但功能基本一致。本文以fsetxattr为例进行介绍。假设用户调用该接口为某个文件设置user前缀的扩展属性，此时的整个函数调用栈如图所示。本调用栈包含三部分内容，分别是用户态接口、VFS调研栈和Ext2文件系统调用栈。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-da85b218ee48c542.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 扩展属性设置流程"></p>
+<p>通过上图可以看出在VFS做了很多事情，最后通过函数指针的方式调用到Ext2文件系统的扩展属性设置接口。整个流程中除了Ext2文件系统实现的设置扩展属性的函数（ext2_xattr_set）逻辑相对复杂外，整个函数栈的代码逻辑非常简单，这里就不过多介绍了。但是，这里有几点需要说明的：</p>
+<h3 id="属性设置公共接口调用"><a href="#属性设置公共接口调用" class="headerlink" title="属性设置公共接口调用"></a>属性设置公共接口调用</h3><p>这个调用就是上图中<code>i_op-&gt;setxattr</code>的调用，其中i_op是inode中的一个成员，这个指针是<strong>分配inode节点的时候初始化</strong>的。这个函数屏蔽了不同的扩展属性（上文已经交代Linux文件系统有trusted和user等多种扩展属性）的处理方法集合。需要注意的是Ext2文件系统并没有实现自己的特有函数，而是调用了VFS提供的公共函数（generic_setxattr）。上述i_op是一个结构体指针，其中包含属性及扩展属性操作的所有接口，如下代码所示。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">const struct inode_operations ext2_file_inode_operations = &#123; </span><br><span class="line">#ifdef CONFIG_EXT2_FS_XATTR</span><br><span class="line">        .setxattr       = generic_setxattr,</span><br><span class="line">        .getxattr       = generic_getxattr,</span><br><span class="line">        .listxattr      = ext2_listxattr,</span><br><span class="line">        .removexattr    = generic_removexattr,</span><br><span class="line">#endif</span><br><span class="line">        .setattr        = ext2_setattr,</span><br><span class="line">        .get_acl        = ext2_get_acl,</span><br><span class="line">        .set_acl        = ext2_set_acl,</span><br><span class="line">        .fiemap         = ext2_fiemap,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>关于设置扩展属性的公共实现函数比较简单，具体如下所示。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">int generic_setxattr(struct dentry *dentry, </span><br><span class="line">									const char *name, </span><br><span class="line">									const void *value, </span><br><span class="line">									size_t size, </span><br><span class="line">									int flags)</span><br><span class="line">&#123;</span><br><span class="line">        const struct xattr_handler *handler;</span><br><span class="line"></span><br><span class="line">        if (size == 0)</span><br><span class="line">                value = &quot;&quot;;  /* empty EA, do not remove */</span><br><span class="line">		/* 根据扩展属性的键（Key）获取处理该动作的函数集指针handler。</span><br><span class="line">		  * 例如设置user类型的扩展属性，则name格式为user.xxx */</span><br><span class="line">        handler = xattr_resolve_name(dentry-&gt;d_sb-&gt;s_xattr, &amp;name);</span><br><span class="line">        if (!handler)</span><br><span class="line">                return -EOPNOTSUPP;</span><br><span class="line">		/* 调用具体类型扩展属性的处理函数， 例如对于user扩展属性，则</span><br><span class="line">		  * 调用ext2_xattr_user_handler进行处理。 */</span><br><span class="line">        return handler-&gt;set(dentry, name, value, size, flags, handler-&gt;flags);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="具体类型的扩展属性设置接口调用"><a href="#具体类型的扩展属性设置接口调用" class="headerlink" title="具体类型的扩展属性设置接口调用"></a>具体类型的扩展属性设置接口调用</h3><p>这个调用就是上图中<code>handler-&gt;set</code>的调用，这个指针是在文件系统挂载的时候初始化的，其内容初始化了超级块的成员变量s_xattr。其中handler指针是<strong>根据用户传入的键名称确定的</strong>。具体获取是在函数xattr_resolve_name中实现的，其对超级块中的s_xattr变量进行遍历（匹配扩展属性的键前缀，流入user），从而找到可以处理该扩展属性的handler。如下代码是Ext2文件系统初始化超级快s_xattr用的数据，里面包含Ext2文件系统支持的所有扩展属性类型。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">const struct xattr_handler *ext2_xattr_handlers[] = &#123;</span><br><span class="line">        &amp;ext2_xattr_user_handler,</span><br><span class="line">        &amp;ext2_xattr_trusted_handler,                                                 </span><br><span class="line">#ifdef CONFIG_EXT2_FS_POSIX_ACL</span><br><span class="line">        &amp;posix_acl_access_xattr_handler,</span><br><span class="line">        &amp;posix_acl_default_xattr_handler,               </span><br><span class="line">#endif</span><br><span class="line">#ifdef CONFIG_EXT2_FS_SECURITY</span><br><span class="line">        &amp;ext2_xattr_security_handler,                 </span><br><span class="line">#endif  </span><br><span class="line">        NULL                                    </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>这样，经过几层调用之后就可以调用到Ext2文件系统中关于user扩展属性的设置接口。</p>
+<h2 id="Ext2扩展属性设置"><a href="#Ext2扩展属性设置" class="headerlink" title="Ext2扩展属性设置"></a>Ext2扩展属性设置</h2><p>对于user类型的扩展属性，其函数集为ext2_xattr_user_handler，如下是具体的定义。这里面实现了该类型扩展属性的查询和设置等接口。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">const struct xattr_handler ext2_xattr_user_handler = &#123; </span><br><span class="line">        .prefix = XATTR_USER_PREFIX,</span><br><span class="line">        .list   = ext2_xattr_user_list,</span><br><span class="line">        .get    = ext2_xattr_user_get,</span><br><span class="line">        .set    = ext2_xattr_user_set,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>设置扩展属性的接口是ext2_xattr_user_set，如下是该函数的具体实现，从代码中可以看出该函数主要调用了ext2_xattr_set函数，这个函数实现了对添加扩展属性的操作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">static int </span><br><span class="line">ext2_xattr_user_set(struct dentry *dentry, </span><br><span class="line">								const char *name,</span><br><span class="line">                				const void *value, </span><br><span class="line">								size_t size, </span><br><span class="line">								int flags, </span><br><span class="line">								int type)</span><br><span class="line">&#123;</span><br><span class="line">        if (strcmp(name, &quot;&quot;) == 0)</span><br><span class="line">                return -EINVAL;</span><br><span class="line">        if (!test_opt(dentry-&gt;d_sb, XATTR_USER))</span><br><span class="line">                return -EOPNOTSUPP;</span><br><span class="line"></span><br><span class="line">        return ext2_xattr_set(d_inode(dentry), EXT2_XATTR_INDEX_USER,</span><br><span class="line">                              name, value, size, flags);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>函数ext2_xattr_set的实现非常长，大概300多行，因此这里就不贴代码了。本文具体介绍一下该函数的实现逻辑主要是查找键，然后根据查找的结果进行处理。如果能找到该键则更新值，如果找不到则新建一个键值对。这里有几个注意点，具体实现细节请自行阅读代码。</p>
+<ul>
+<li>设置扩展属性时可能是第一个，此时会分配新的磁盘空间</li>
+<li>设置扩展属性需要计算剩余空间，如果剩余空间不够，则创建失败</li>
+<li>设置扩展属性接口同时实现了更新扩展属性值的功能，但如果新值得长度大于旧值，则需要进行特殊处理</li>
+<li>在数据布局的次序上，键和值并没有严格的顺序</li>
+</ul>
+<blockquote>
+<p>在实现逻辑中需要注意的一点是，用户在调用接口的时候可以传递附加标识，比如XATTR_REPLACE和XATTR_CREATE等。例如XATTR_REPLACE表示用户期望进行扩展属性值得替换操作，如果没有找到扩展属性的键，则返回失败。XATTR_CREATE则表示只进行创建操作，如果已经存在期望的键则失败。</p>
+</blockquote>
+<p>持续更新… …</p>
+<p>关注作者微信公众号，更及时的获取原创IT技术文章。<br><img src="http://upload-images.jianshu.io/upload_images/11058170-2578c0e8ec303183.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="公众号二维码"></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_layout/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -786,7 +1377,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
               
             
           </span>
@@ -844,6 +1435,193 @@
 <p><strong>inode表</strong></p>
 <p>inode表一列表的形式保存了文件的元数据信息，包括文件大小、扩展属性和时间等内容。由于inode结构的大小根据格式化文件系统的属性而有差异，因此该表占用的磁盘空间不定，大概若干个逻辑块的大小。关于文件名称与inode数据结构的关系是通过inode的id确定的，在文件夹中的文件存储包含文件名和inode的id信息，而通过该id可以计算出inode数据结构位于的块组位置和inode表位置。</p>
 <p>本文简要介绍一下Ext4文件系统的磁盘布局情况，后续会更加详细的介绍每一部分的细节。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_write_base/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_write_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 写数据流程</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>为了便于理解Ext2文件系统写数据的流程，本文先从整个Linux文件系统的角度分析一下写数据的流程，因此本文包含了部分VFS内容介绍。本文主要包含2部分内容，一部分是从总体上介绍一个写流程是如何从用户态接口到Ext2文件系统的，另一部分是Ext2文件的数据在磁盘上组织及函数流程。</p>
+<p>写文件的操作通常由用户态的程序发起，比如在开发的过程中调用系统API（write）。如图是从用户态发起一直到调用Ext2函数的整个调用流程。从用户态到内核态是触发了一个中断，这里我们不关心其具体实现，其作用是触发对内核函数的调用。最开始的内核函数是VFS的函数，VFS是一个中间抽象层，其目的是为用户提供统一的接口，屏蔽不同文件系统间的差异。VFS会调用具体文件系统的函数，对于本文基于的内核版本调用的仍然是VFS的通用函数generic_file_write_iter。后续新版本（例如最新的4.20则是调用ext2_file_write_iter函数，前面很早之前已经改成这个函数了）。能够调用该文件系统的接口是因为inode在初始化的时候填充了该文件系统的一个<code>文件操作的结构体</code>实现，关于具体细节本文不做解释，后续再另起文详述。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-01f2652800549d47.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 整体调用流程"></p>
+<p>Ext2文件系统文件操作结构体实现如代码所示，这里包含了Ext2文件系统实现的可以对文件进行的操作。包括对文件内容的读写、查找和缓存同步等等。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">ext2_file_operations</span> = &#123;</span> </span><br><span class="line">        .llseek         = generic_file_llseek,</span><br><span class="line">        .read_iter      = generic_file_read_iter,</span><br><span class="line">        .write_iter     = generic_file_write_iter,</span><br><span class="line">        .unlocked_ioctl = ext2_ioctl,</span><br><span class="line">#ifdef CONFIG_COMPAT</span><br><span class="line">        .compat_ioctl   = ext2_compat_ioctl,</span><br><span class="line">#endif</span><br><span class="line">        .mmap           = ext2_file_mmap,</span><br><span class="line">        .open           = dquot_file_open,</span><br><span class="line">        .release        = ext2_release_file,</span><br><span class="line">        .fsync          = ext2_fsync,</span><br><span class="line">        .splice_read    = generic_file_splice_read,</span><br><span class="line">        .splice_write   = iter_file_splice_write,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在新版本的内核中generic_file_write_iter函数被ext2_file_write_iter替代，但其实只是后者对前者进行了简单的封装，并没有做太多事情。</p>
+</blockquote>
+<p>图1中展示了VFS调用Ext2文件系统的流程，可能不够清晰。下面是VFS文件系统写操作的代码实现，由该代码可以看出在该函数中将调用具体文件系统的写数据的接口。可能涉及2种情况，视文件系统的具体实现而定。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ssize_t</span> __vfs_write(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *p, <span class="keyword">size_t</span> count,</span><br><span class="line">                    <span class="keyword">loff_t</span> *pos)</span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">if</span> (file-&gt;f_op-&gt;write)</span><br><span class="line">                <span class="keyword">return</span> file-&gt;f_op-&gt;write(file, p, count, pos);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (file-&gt;f_op-&gt;write_iter)</span><br><span class="line">                <span class="keyword">return</span> new_sync_write(file, p, count, pos);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">                <span class="keyword">return</span> -EINVAL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过上面描述，我们基本知道了用户态的接口调用是如何触发到Ext2文件系统的函数了，也就是如何调到ext2文件系统write_iter函数指针指向的函数，后面我们详细介绍一下文件系统的实现。</p>
+<h2 id="公共实现"><a href="#公共实现" class="headerlink" title="公共实现"></a>公共实现</h2><p>通过上面分析我们了解到，Ext2写数据由反过来调用VFS的通用写数据的接口generic_file_write_iter。为了保证写数据的安全性，避免进程之间的竟态导致数据的不一致，在写数据的时候会有一些锁。为了抓住主要逻辑，本文暂时不介绍参数合法性检查和锁等其它逻辑内容，这些内容后续专门介绍。</p>
+<p>本文接着分析generic_file_write_iter函数。如图2所示，其中绿色的是写流程的主要函数，该函数实现磁盘空间分配和实际的写数据的操作，主要业务逻辑也在该函数中。而函数<code>generic_write_sync</code>则是在文件具备同步刷写属性的情况下，实现缓存写数据的同步刷写，保证数据从缓存刷写到磁盘后在返回。因此，本文重点介绍__generic_file_write_iter函数，这个函数是整个文件写数据的核心。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-d30bb10a76f5e82d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 ext2写流程"></p>
+<p>该函数并不是ext2文件系统的函数，而是一个公共函数（mm/filemap.c中实现）。在该函数中，针对用户打开文件时设置的属性有两种不同的执行分支，如果设置了O_DIRECT属性，则调用<code>generic_file_direct_write</code>函数进行直写的流程；如果没有设置该属性，则调用函数<code>generic_perform_write</code>执行缓存写的流程。</p>
+<h3 id="直写流程"><a href="#直写流程" class="headerlink" title="直写流程"></a>直写流程</h3><p>所有文件系统的直写都有一个公共的入口generic_file_direct_write，这个函数在框架中实现（mm/filemap.c）。该函数流程相对比较简单，主要调用了4个函数，具体如图所示。前面两个函数是对目的区域的缓存进行刷写，并使缓存页失效。进行这一步的主要原因是缓存中可能有脏数据，如果不进行处理可能会导致缓存的数据覆盖直写的数据，从而导致数据不一致。第3个函数direct_IO是文件系统的实现，直写真正的写数据操作。最后一个函数在上面已经执行过，主要是避免预读等操作导致缓存数据与磁盘数据的不一致。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-32aab1c37bd03cb6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 直写流程"></p>
+<h3 id="缓存写流程"><a href="#缓存写流程" class="headerlink" title="缓存写流程"></a>缓存写流程</h3><p>与直写类似，缓存写也有一个公共函数，其名称为generic_perform_write。缓存写整体的主要流程也有4个主要步骤，<strong>分配磁盘空间和缓存页，将数据从用户态拷贝到内核态内存、收尾和页缓存均衡</strong>。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-bc8ab11b18418d30.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 缓存写调用流程"></p>
+<p>其中分配磁盘空间和缓存页以及收尾工作实在具体文件系统中做的。页缓存均衡的作用是检查目前页缓存的容量，保证页缓存的总容量不超过设置的水线大小，避免占用系统内存太多。上图中是函数指针方式的调用，具体到文件系统有各自的实现，对于ext2来说实现如下代码所示（在aops.c中）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">address_space_operations</span> <span class="title">ext2_aops</span> = &#123;</span></span><br><span class="line">        .readpage               = ext2_readpage,</span><br><span class="line">        .readpages              = ext2_readpages,</span><br><span class="line">        .writepage              = ext2_writepage,</span><br><span class="line">        .write_begin            = ext2_write_begin,</span><br><span class="line">        .write_end              = ext2_write_end,</span><br><span class="line">        .bmap                   = ext2_bmap,</span><br><span class="line">        .direct_IO              = ext2_direct_IO,</span><br><span class="line">        .writepages             = ext2_writepages,</span><br><span class="line">        .migratepage            = buffer_migrate_page,</span><br><span class="line">        .is_partially_uptodate  = block_is_partially_uptodate,</span><br><span class="line">        .error_remove_page      = generic_error_remove_page,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>上面都是公共框架的工作，对于所有文件系统都是一样的，整体逻辑也比较简单。了解了公共框架的部分的工作后，我们后续介绍ext2文件系统所做的工作。对于直写部分的逻辑本文暂时不做介绍，主要集中在缓存写逻辑的相关内容。</p>
+<h1 id="写数据流程"><a href="#写数据流程" class="headerlink" title="写数据流程"></a>写数据流程</h1><p>在介绍Ext2写数据的流程之前，我们先介绍一下文件中的数据在磁盘上是如何进行布局的。了解布局之后，对于我们了解文件数据的读写流程非常有益。</p>
+<p>文件内数据的存放位置由inode结构体（ext2_inode）的i_blcok成员变量指定。该变量是一个32整型数组，共有15个成员，其中前12成员的值直接指向存储文件数据的磁盘的逻辑地址。后面3个成员指向的磁盘逻辑块中存储的数据并不是文件的数据，而是指针数据。</p>
+<p>对于小文件来说，通过直接引用就可以完成数据的存储和查找。比如格式化的时候文件逻辑块大小是4K，对于48K（4K×12）以内的文件都可以通过直接引用完成。但是，如果文件大于48K，则直接引用无法容纳所有的数据，则48K以外的数据需要通过一级间接引用进行存储。以此类推，当超过本级存储空间的最大值时，则启用后面的存储方式。</p>
+<p>间接引用通过后面3个成员完成。对于第12个成员来说，它是一级间接引用模式，也就是该成员指向的磁盘逻辑块中存储的是<strong>指向文件数据的指针</strong>，而指针指向的是存储文件数据的磁盘逻辑块的地址。而有对于第13个成员来说，它是二级间接引用模式，也就是该成员指向的磁盘逻辑块中存储的是指针，而指针指向的仍然是存储指针的磁盘逻辑块，再之后该指针指向的才是文件数据的磁盘逻辑块的地址。以此类推，三级间接也用就是成员与存储文件数据的逻辑块之间有3层指针。如图5是Ext2文件数据在3级间接引用情况下的数据布局示意图。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-854b3c2d7d7b8835.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 文件数据索引示意图"></p>
+<p>在前面整体流程中我们知道VFS调用Ext2文件系统的write_begin和write_end函数指针。其中write_begin的具体函数是ext2_write_begin。如图6所示，该函数调用block_write_begin函数，并传入一个<code>ext2_get_block</code>参数，该参数是Ext2文件系统分配磁盘空间的具体实现。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-fbe28f412513b3b8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 Ext2写数据函数调用图"></p>
+<p>函数ext2_write_begin是文件系统写数据的重点实现，总结一下就是这里分配页缓存、分配磁盘空间和建立页缓存与磁盘块的关系。这样，在后面就可以实现数据的刷写，将数据从缓存刷写到磁盘。如下是block_write_begin函数的代码实现。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">block_write_begin</span><span class="params">(struct address_space *mapping, <span class="keyword">loff_t</span> pos, <span class="keyword">unsigned</span> len,</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="keyword">unsigned</span> flags, struct page **pagep, <span class="keyword">get_block_t</span> *get_block)</span></span></span><br><span class="line"><span class="function"></span>&#123;               </span><br><span class="line">        <span class="keyword">pgoff_t</span> index = pos &gt;&gt; PAGE_CACHE_SHIFT;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">page</span> *<span class="title">page</span>;</span></span><br><span class="line">        <span class="keyword">int</span> status;</span><br><span class="line">        <span class="comment">/* 分配存储数据的缓存页 */</span></span><br><span class="line">        page = grab_cache_page_write_begin(mapping, index, flags);</span><br><span class="line">        <span class="keyword">if</span> (!page)</span><br><span class="line">                <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">        <span class="comment">/* 通过get_block获取磁盘空间，并建立与缓存页的映射关系 */</span></span><br><span class="line">        status = __block_write_begin(page, pos, len, get_block);</span><br><span class="line">        <span class="keyword">if</span> (unlikely(status)) &#123;</span><br><span class="line">                unlock_page(page);</span><br><span class="line">                page_cache_release(page);</span><br><span class="line">                page = <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        *pagep = page;</span><br><span class="line">        <span class="keyword">return</span> status;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也就是对于Ext2文件系统来说，分配磁盘空间的关键函数是ext2_get_block，该函数会根据请求的大小和位置等信息计算出应该使用几级间接引用块，然后分配必须的空间。同时该函数还会填充inode的i_block数组的成员。该函数实现相对复杂，后面我们单独写一篇关于Ext2磁盘空间分配的文章。</p>
+<p>至此，我们分析了Ext2文件系统写数据的流程，总结起来也比较简单，概括起来就是<strong>分配磁盘空间和缓存页，将数据从用户态拷贝到内核态内存、收尾和页缓存均衡</strong>。由于分配磁盘空间是比较复杂的，因此后续再另行起文分析。</p>
 
           
         
@@ -962,7 +1740,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
               
             
           </span>
@@ -1146,7 +1924,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
               
             
           </span>
@@ -1258,7 +2036,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_write_base/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/03/24/books/Go语言开发必读书目，从菜鸟到大牛必备/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -1278,7 +2056,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/05/01/linux/filesystem/ext2/ext2_write_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 写数据流程</a>
+                <a href="/2019/03/24/books/Go语言开发必读书目，从菜鸟到大牛必备/" class="post-title-link" itemprop="url">Go语言开发必读书目，从菜鸟到大牛必备</a>
               
             
           </h1>
@@ -1303,7 +2081,7 @@
                 
               
 
-              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+              <time title="创建时间：2019-03-24 10:12:21" itemprop="dateCreated datePublished" datetime="2019-03-24T10:12:21+00:00">2019-03-24</time>
             
 
             
@@ -1320,11 +2098,36 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
               
             
           </span>
 
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/图书/" itemprop="url" rel="index"><span itemprop="name">图书</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/图书/计算机/" itemprop="url" rel="index"><span itemprop="name">计算机</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -1356,974 +2159,21 @@
       
         
           
-            <p>为了便于理解Ext2文件系统写数据的流程，本文先从整个Linux文件系统的角度分析一下写数据的流程，因此本文包含了部分VFS内容介绍。本文主要包含2部分内容，一部分是从总体上介绍一个写流程是如何从用户态接口到Ext2文件系统的，另一部分是Ext2文件的数据在磁盘上组织及函数流程。</p>
-<p>写文件的操作通常由用户态的程序发起，比如在开发的过程中调用系统API（write）。如图是从用户态发起一直到调用Ext2函数的整个调用流程。从用户态到内核态是触发了一个中断，这里我们不关心其具体实现，其作用是触发对内核函数的调用。最开始的内核函数是VFS的函数，VFS是一个中间抽象层，其目的是为用户提供统一的接口，屏蔽不同文件系统间的差异。VFS会调用具体文件系统的函数，对于本文基于的内核版本调用的仍然是VFS的通用函数generic_file_write_iter。后续新版本（例如最新的4.20则是调用ext2_file_write_iter函数，前面很早之前已经改成这个函数了）。能够调用该文件系统的接口是因为inode在初始化的时候填充了该文件系统的一个<code>文件操作的结构体</code>实现，关于具体细节本文不做解释，后续再另起文详述。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-01f2652800549d47.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 整体调用流程"></p>
-<p>Ext2文件系统文件操作结构体实现如代码所示，这里包含了Ext2文件系统实现的可以对文件进行的操作。包括对文件内容的读写、查找和缓存同步等等。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">ext2_file_operations</span> = &#123;</span> </span><br><span class="line">        .llseek         = generic_file_llseek,</span><br><span class="line">        .read_iter      = generic_file_read_iter,</span><br><span class="line">        .write_iter     = generic_file_write_iter,</span><br><span class="line">        .unlocked_ioctl = ext2_ioctl,</span><br><span class="line">#ifdef CONFIG_COMPAT</span><br><span class="line">        .compat_ioctl   = ext2_compat_ioctl,</span><br><span class="line">#endif</span><br><span class="line">        .mmap           = ext2_file_mmap,</span><br><span class="line">        .open           = dquot_file_open,</span><br><span class="line">        .release        = ext2_release_file,</span><br><span class="line">        .fsync          = ext2_fsync,</span><br><span class="line">        .splice_read    = generic_file_splice_read,</span><br><span class="line">        .splice_write   = iter_file_splice_write,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+            <p>Go语言是最近几年流行起来的语言，该语言有谷歌发明，并得到广泛的应用。Go语言最大的特点是并发支持度好，而且开发效率高。在C语言中需要几十行，上百行代码才能实现的功能，在Go语言中可能只需要几行代码就可以搞定。因此，目前很多人开始学习Go语言进行开发。Go语言的应用领域也很广，包括服务端的开发，Web开发和应用开发等等。下面本文推荐几本Go语言入门必读的图书。</p>
+<h1 id="Go语言程序设计"><a href="#Go语言程序设计" class="headerlink" title="Go语言程序设计"></a>Go语言程序设计</h1><p>这本书是Go语言入门必读的第一本书，其作者是Kernighan和谷歌公司Go团队主管Alan Donovan，是学习Go语言程序设计的指南。全书共分为13章，主要内容包括：Go的基础知识、基本结构、基本数据类型、复合数据类型、函数、方法、接口、goroutine、通道、共享变量的并发性、包、go工具、测试、反射等。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-c4009304ce92ebfb?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Go语言开发必读书目，从菜鸟到大牛必备"></p>
+<h1 id="Go语言编程"><a href="#Go语言编程" class="headerlink" title="Go语言编程"></a>Go语言编程</h1><p>该书的作者是国内某云的研发团队编写的，该公司是国内大规模使用Go语言比较早的公司。因此该书的特点是不仅介绍Go语言的关键语法，更加从工程实践的角度介绍Go语言的内容。值得作为第二本书阅读。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-4cf8dad35e84b4b3?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Go语言开发必读书目，从菜鸟到大牛必备"></p>
+<h1 id="Go语言标准库"><a href="#Go语言标准库" class="headerlink" title="Go语言标准库"></a>Go语言标准库</h1><p>学习任何一门语言都是这样，首先学习的是语法，然后学习的就是其核心库。核心库是制造汽车的轮子。这样开发者就可以用这些造好的轮子制造汽车了，而不用自己从0开始。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-0a0552807cfb98de?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Go语言开发必读书目，从菜鸟到大牛必备"></p>
+<h1 id="Go并发编程实践"><a href="#Go并发编程实践" class="headerlink" title="Go并发编程实践"></a>Go并发编程实践</h1><p>Go语言最大的特点就是并发编程，它实现了一种基于协程的并发模型。轻量级的协程模型减少了线程模型的切换消耗，大大增加了并发性能。本书这时对Go语言并发进行深入讲解的不可多得的好书。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ba64a3269362112e?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Go语言开发必读书目，从菜鸟到大牛必备"></p>
+<h1 id="Go语言学习笔记"><a href="#Go语言学习笔记" class="headerlink" title="Go语言学习笔记"></a>Go语言学习笔记</h1><p>该书不仅介绍了Go语言的基本语法，最大的特点是更加深入的介绍了Go语言的实现细节。本书从Go语言的源代码开始，介绍了内存管理、垃圾回收和并发控制等深层次的问题。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-3c54b66846f645fe?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Go语言开发必读书目，从菜鸟到大牛必备"></p>
+<p>另外比较有名的还有《Go语言圣经》和《Go语言实践》等图书，这些都是非常好的学习Go语言方面的图书。</p>
 <blockquote>
-<p>在新版本的内核中generic_file_write_iter函数被ext2_file_write_iter替代，但其实只是后者对前者进行了简单的封装，并没有做太多事情。</p>
+<p>本号提供电子书下载： <a href="https://u19702000.ctfile.com/fs/19702000-355801363" target="_blank" rel="noopener">https://u19702000.ctfile.com/fs/19702000-355801363</a><br>关注微信，获得更多内容： <strong>itworld123</strong></p>
 </blockquote>
-<p>图1中展示了VFS调用Ext2文件系统的流程，可能不够清晰。下面是VFS文件系统写操作的代码实现，由该代码可以看出在该函数中将调用具体文件系统的写数据的接口。可能涉及2种情况，视文件系统的具体实现而定。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ssize_t</span> __vfs_write(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *p, <span class="keyword">size_t</span> count,</span><br><span class="line">                    <span class="keyword">loff_t</span> *pos)</span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">if</span> (file-&gt;f_op-&gt;write)</span><br><span class="line">                <span class="keyword">return</span> file-&gt;f_op-&gt;write(file, p, count, pos);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (file-&gt;f_op-&gt;write_iter)</span><br><span class="line">                <span class="keyword">return</span> new_sync_write(file, p, count, pos);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">                <span class="keyword">return</span> -EINVAL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>通过上面描述，我们基本知道了用户态的接口调用是如何触发到Ext2文件系统的函数了，也就是如何调到ext2文件系统write_iter函数指针指向的函数，后面我们详细介绍一下文件系统的实现。</p>
-<h2 id="公共实现"><a href="#公共实现" class="headerlink" title="公共实现"></a>公共实现</h2><p>通过上面分析我们了解到，Ext2写数据由反过来调用VFS的通用写数据的接口generic_file_write_iter。为了保证写数据的安全性，避免进程之间的竟态导致数据的不一致，在写数据的时候会有一些锁。为了抓住主要逻辑，本文暂时不介绍参数合法性检查和锁等其它逻辑内容，这些内容后续专门介绍。</p>
-<p>本文接着分析generic_file_write_iter函数。如图2所示，其中绿色的是写流程的主要函数，该函数实现磁盘空间分配和实际的写数据的操作，主要业务逻辑也在该函数中。而函数<code>generic_write_sync</code>则是在文件具备同步刷写属性的情况下，实现缓存写数据的同步刷写，保证数据从缓存刷写到磁盘后在返回。因此，本文重点介绍__generic_file_write_iter函数，这个函数是整个文件写数据的核心。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-d30bb10a76f5e82d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 ext2写流程"></p>
-<p>该函数并不是ext2文件系统的函数，而是一个公共函数（mm/filemap.c中实现）。在该函数中，针对用户打开文件时设置的属性有两种不同的执行分支，如果设置了O_DIRECT属性，则调用<code>generic_file_direct_write</code>函数进行直写的流程；如果没有设置该属性，则调用函数<code>generic_perform_write</code>执行缓存写的流程。</p>
-<h3 id="直写流程"><a href="#直写流程" class="headerlink" title="直写流程"></a>直写流程</h3><p>所有文件系统的直写都有一个公共的入口generic_file_direct_write，这个函数在框架中实现（mm/filemap.c）。该函数流程相对比较简单，主要调用了4个函数，具体如图所示。前面两个函数是对目的区域的缓存进行刷写，并使缓存页失效。进行这一步的主要原因是缓存中可能有脏数据，如果不进行处理可能会导致缓存的数据覆盖直写的数据，从而导致数据不一致。第3个函数direct_IO是文件系统的实现，直写真正的写数据操作。最后一个函数在上面已经执行过，主要是避免预读等操作导致缓存数据与磁盘数据的不一致。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-32aab1c37bd03cb6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 直写流程"></p>
-<h3 id="缓存写流程"><a href="#缓存写流程" class="headerlink" title="缓存写流程"></a>缓存写流程</h3><p>与直写类似，缓存写也有一个公共函数，其名称为generic_perform_write。缓存写整体的主要流程也有4个主要步骤，<strong>分配磁盘空间和缓存页，将数据从用户态拷贝到内核态内存、收尾和页缓存均衡</strong>。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-bc8ab11b18418d30.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 缓存写调用流程"></p>
-<p>其中分配磁盘空间和缓存页以及收尾工作实在具体文件系统中做的。页缓存均衡的作用是检查目前页缓存的容量，保证页缓存的总容量不超过设置的水线大小，避免占用系统内存太多。上图中是函数指针方式的调用，具体到文件系统有各自的实现，对于ext2来说实现如下代码所示（在aops.c中）。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">address_space_operations</span> <span class="title">ext2_aops</span> = &#123;</span></span><br><span class="line">        .readpage               = ext2_readpage,</span><br><span class="line">        .readpages              = ext2_readpages,</span><br><span class="line">        .writepage              = ext2_writepage,</span><br><span class="line">        .write_begin            = ext2_write_begin,</span><br><span class="line">        .write_end              = ext2_write_end,</span><br><span class="line">        .bmap                   = ext2_bmap,</span><br><span class="line">        .direct_IO              = ext2_direct_IO,</span><br><span class="line">        .writepages             = ext2_writepages,</span><br><span class="line">        .migratepage            = buffer_migrate_page,</span><br><span class="line">        .is_partially_uptodate  = block_is_partially_uptodate,</span><br><span class="line">        .error_remove_page      = generic_error_remove_page,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>上面都是公共框架的工作，对于所有文件系统都是一样的，整体逻辑也比较简单。了解了公共框架的部分的工作后，我们后续介绍ext2文件系统所做的工作。对于直写部分的逻辑本文暂时不做介绍，主要集中在缓存写逻辑的相关内容。</p>
-<h1 id="写数据流程"><a href="#写数据流程" class="headerlink" title="写数据流程"></a>写数据流程</h1><p>在介绍Ext2写数据的流程之前，我们先介绍一下文件中的数据在磁盘上是如何进行布局的。了解布局之后，对于我们了解文件数据的读写流程非常有益。</p>
-<p>文件内数据的存放位置由inode结构体（ext2_inode）的i_blcok成员变量指定。该变量是一个32整型数组，共有15个成员，其中前12成员的值直接指向存储文件数据的磁盘的逻辑地址。后面3个成员指向的磁盘逻辑块中存储的数据并不是文件的数据，而是指针数据。</p>
-<p>对于小文件来说，通过直接引用就可以完成数据的存储和查找。比如格式化的时候文件逻辑块大小是4K，对于48K（4K×12）以内的文件都可以通过直接引用完成。但是，如果文件大于48K，则直接引用无法容纳所有的数据，则48K以外的数据需要通过一级间接引用进行存储。以此类推，当超过本级存储空间的最大值时，则启用后面的存储方式。</p>
-<p>间接引用通过后面3个成员完成。对于第12个成员来说，它是一级间接引用模式，也就是该成员指向的磁盘逻辑块中存储的是<strong>指向文件数据的指针</strong>，而指针指向的是存储文件数据的磁盘逻辑块的地址。而有对于第13个成员来说，它是二级间接引用模式，也就是该成员指向的磁盘逻辑块中存储的是指针，而指针指向的仍然是存储指针的磁盘逻辑块，再之后该指针指向的才是文件数据的磁盘逻辑块的地址。以此类推，三级间接也用就是成员与存储文件数据的逻辑块之间有3层指针。如图5是Ext2文件数据在3级间接引用情况下的数据布局示意图。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-854b3c2d7d7b8835.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 文件数据索引示意图"></p>
-<p>在前面整体流程中我们知道VFS调用Ext2文件系统的write_begin和write_end函数指针。其中write_begin的具体函数是ext2_write_begin。如图6所示，该函数调用block_write_begin函数，并传入一个<code>ext2_get_block</code>参数，该参数是Ext2文件系统分配磁盘空间的具体实现。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-fbe28f412513b3b8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 Ext2写数据函数调用图"></p>
-<p>函数ext2_write_begin是文件系统写数据的重点实现，总结一下就是这里分配页缓存、分配磁盘空间和建立页缓存与磁盘块的关系。这样，在后面就可以实现数据的刷写，将数据从缓存刷写到磁盘。如下是block_write_begin函数的代码实现。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">block_write_begin</span><span class="params">(struct address_space *mapping, <span class="keyword">loff_t</span> pos, <span class="keyword">unsigned</span> len,</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="keyword">unsigned</span> flags, struct page **pagep, <span class="keyword">get_block_t</span> *get_block)</span></span></span><br><span class="line"><span class="function"></span>&#123;               </span><br><span class="line">        <span class="keyword">pgoff_t</span> index = pos &gt;&gt; PAGE_CACHE_SHIFT;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">page</span> *<span class="title">page</span>;</span></span><br><span class="line">        <span class="keyword">int</span> status;</span><br><span class="line">        <span class="comment">/* 分配存储数据的缓存页 */</span></span><br><span class="line">        page = grab_cache_page_write_begin(mapping, index, flags);</span><br><span class="line">        <span class="keyword">if</span> (!page)</span><br><span class="line">                <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">        <span class="comment">/* 通过get_block获取磁盘空间，并建立与缓存页的映射关系 */</span></span><br><span class="line">        status = __block_write_begin(page, pos, len, get_block);</span><br><span class="line">        <span class="keyword">if</span> (unlikely(status)) &#123;</span><br><span class="line">                unlock_page(page);</span><br><span class="line">                page_cache_release(page);</span><br><span class="line">                page = <span class="literal">NULL</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        *pagep = page;</span><br><span class="line">        <span class="keyword">return</span> status;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>也就是对于Ext2文件系统来说，分配磁盘空间的关键函数是ext2_get_block，该函数会根据请求的大小和位置等信息计算出应该使用几级间接引用块，然后分配必须的空间。同时该函数还会填充inode的i_block数组的成员。该函数实现相对复杂，后面我们单独写一篇关于Ext2磁盘空间分配的文章。</p>
-<p>至此，我们分析了Ext2文件系统写数据的流程，总结起来也比较简单，概括起来就是<strong>分配磁盘空间和缓存页，将数据从用户态拷贝到内核态内存、收尾和页缓存均衡</strong>。由于分配磁盘空间是比较复杂的，因此后续再另行起文分析。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Sunny Zhang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/itworld_logo_300.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SunnyZhang的IT世界">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 扩展属性</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="什么是文件的扩展属性"><a href="#什么是文件的扩展属性" class="headerlink" title="什么是文件的扩展属性"></a>什么是文件的扩展属性</h2><p>扩展属性（xattrs）提供了一个机制用来将键值对（Key/Value）永久地关联到文件，让现有的文件系统得以支持在原始设计中未提供的功能。扩展属性是文件系统不可知论者，应用程序可以通过一个标准的接口来操纵他们，此接口不因文件系统而异。每个扩展属性可以通过唯一的键来区分，键的内容必须是有效的UTF-8，格式为namespace.attribute，每个键采用完全限定的形式，也就是键必需有一个确定的前缀（例如user）。</p>
-<p>Linux操作系统有如下集中扩展属性：</p>
-<ul>
-<li>system：用于实现利用扩展属性的内核功能，例如访问控制表。eg：system.posix_acl_access便是位于此用户空间的扩展属性，用户是否可以读取或写入这些属性取决于所使用的安全模块。</li>
-<li>security：用于实现安全模块。</li>
-<li>trusted：把受限制的信息存入用户空间。</li>
-<li>user：一般进程所使用的标准命名空间，经过一般文件权限位来控制此命名空间的访问。</li>
-</ul>
-<h2 id="Ext2扩展属性的数据布局"><a href="#Ext2扩展属性的数据布局" class="headerlink" title="Ext2扩展属性的数据布局"></a>Ext2扩展属性的数据布局</h2><p>本文主要介绍一下Ext2文件系统中扩展属性的相关内容，包括<strong>磁盘数据布局和创建流程</strong>等。在Ext2文件系统中，扩展属性存储在一个单独的磁盘逻辑块中，其位置由inode中的i_file_acl成员指定。如图所示是键值对在该逻辑块中的布局示意图。其前32个字节是一个描述头（ext2_xattr_header），描述该逻辑块基本使用情况。而下面紧跟着的是扩展属性项（ext2_xattr_entry），扩展属性项描述了扩展属性的键名称等信息，同时包含值的偏移等内容。这里需要说明的是<strong>扩展属性项是从上往下生长的，而值则是从下往上生长</strong>。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-a1a8c002946bdecf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 扩展属性布局图"></p>
-<p>如下代码是描述头（ext2_xattr_header）的结构体定义，里面有魔数、引用计数和哈希值等内容。这里魔数的作用是确认该逻辑块的内容是扩展属性逻辑块，避免代码Bug或者磁盘损坏等情况下给用户返回错误的结果。引用计数和哈希值的作用是实现多文件的扩展属性共享。所谓扩展属性共享是指，如果多个文件的扩展属性完全一样的情况下，这些文件的扩展属性将采用相同的磁盘逻辑块存储，这样可以大大的节省存储空间。另外，Ext2借用的哈希缓存，将文件属性的哈希值存储在其中，用于快速判断文件是否存在相同的扩展属性逻辑块。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ext2_xattr_header</span> &#123;</span></span><br><span class="line">        __le32  h_magic;        <span class="comment">/* magic number for identification */</span></span><br><span class="line">        __le32  h_refcount;     <span class="comment">/* reference count */</span></span><br><span class="line">        __le32  h_blocks;       <span class="comment">/* number of disk blocks used */</span></span><br><span class="line">        __le32  h_hash;         <span class="comment">/* hash value of all attributes */</span></span><br><span class="line">        __u32   h_reserved[<span class="number">4</span>];  <span class="comment">/* zero right now */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>扩展属性项在磁盘上是从上往下生长的，但需要注意的是由于每个扩展属性的键名称的长度不一定一样，因此该结构体的大小也是变化的。由于上述原因，我们无法直接找到某一个扩展属性项的位置，必需从头到位进行遍历。由于描述头的大小是确定的，这样第一个扩展属性项就可以找到，而下一个扩展属性项就可以根据本扩展属性项的位置及其中的e_name_len成员计算得到。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ext2_xattr_entry</span> &#123;</span></span><br><span class="line">        __u8    e_name_len;     <span class="comment">/* length of name */</span></span><br><span class="line">        __u8    e_name_index;   <span class="comment">/* attribute name index */</span></span><br><span class="line">        __le16  e_value_offs;   <span class="comment">/* offset in disk block of value */</span></span><br><span class="line">        __le32  e_value_block;  <span class="comment">/* disk block attribute is stored on (n/i) */</span></span><br><span class="line">        __le32  e_value_size;   <span class="comment">/* size of attribute value */</span></span><br><span class="line">        __le32  e_hash;         <span class="comment">/* hash value of name and value */</span></span><br><span class="line">        <span class="keyword">char</span>    e_name[<span class="number">0</span>];      <span class="comment">/* attribute name */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="VFS设置扩展流程分析"><a href="#VFS设置扩展流程分析" class="headerlink" title="VFS设置扩展流程分析"></a>VFS设置扩展流程分析</h2><p>操作系统提供了一些API来设置文件的扩展属性，分别是setxattr、fsetxattr和lsetxattr。这几个函数应用场景略有差异，但功能基本一致。本文以fsetxattr为例进行介绍。假设用户调用该接口为某个文件设置user前缀的扩展属性，此时的整个函数调用栈如图所示。本调用栈包含三部分内容，分别是用户态接口、VFS调研栈和Ext2文件系统调用栈。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-da85b218ee48c542.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 扩展属性设置流程"></p>
-<p>通过上图可以看出在VFS做了很多事情，最后通过函数指针的方式调用到Ext2文件系统的扩展属性设置接口。整个流程中除了Ext2文件系统实现的设置扩展属性的函数（ext2_xattr_set）逻辑相对复杂外，整个函数栈的代码逻辑非常简单，这里就不过多介绍了。但是，这里有几点需要说明的：</p>
-<h3 id="属性设置公共接口调用"><a href="#属性设置公共接口调用" class="headerlink" title="属性设置公共接口调用"></a>属性设置公共接口调用</h3><p>这个调用就是上图中<code>i_op-&gt;setxattr</code>的调用，其中i_op是inode中的一个成员，这个指针是<strong>分配inode节点的时候初始化</strong>的。这个函数屏蔽了不同的扩展属性（上文已经交代Linux文件系统有trusted和user等多种扩展属性）的处理方法集合。需要注意的是Ext2文件系统并没有实现自己的特有函数，而是调用了VFS提供的公共函数（generic_setxattr）。上述i_op是一个结构体指针，其中包含属性及扩展属性操作的所有接口，如下代码所示。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">const struct inode_operations ext2_file_inode_operations = &#123; </span><br><span class="line">#ifdef CONFIG_EXT2_FS_XATTR</span><br><span class="line">        .setxattr       = generic_setxattr,</span><br><span class="line">        .getxattr       = generic_getxattr,</span><br><span class="line">        .listxattr      = ext2_listxattr,</span><br><span class="line">        .removexattr    = generic_removexattr,</span><br><span class="line">#endif</span><br><span class="line">        .setattr        = ext2_setattr,</span><br><span class="line">        .get_acl        = ext2_get_acl,</span><br><span class="line">        .set_acl        = ext2_set_acl,</span><br><span class="line">        .fiemap         = ext2_fiemap,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<p>关于设置扩展属性的公共实现函数比较简单，具体如下所示。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">int generic_setxattr(struct dentry *dentry, </span><br><span class="line">									const char *name, </span><br><span class="line">									const void *value, </span><br><span class="line">									size_t size, </span><br><span class="line">									int flags)</span><br><span class="line">&#123;</span><br><span class="line">        const struct xattr_handler *handler;</span><br><span class="line"></span><br><span class="line">        if (size == 0)</span><br><span class="line">                value = &quot;&quot;;  /* empty EA, do not remove */</span><br><span class="line">		/* 根据扩展属性的键（Key）获取处理该动作的函数集指针handler。</span><br><span class="line">		  * 例如设置user类型的扩展属性，则name格式为user.xxx */</span><br><span class="line">        handler = xattr_resolve_name(dentry-&gt;d_sb-&gt;s_xattr, &amp;name);</span><br><span class="line">        if (!handler)</span><br><span class="line">                return -EOPNOTSUPP;</span><br><span class="line">		/* 调用具体类型扩展属性的处理函数， 例如对于user扩展属性，则</span><br><span class="line">		  * 调用ext2_xattr_user_handler进行处理。 */</span><br><span class="line">        return handler-&gt;set(dentry, name, value, size, flags, handler-&gt;flags);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="具体类型的扩展属性设置接口调用"><a href="#具体类型的扩展属性设置接口调用" class="headerlink" title="具体类型的扩展属性设置接口调用"></a>具体类型的扩展属性设置接口调用</h3><p>这个调用就是上图中<code>handler-&gt;set</code>的调用，这个指针是在文件系统挂载的时候初始化的，其内容初始化了超级块的成员变量s_xattr。其中handler指针是<strong>根据用户传入的键名称确定的</strong>。具体获取是在函数xattr_resolve_name中实现的，其对超级块中的s_xattr变量进行遍历（匹配扩展属性的键前缀，流入user），从而找到可以处理该扩展属性的handler。如下代码是Ext2文件系统初始化超级快s_xattr用的数据，里面包含Ext2文件系统支持的所有扩展属性类型。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">const struct xattr_handler *ext2_xattr_handlers[] = &#123;</span><br><span class="line">        &amp;ext2_xattr_user_handler,</span><br><span class="line">        &amp;ext2_xattr_trusted_handler,                                                 </span><br><span class="line">#ifdef CONFIG_EXT2_FS_POSIX_ACL</span><br><span class="line">        &amp;posix_acl_access_xattr_handler,</span><br><span class="line">        &amp;posix_acl_default_xattr_handler,               </span><br><span class="line">#endif</span><br><span class="line">#ifdef CONFIG_EXT2_FS_SECURITY</span><br><span class="line">        &amp;ext2_xattr_security_handler,                 </span><br><span class="line">#endif  </span><br><span class="line">        NULL                                    </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<p>这样，经过几层调用之后就可以调用到Ext2文件系统中关于user扩展属性的设置接口。</p>
-<h2 id="Ext2扩展属性设置"><a href="#Ext2扩展属性设置" class="headerlink" title="Ext2扩展属性设置"></a>Ext2扩展属性设置</h2><p>对于user类型的扩展属性，其函数集为ext2_xattr_user_handler，如下是具体的定义。这里面实现了该类型扩展属性的查询和设置等接口。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">const struct xattr_handler ext2_xattr_user_handler = &#123; </span><br><span class="line">        .prefix = XATTR_USER_PREFIX,</span><br><span class="line">        .list   = ext2_xattr_user_list,</span><br><span class="line">        .get    = ext2_xattr_user_get,</span><br><span class="line">        .set    = ext2_xattr_user_set,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>设置扩展属性的接口是ext2_xattr_user_set，如下是该函数的具体实现，从代码中可以看出该函数主要调用了ext2_xattr_set函数，这个函数实现了对添加扩展属性的操作。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">static int </span><br><span class="line">ext2_xattr_user_set(struct dentry *dentry, </span><br><span class="line">								const char *name,</span><br><span class="line">                				const void *value, </span><br><span class="line">								size_t size, </span><br><span class="line">								int flags, </span><br><span class="line">								int type)</span><br><span class="line">&#123;</span><br><span class="line">        if (strcmp(name, &quot;&quot;) == 0)</span><br><span class="line">                return -EINVAL;</span><br><span class="line">        if (!test_opt(dentry-&gt;d_sb, XATTR_USER))</span><br><span class="line">                return -EOPNOTSUPP;</span><br><span class="line"></span><br><span class="line">        return ext2_xattr_set(d_inode(dentry), EXT2_XATTR_INDEX_USER,</span><br><span class="line">                              name, value, size, flags);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>函数ext2_xattr_set的实现非常长，大概300多行，因此这里就不贴代码了。本文具体介绍一下该函数的实现逻辑主要是查找键，然后根据查找的结果进行处理。如果能找到该键则更新值，如果找不到则新建一个键值对。这里有几个注意点，具体实现细节请自行阅读代码。</p>
-<ul>
-<li>设置扩展属性时可能是第一个，此时会分配新的磁盘空间</li>
-<li>设置扩展属性需要计算剩余空间，如果剩余空间不够，则创建失败</li>
-<li>设置扩展属性接口同时实现了更新扩展属性值的功能，但如果新值得长度大于旧值，则需要进行特殊处理</li>
-<li>在数据布局的次序上，键和值并没有严格的顺序</li>
-</ul>
-<blockquote>
-<p>在实现逻辑中需要注意的一点是，用户在调用接口的时候可以传递附加标识，比如XATTR_REPLACE和XATTR_CREATE等。例如XATTR_REPLACE表示用户期望进行扩展属性值得替换操作，如果没有找到扩展属性的键，则返回失败。XATTR_CREATE则表示只进行创建操作，如果已经存在期望的键则失败。</p>
-</blockquote>
-<p>持续更新… …</p>
-<p>关注作者微信公众号，更及时的获取原创IT技术文章。<br><img src="http://upload-images.jianshu.io/upload_images/11058170-2578c0e8ec303183.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="公众号二维码"></p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2018/12/14/linux/filesystem/ocfs2/OCFS2文件写数据流程分析/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Sunny Zhang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/itworld_logo_300.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SunnyZhang的IT世界">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2018/12/14/linux/filesystem/ocfs2/OCFS2文件写数据流程分析/" class="post-title-link" itemprop="url">OCFS2文件写数据流程分析</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-12-14 19:37:02" itemprop="dateCreated datePublished" datetime="2018-12-14T19:37:02+00:00">2018-12-14</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>本文主要介绍一下OCFS2文件系统写数据的流程，以及数据在磁盘的布局情况。在OCFS2文件系统中，文件数据的管理分为2种模式，对于非常小的文件，可以直接放在inode节点所在的区域，也就是inode内部；而对于inode无法容纳的数据则通过B+树的方式放在inode外的其它存储区域，通过inode内的成员指向数据的位置。</p>
-<p>将数据直接放置在inode内部的方式成为inline模式，这种模式是最简单的，因此我们先介绍这种模式。另外，本文章的目的是理解OCFS2的具体代码实现，因此在介绍的过程中会贴一部分代码，但不会太多，主要考虑到太多的代码可能会影响全文的连贯性。为了便于从整体上理解，本文包含了部分VFS内容的介绍。</p>
-<p>写文件的操作通常由用户态的程序发起，比如在开发的过程中调用系统API（write）。如图是从用户态发起一直到调用OCFS2函数的整个调用流程。从用户态到内核态是触发了一个中断，这里我们不关心其具体实现，其作用是触发对内核函数的调用。最开始的内核函数是VFS的函数，VFS是一个中间抽象层，其目的是为用户提供统一的接口，屏蔽不同文件系统间的差异。VFS会调用具体文件系统的函数，这里是调用OCFS2文件系统的ocfs2_file_write_iter函数，能够调用该文件系统的接口是因为inode在初始化的时候填充了该文件系统的一个<code>文件操作的结构体</code>实现，关于具体细节本文不做解释，后续再另起文详述。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-5f8e7ff139093d19.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 整体调用流程"></p>
-<p>OCFS2文件系统文件操作的结构体实现如代码所示，这里包含了OCFS2文件系统实现的可以对文件进行的操作。包括对文件内容的读写、查找和缓存同步等等，还有文件加锁等操作。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">ocfs2_fops</span> = &#123;</span></span><br><span class="line">        .llseek         = ocfs2_file_llseek,</span><br><span class="line">        .mmap           = ocfs2_mmap,</span><br><span class="line">        .fsync          = ocfs2_sync_file,</span><br><span class="line">        .release        = ocfs2_file_release,</span><br><span class="line">        .open           = ocfs2_file_open,</span><br><span class="line">        .read_iter      = ocfs2_file_read_iter,</span><br><span class="line">        .write_iter     = ocfs2_file_write_iter,</span><br><span class="line">        .unlocked_ioctl = ocfs2_ioctl,</span><br><span class="line">#ifdef CONFIG_COMPAT</span><br><span class="line">        .compat_ioctl   = ocfs2_compat_ioctl,</span><br><span class="line">#endif</span><br><span class="line">        .lock           = ocfs2_lock,</span><br><span class="line">        .flock          = ocfs2_flock,</span><br><span class="line">        .splice_read    = ocfs2_file_splice_read,</span><br><span class="line">        .splice_write   = iter_file_splice_write,</span><br><span class="line">        .fallocate      = ocfs2_fallocate,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>下面是VFS文件系统写操作的代码实现，由该代码可以看出在该函数中将调用具体文件系统的写数据的接口。可能涉及2种情况，视文件系统的具体实现而定。本文ocfs2文件系统实现的是ocfs2_file_write_iter，因此最终会调用该函数（具体在new_sync_write中调用，这里包了一层）。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ssize_t</span> __vfs_write(struct file *file, <span class="keyword">const</span> <span class="keyword">char</span> __user *p, <span class="keyword">size_t</span> count,</span><br><span class="line">                    <span class="keyword">loff_t</span> *pos)</span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">if</span> (file-&gt;f_op-&gt;write)</span><br><span class="line">                <span class="keyword">return</span> file-&gt;f_op-&gt;write(file, p, count, pos);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (file-&gt;f_op-&gt;write_iter)</span><br><span class="line">                <span class="keyword">return</span> new_sync_write(file, p, count, pos);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">                <span class="keyword">return</span> -EINVAL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>通过上面描述，我们基本知道了用户态的接口调用是如何触发到文件系统的函数了，也就是如何调到ocfs2_file_write_iter函数，后面我们详细介绍一下文件系统的实现。</p>
-<h2 id="公共实现"><a href="#公共实现" class="headerlink" title="公共实现"></a>公共实现</h2><p>无论是inline模式还是extent模式，对ocfs2文件系统来说都使用<code>ocfs2_file_write_iter</code>函数作为入口，只是在其内部进行了区分。为了保证写数据的安全性，避免进程之间的竟态导致数据的不一致，在写数据的时候会有一些锁。为了抓住主要逻辑，本文暂时不介绍参数合法性检查和锁等其它逻辑内容，这些内容后续专门介绍。</p>
-<p>如图2所示，其中绿色的是写流程的主要函数，该函数实现磁盘空间分配和实际的写数据的操作，主要业务逻辑也在该函数中。而函数<code>filemap_fdatawrite_range</code>则是在文件具备同步刷写属性的情况下，实现缓存写数据的同步刷写，保证数据从缓存刷写到磁盘后在返回。因此，本文重点介绍__generic_file_write_iter函数，这个函数是整个文件写数据的核心。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-833562442e4cfbe6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 ocfs2写流程"></p>
-<p>该函数并不是ocfs2文件系统的函数，而是一个公共函数（mm/filemap.c中实现）。在该函数中，针对用户打开文件时设置的属性有两种不同的执行分支，如果设置了O_DIRECT属性，则调用<code>generic_file_direct_write</code>函数进行直写的流程；如果没有设置该属性，则调用函数<code>generic_perform_write</code>执行缓存写的流程。</p>
-<h3 id="直写流程"><a href="#直写流程" class="headerlink" title="直写流程"></a>直写流程</h3><p>所有文件系统的直写都有一个公共的入口generic_file_direct_write，这个函数在框架中实现（mm/filemap.c）。该函数流程相对比较简单，主要调用了4个函数，具体如图所示。前面两个函数是对目的区域的缓存进行刷写，并使缓存页失效。进行这一步的主要原因是缓存中可能有脏数据，如果不进行处理可能会导致缓存的数据覆盖直写的数据，从而导致数据不一致。第3个函数direct_IO是文件系统的实现，直写真正的写数据操作。最后一个函数在上面已经执行过，主要是避免预读等操作导致缓存数据与磁盘数据的不一致。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-b77f62a80c4e4d1b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 直写流程"></p>
-<h3 id="缓存写流程"><a href="#缓存写流程" class="headerlink" title="缓存写流程"></a>缓存写流程</h3><p>与直写类似，缓存写也有一个公共函数，其名称为generic_perform_write。缓存写整体的主要流程也有4个主要步骤，分配磁盘空间和缓存页，将数据从用户态拷贝到内核态内存、收尾和页缓存均衡。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-bdc1b8d31d4dcde5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 缓存写调用流程"></p>
-<p>其中分配磁盘空间和缓存页以及收尾工作实在具体文件系统中做的。页缓存均衡的作用是检查目前页缓存的容量，保证页缓存的总容量不超过设置的水线大小，避免占用系统内存太多。上图中是函数指针方式的调用，具体到文件系统有各自的实现，对于ocfs2来说实现如下代码所示（在aops.c中）。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">address_space_operations</span> <span class="title">ocfs2_aops</span> = &#123;</span></span><br><span class="line">        .readpage               = ocfs2_readpage,</span><br><span class="line">        .readpages              = ocfs2_readpages,</span><br><span class="line">        .writepage              = ocfs2_writepage,</span><br><span class="line">        .write_begin            = ocfs2_write_begin,</span><br><span class="line">        .write_end              = ocfs2_write_end,</span><br><span class="line">        .bmap                   = ocfs2_bmap,</span><br><span class="line">        .direct_IO              = ocfs2_direct_IO,</span><br><span class="line">        .invalidatepage         = block_invalidatepage,</span><br><span class="line">        .releasepage            = ocfs2_releasepage,</span><br><span class="line">        .migratepage            = buffer_migrate_page,</span><br><span class="line">        .is_partially_uptodate  = block_is_partially_uptodate,</span><br><span class="line">        .error_remove_page      = generic_error_remove_page,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>上面都是公共框架的工作，对于所有文件系统都是一样的，整体逻辑也比较简单。了解了公共框架的部分的工作后，我们后续介绍ocfs2文件系统所做的工作。对于直写部分的逻辑本文暂时不做介绍，主要集中在缓存写逻辑的相关内容。我们知道根据文件大小的不同，ocfs2数据布局可以是inline和extent两种模式，虽然其代码实现是混在一起的，但为了方便理解，本文分别进行介绍。</p>
-<h2 id="inline模式写数据"><a href="#inline模式写数据" class="headerlink" title="inline模式写数据"></a>inline模式写数据</h2><p>在ocfs2文件系统中，inline模式是最简单的情况，在这种情况下文件的数据直接存储在inode的剩余空间中。在OCFS2的inode里面有一个名称为id2的联合体成员，对于inline模式情况下，该成员为ocfs2_inline_data类型的结构体。如下是截取的inode代码片段，该代码片段只包含联合体部分。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*C0*/</span>  <span class="keyword">union</span> &#123;</span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_super_block</span>        <span class="title">i_super</span>;</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_local_alloc</span>        <span class="title">i_lab</span>;</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_chain_list</span>         <span class="title">i_chain</span>;</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_extent_list</span>        <span class="title">i_list</span>;</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_truncate_log</span>       <span class="title">i_dealloc</span>;</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_inline_data</span>        <span class="title">i_data</span>;</span></span><br><span class="line">                __u8                            i_symlink[<span class="number">0</span>];</span><br><span class="line">        &#125; id2;</span><br></pre></td></tr></table></figure>
-<p>为了简化，本文做了一个关于ocfs2的inode的示意图，具体如下。如图5所示，在inode结构体偏移0xC0的地方是该成员开始的地方，然后包含id_count成员变量和id_data变量，其中id_count表示可用于存储数据的字节数，id_data变量是一个字符型的数组，就是存储文件数据的起始位置（如图红色部分）。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-a6f230051e314042.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 inode示意图"></p>
-<h3 id="主要流程"><a href="#主要流程" class="headerlink" title="主要流程"></a>主要流程</h3><p>根据前文的描述我们知道，跟ocfs2相关的代码逻辑其实只有ocfs2_write_begin和ocfs2_write_end两个函数。因此，本文也以这两个函数为起点进行介绍。我们按照先后顺序进行介绍，首先介绍ocfs2_write_begin函数，这个函数进行磁盘空间分配和页缓存的分配。</p>
-<p>进入该函数后，首先判断文件系统是否支持inline模式（根据超级块中的属性是否具有OCFS2_FEATURE_INCOMPAT_INLINE_DATA进行判断），如果支持则直接进入inline模式的处理流程。在该种情况下ocfs2_write_begin函数的整体处理流程比较简单，具体如图6所示。另外，本文暂时不考虑本次写数据太大，导致inode无法容纳数据，需要转换为extent的情况。因为这种情况其实与纯extent模式差异不大，因此可以参考后面章节理解，本文不单独介绍。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-876f64f690816210.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 inode示意图"></p>
-<p>由图可见，这里只涉及2个函数，其中ocfs2_alloc_write_ctxt函数只是初始化一个中间变量，起辅助作用。因此，整个处理逻辑中的关键其实是<code>ocfs2_try_to_write_inline_data</code>函数，在该函数中满足inline写的情况下直接调用了ocfs2_write_begin_inline函数，如图7是ocfs2_write_begin_inline函数内部的实现逻辑。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-d9e2719c84e400b1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图7 inode示意图"></p>
-<p>关于ocfs2_write_begin_inline函数的流程，包含3部分逻辑功能，分别是：</p>
-<ol>
-<li>事务相关逻辑，包括ocfs2_start_trans、ocfs2_journal_access_di和ocfs2_commit_trans，分别是启动事务、添加需要事务处理的逻辑块和完成事务提交。由于这里涉及元数据的操作，因此启动了一个事务，防止由于断电等原因导致损坏文件系统。这里我们只要了解到这里就行，暂时不需要深入了解。</li>
-<li>分配缓存页，函数find_or_create_page用于分配一个缓存页，这个缓存页用于存储用户层写的数据。这个函数首先会从inode的基数树查找是否已经存在，如果不存在则从系统申请一个新的页。</li>
-<li>读取磁盘数据，这个逻辑不是必需的，如果缓存页中的数据是最新的数据，则不需要该步骤。如果是新分配的缓存页，则需要先从磁盘读取数据，并填充到缓存页中。进行该步的主要原因是用户写的数据未必能够覆盖整个缓存页。</li>
-</ol>
-<p>好了，我们整体介绍一下这个流程，其大意就是要申请一个缓存页用于存储用户传输的数据，为了保证数据不发生冲突，可能需要提前从磁盘读取数据填充该缓存页。这里需要注意的是，因为inline情况下数据最终是存储在inode内部的，因此<code>这里并没有分配磁盘空间的流程</code>。</p>
-<p>根据总体流程图4，这里有一步从用户态拷贝数据到内核态的流程，其目的内存空间就是上一步分配的缓存页。这样，后面就可以使用该缓存页，将数据写到inode的数据区域。</p>
-<p>最后，函数cfs2_write_end进行收尾工作。关键路径是这样的<code>ocfs2_write_end-&gt;ocfs2_write_end_nolock-&gt;ocfs2_write_end_inline</code>。最后一个函数的实现如下代码（删除了一些非关键代码），可以看出数据被拷贝到inode的id_data成员所在的位置。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">ocfs2_write_end_inline</span><span class="params">(struct inode *inode, <span class="keyword">loff_t</span> pos,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   <span class="keyword">unsigned</span> len, <span class="keyword">unsigned</span> *copied,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   struct ocfs2_dinode *di,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   struct ocfs2_write_ctxt *wc)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">void</span> *kaddr;</span><br><span class="line">		... ...</span><br><span class="line">        kaddr = kmap_atomic(wc-&gt;w_target_page);</span><br><span class="line">        <span class="built_in">memcpy</span>(di-&gt;id2.i_data.id_data + pos, kaddr + pos, *copied);</span><br><span class="line">        kunmap_atomic(kaddr);</span><br><span class="line">        ... ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>至此，完成了inline模式下写数据的整个流程，整体来看，逻辑还是比较简单的。</p>
-<h2 id="extent模式"><a href="#extent模式" class="headerlink" title="extent模式"></a>extent模式</h2><p>在extent模式下场景比较多，如果多个场景混合在一起介绍势必比较复杂，也比较混乱。因此，本文先集中一种场景，基于这种场景理解其中最为核心的流程。这样，之后其它场景的理解也就变得比较简单。本文先介绍支持稀疏文件（spare）且没有reflink的场景。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ca374bcc3372d053.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图8 文件inode示意图"></p>
-<p>在该种场景下，ocfs2的inode中的id2成员的类型就变成了ocfs2_extent_list结构体，具体如上图所示。此时inode中的该成员可以理解成为B+<br>树的树根。如果文件比较大，且写数据的时候存在很多空洞的情况下，就会形成一个比较复杂的B+树。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-0ffbcae2c6c5fa45.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图9 文件B+树示意图"></p>
-<p>如上图是B+树的示意图，其中涉及的数据结构在图上都做了标注。同时，对于数据成员的偏移地址也做了标注。通过上图应该可以很清晰的了解涉及的数据结构（ocfs2_dinode/ocfs2_extent_block/ocfs2_extent_list/ocfs2_extent_rec）及关系，为了不使本文太乱，这里就不过多的贴代码了。本文只贴一下ocfs2_extent_rec结构体的代码。该结构体可以理解为是一个extent，其在不同情况下定义不同，分两种场景，一种是作为中间节点，另外一种是叶子节点。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_extent_rec</span> &#123;</span></span><br><span class="line"><span class="comment">/*00*/</span>  __le32 e_cpos;          <span class="comment">/* Offset into the file, in clusters */</span></span><br><span class="line">        <span class="keyword">union</span> &#123;</span><br><span class="line">                __le32 e_int_clusters; <span class="comment">/* 如果为非叶子节点时使用，Clusters covered by all children */</span></span><br><span class="line">                <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">                        __le16 e_leaf_clusters; <span class="comment">/* 叶子节点时使用，表示该extent覆盖的簇的数量。</span></span><br><span class="line"><span class="comment">                                                   Clusters covered by this</span></span><br><span class="line"><span class="comment">                                                   extent */</span></span><br><span class="line">                        __u8 e_reserved1;</span><br><span class="line">                        __u8 e_flags; <span class="comment">/* Extent flags */</span></span><br><span class="line">                &#125;;</span><br><span class="line">        &#125;;</span><br><span class="line">        __le64 e_blkno;         <span class="comment">/* Physical disk offset, in blocks */</span></span><br><span class="line"><span class="comment">/*10*/</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>作为中间节点的情况下，该结构体中联合体成员为e_int_clusters类型，该成员描述了该中间节点下所有子节点包含的簇的数量。在叶子节点的情况下，该联合体定义为一个结构体，其中e_leaf_clusters成员描述了该extent涵盖的簇的数量。</p>
-<h3 id="主要流程-1"><a href="#主要流程-1" class="headerlink" title="主要流程"></a>主要流程</h3><p>如图是从入口函数开始主干调用关系，其中具体实现在ocfs2_write_begin_nolock函数中。在该函数中我们可以总结为3步，分别是：</p>
-<ol>
-<li>生成write_desc并计算需要的簇的数量（ocfs2_populate_write_desc），write_desc用于描述没一个extent的簇的使用情况。</li>
-<li>获取页缓存(ocfs2_grab_pages_for_write)，根据簇的数量获取对应的页缓存，为后面将用户态内容拷贝到内核态做准备。</li>
-<li>分配簇(ocfs2_write_cluster_by_desc)，根据write_desc的描述分配簇，这里主要是将簇管理结构体中位图（bitmap）的对应位进行置位操作。另外还会对第2步中的页进行处理，建立页与磁盘块之间的映射关系。<br>上述3步中有一种情况没有介绍，就是写请求的偏移大于文件大小的情况下会做一个特殊处理（ocfs2_zero_tail），这个我们后续在详细介绍。</li>
-</ol>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-2841a57f21bdc73b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图10 extent主要处理流程"></p>
-<p>结合图3，完成上述操作后，在VFS中就可以将用户态的数据拷贝到这里准备的页缓存当中，然后调用ocfs2_write_end函数更新页的状态（脏页状态），以便于内核可以将页缓存中的数据写入磁盘。</p>
-<h3 id="计算簇的数量"><a href="#计算簇的数量" class="headerlink" title="计算簇的数量"></a>计算簇的数量</h3><p>在支持稀疏文件的场景下文件的情况会比较复杂。由于文件可能会存在任何形式的空洞，而稀疏文件模式下为了节省磁盘的空间在分配簇的时候一般都是连续的，这样在后续写数据时情况就比较复杂。如图所示为文件数据与磁盘数据的对应关系，左边是文件数据，右边是磁盘数据。为了简单我们假设图中蓝色方框为1个簇大小的数据，空洞的大小也是1个簇的大小。假设一开始写文件的时候为每间隔1个簇写1个簇的数据，这样在磁盘上的数据通常是连续的。然后我们对该文件进行修改，在第一个空洞的地方写入1个簇的数据，这个时候在磁盘上显然没有与上一个簇地址连续的磁盘空间，因此需要分配新的磁盘空间（可能会会追加到当前数据的末尾，但不一定）。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-10b1183366b5fc54.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图11 空洞文件示意图"></p>
-<p>这个例子只是一个最简单的例子，实际生产环境可能会产生各式各样的文件，因此文件逻辑位置与磁盘物理位置的关系会非常复杂。</p>
-<p>计算需要簇数量并填充ocfs2_write_cluster_desc的实现在<code>ocfs2_populate_write_desc</code>函数中。该函数中一个非常重要的参数就是ocfs2_write_ctxt结构体，该结构体用于写数据时各个函数间关键信息的传递。而函数<code>ocfs2_populate_write_desc</code>则是用于填充其成员变量w_desc的，两种之间的关系如下代码所示。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_write_ctxt</span> &#123;</span></span><br><span class="line">	... ...</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">ocfs2_write_cluster_desc</span> <span class="title">w_desc</span>[<span class="title">OCFS2_MAX_CLUSTERS_PER_PAGE</span>];</span></span><br><span class="line">    ... ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>本文上面代码省略了一些不必要的代码，w_desc成员是一个数组，其主要针对大页内存情景而存在，该数组大小与大页的大小有关。由于ocfs2簇最小为4K，因此这里定义数组的大小定义为页大小除以4K的商，也就是页大小对于4K的倍数。这样就可以通过该成员变量描述每一个簇的情况（包括簇的逻辑地址、物理地址和一些附加属性）。后续流程正式通过该成员遍历确定是否需要分配新的簇来存储数据。</p>
-<p>为了便于理解，我们这里举一个例子，假设操作系统页大小为512K，ocfs2文件系统簇大小为128K。此时，由于ocfs2簇最小为4K，因此上述w_desc数组的大小为128个（512/4），但在使用的时候不会全部使用上，如果格式化的时候簇大小是4K可能会全部用上。如图右面的方格代表文件的逻辑地址，每一个方格大小是128K，蓝色代表有数据，白色代表是空洞。中间是本次期望写入的数据，大小是128K*3，也即需要使用3个簇。左面是w_desc数组，用于对簇进行描述。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-f267b227d1980751.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图12 desc填充示意图"></p>
-<p>在函数ocfs2_populate_write_desc中，由于待写如数据第一个簇在现有文件上是一个空洞，因此需要新分配一个簇，此时按照规则填充desc0，其中比较重要的是由于当前没有对应的簇，因此物理地址为0。对于第二个簇由于已经有数据，以及对应的物理簇，因此其物理地址是该物理簇的地址。以此类推，填充每一个desc。</p>
-<p>如果计算出来需要分配新的簇，此时会调用ocfs2_lock_allocators函数，该函数用于检查空间分配inode是否有足够的空间，如果一切顺利的情况下，会对其进行锁定，阻塞其它进程的访问。</p>
-<h3 id="获取缓存页"><a href="#获取缓存页" class="headerlink" title="获取缓存页"></a>获取缓存页</h3><p>通过调用函数ocfs2_grab_pages_for_write分配需要的缓存页，该函数比较简单，不再过多介绍了。</p>
-<h3 id="分配需要的簇"><a href="#分配需要的簇" class="headerlink" title="分配需要的簇"></a>分配需要的簇</h3><p>最后，调用ocfs2_write_cluster_by_desc函数进行实际的空间分配,函数根据之前desc的描述信息逐一分配簇。如下代码，这里删除了一些不必要的代码。从代码可以看出空间分配的核心是ocfs2_write_cluster函数。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ocfs2_write_cluster_by_desc</span><span class="params">(struct address_space *mapping,</span></span></span><br><span class="line"><span class="function"><span class="params">                                       struct ocfs2_alloc_context *data_ac,</span></span></span><br><span class="line"><span class="function"><span class="params">                                       struct ocfs2_alloc_context *meta_ac,</span></span></span><br><span class="line"><span class="function"><span class="params">                                       struct ocfs2_write_ctxt *wc, </span></span></span><br><span class="line"><span class="function"><span class="params">                                       <span class="keyword">loff_t</span> pos, <span class="keyword">unsigned</span> len)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        ... ...</span><br><span class="line">        <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; wc-&gt;w_clen; i++) &#123;</span><br><span class="line">                desc = &amp;wc-&gt;w_desc[i];</span><br><span class="line">                ... ...</span><br><span class="line"></span><br><span class="line">                ret = ocfs2_write_cluster(mapping, desc-&gt;c_phys,</span><br><span class="line">                                          desc-&gt;c_unwritten,</span><br><span class="line">                                          desc-&gt;c_needs_zero,</span><br><span class="line">                                          data_ac, meta_ac,</span><br><span class="line">                                          wc, desc-&gt;c_cpos, pos, local_len);</span><br><span class="line">				... ...</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>函数ocfs2_write_cluster主要做两件事情，一个是进行磁盘空间的分配（ocfs2_add_inode_data），另一个是对缓存页进行映射（ocfs2_prepare_page_for_write），建立缓存页与磁盘物理位置的关系。ocfs2_add_inode_data函数负责分配磁盘空间，分配的方式就是根据位图确定那些簇是可以用的，然后将位图置位（__ocfs2_claim_clusters），完成之后对extent的B+树进行更新（ocfs2_insert_extent）。关于磁盘空间分配部分的内容可以单独可以单独写一篇同样长度的文章，本文暂时不过多介绍，读者只需要了解包含上述两个主要步骤即可。ocfs2_prepare_page_for_write函数负责建立缓存页与磁盘逻辑地址的映射关系，这个函数实现逻辑比较简单，可以自行分析。</p>
-<p>关注作者微信公众号，更及时的获取原创IT技术文章。<br><img src="http://upload-images.jianshu.io/upload_images/11058170-4470c25a65d72f02.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="公众号二维码"></p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2018/12/08/linux/filesystem/ocfs2/OCFS2文件系统磁盘布局与基本管理/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Sunny Zhang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/itworld_logo_300.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SunnyZhang的IT世界">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2018/12/08/linux/filesystem/ocfs2/OCFS2文件系统磁盘布局与基本管理/" class="post-title-link" itemprop="url">OCFS2文件系统磁盘布局与基本管理</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-12-08 13:25:12" itemprop="dateCreated datePublished" datetime="2018-12-08T13:25:12+00:00">2018-12-08</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>前文已经大概介绍过OCFS2的<a href="http://www.itworld123.com/2018/11/17/ocfs2%e9%9b%86%e7%be%a4%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e5%8f%8a%e7%8e%af%e5%a2%83%e6%90%ad%e5%bb%ba/">部署和应用场景</a>，本文及后续文章重点介绍OCFS2文件系统的具体实现。为了便于后续代码的理解，本文首先介绍一下该文件系统关键数据的磁盘布局情况。理解磁盘布局是理解OCFS2文件系统的基础，只有理解了布局，才能更好的理解代码中的各种处理流程。</p>
-<blockquote>
-<p>本文介绍基于Linux4.1.12内核，其它版本内核可能稍有不同，但不影响理解。<br>本文示例文件系统格式化采用默认参数，也即4K逻辑块大小和128K簇块大小</p>
-</blockquote>
-<p>本文首先介绍文件系统在<code>整个磁盘的布局</code>情况，然后介绍<code>文件夹内数据</code>和<code>文件内数据</code>的布局。整体原则是从整体到局部，从轮廓到细节的顺序。</p>
-<h2 id="整体磁盘布局"><a href="#整体磁盘布局" class="headerlink" title="整体磁盘布局"></a>整体磁盘布局</h2><p>整体布局主要介绍OCFS2文件系统如何实现对整个磁盘的管理。如下图OCFS2文件系统与Ext4文件系统类似，将磁盘划分为若干组进行管理，Ext4文件系统叫块组（block group），这里成为簇组（cluster group），虽然概念不同，但大体用途基本一致。如果不了解Ext4文件系统也没有关系，下图能很清楚的说明磁盘的整体布局情况。如图所示最上面方框（第一行方框）表示的是簇组（cluster group），分别是Cluster Group0、Cluster Group1等等。对于文件系统将磁盘划分为簇组（可以简单理解为组）类似于超市将一层楼的空间划分为若干个货架来摆放货物，而不是堆到一起。通过货架来摆放物品明显可以提高货物查找的便捷性。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-96a6374a95fa6a2d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1\. 磁盘布局总图"></p>
-<p>如上图所示除了第一个簇组（Cluster Group0）比较特殊之外，其它簇组都是一样的，也就是最前面一个块是簇组描述信息，其后为<code>数据簇</code>（Cluster），也就是被管理的单元。第一个簇组特殊的原因是其中包含了很多元数据（管理数据），包括文件系统的超级块、系统文件夹和系统文件等内容，但管理的原理是一致的。</p>
-<blockquote>
-<p>OCFS2在管理磁盘空间时同时采用两种管理单元，一种叫做逻辑块，大小范围从512B到4K，大小必需是512B的2的幂整数倍（也即512B、1K等以此类推）；另外一种叫簇组，大小范围是4KB到1MB，大小必需是4KB的2的幂整数倍。</p>
-</blockquote>
-<p>如下图行所示为管理磁盘空间的基本原理。在簇组的最前面有一个簇组描述信息，其中一部分是位图（Bitmap），位图的每一位（Bit）与该空间的一个簇对应，如果对应的位为1，则标明相应的簇已经分配出去了，如果为0则说明没有被使用。因此文件系统可以根据位图中的相应<code>位</code>来确认那些簇是可以使用的。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-0a3d5dacea2ac930.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2\. 磁盘管理原理"></p>
-<p>前文已述，OCFS2第一个簇组（Cluster Group0）相对特殊，主要是包含很多元数据。如图1所示，主要包含如下几部分内容：<br>– <code>预留块</code>：在磁盘最开始的2个逻辑块为预留块，这个主要是为了与第一版本（OCFS）进行区分，因为两者是完全不兼容的。<br>– <code>簇组描述符</code>：簇组描述符是一个数据结构，里面包含描述簇组的所有信息，包含该簇组的使用情况、可用位的数量和本描述的偏移等等信息。<br>– <code>数据簇</code>：实际存储数据的部分</p>
-<p>了解了这些基本概念之后，还有一个问题没有解决。那就是簇组的大小是如何确定的呢？前文我们已经知道簇组通过其前面的簇组描述符进行管理，而该描述符默认占用一个块（4K）的空间，而该描述符前面基本描述信息占了64B，因此位图剩余的可用空间为4032(4096-64)B，也就是大3225位（Bit），因此最多可以管理32256个簇，也即4032M（32256*128KB）。</p>
-<p>另外，OCFS2还有一个本地管理的概念，由于OCFS2是集群文件系统，为了保证各个节点的协同，必然需要一种跨节点的网络锁（分布式锁），这样势必造成文件系统整体性能的下降。因此OCFS2在设计的时候增加了一个本地分配的功能，其基本原理是预先占用全局分配中的一块区域，然后在本节点内独自对该空间进行管理。</p>
-<p>对于本地分配的最大管理空间，由于使用的ocfs2_dinode进行管理（后面详述原理），也是占用1个块（4K），前面描述信息占用了208B，因此剩余的空间可以管理的最大空间为3888M。上文是以128K簇为例描述的，不同簇大小，簇组大小和本地分配的最大空间会有相应的变化，具体如下表所示。</p>
-<table>
-<thead>
-<tr>
-<th>cluster size</th>
-<th>group size</th>
-<th>local alloc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>4K</td>
-<td>126M</td>
-<td>121M</td>
-</tr>
-<tr>
-<td>8K</td>
-<td>252M</td>
-<td>243M</td>
-</tr>
-<tr>
-<td>16K</td>
-<td>504M</td>
-<td>486M</td>
-</tr>
-<tr>
-<td>32K</td>
-<td>1008M</td>
-<td>972M</td>
-</tr>
-<tr>
-<td>64K</td>
-<td>2016M</td>
-<td>1944M</td>
-</tr>
-<tr>
-<td>128K</td>
-<td>4032M</td>
-<td>3888M</td>
-</tr>
-<tr>
-<td>256K</td>
-<td>8064M</td>
-<td>7776M</td>
-</tr>
-<tr>
-<td>512K</td>
-<td>16128M</td>
-<td>15552M</td>
-</tr>
-<tr>
-<td>1024K</td>
-<td>32256M</td>
-<td>31104M</td>
-</tr>
-</tbody>
-</table>
-<h2 id="磁盘空间的管理"><a href="#磁盘空间的管理" class="headerlink" title="磁盘空间的管理"></a>磁盘空间的管理</h2><p>上面一节主要描述了OCFS2文件系统关于磁盘布局的基本内容及涉及的几个关键概念。本节将介绍一下该文件系统是如何对磁盘空间进行管理的。OCFS2比较特殊的地方在于，其都是通过inode进行管理的，每种不同的资源有不同的inode。在该文件系统中有一个用户看不到的文件夹，这里成为<code>系统文件夹</code>，其中存储这管理用的inode，也就是本文件系统的基本元数据。具体如表所示，本表不是全量，选择几个关键的inode进行介绍。</p>
-<table>
-<thead>
-<tr>
-<th>inode编号</th>
-<th>名称</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>65</td>
-<td>根目录</td>
-<td>这个是本文件系统的根目录，文件系统挂载后呈现给用户的根目录</td>
-</tr>
-<tr>
-<td>66</td>
-<td>系统目录</td>
-<td>本文件系统的管理目录，这个目录对用户不可见，用于实现对磁盘空间的管理</td>
-</tr>
-<tr>
-<td>68</td>
-<td>global_inode_alloc</td>
-<td>系统inode分配管理的inode，也就是该inode用于管理系统inode分配和回收</td>
-</tr>
-<tr>
-<td>71</td>
-<td>global_bitmap</td>
-<td>全局位图，用于实现对簇组簇的全局管理，访问时需要通过分布式锁进行保护</td>
-</tr>
-<tr>
-<td>80</td>
-<td>extent_alloc:0000</td>
-<td>元数据分配，带有0000是集群节点相关的，具体数量与槽位数相同，例如0000,0001等</td>
-</tr>
-<tr>
-<td>88</td>
-<td>inode_alloc:0000</td>
-<td>用于本地inode的分配管理，这个是用户的inode</td>
-</tr>
-<tr>
-<td>104</td>
-<td>local_alloc:0000</td>
-<td>该inode用于实现本地磁盘空间的管理</td>
-</tr>
-</tbody>
-</table>
-<h2 id="文件夹数据"><a href="#文件夹数据" class="headerlink" title="文件夹数据"></a>文件夹数据</h2><p>本文首先介绍文件夹是因为文件系统挂载后，首先呈现给用户的就是一个文件夹。挂载成功后，用户可以在其上创建文件，写读数据。文件名称和子文件夹其实就是文件夹内的数据，因此首先介绍文件夹的数据布局。</p>
-<p>文件夹中数据的存储有两种模式，如果开启了inline-data特性，那么起始情况下这些数据（文件名称和inode等信息）是存放在文件夹的inode的所在的区域内的。由于一个inode默认情况下占用4K的空间，因此对于文件数量不太多的文件夹，通过这块区域就可以存储，不需要额外申请空间。如果在文件夹中有海量文件的情况下，inode节点空间不足以存储这些信息，此时就会通过extent的方式存储这些数据。另外，为了便于文件夹内文件的检索，OCFS2有实现了一个索引树，可以通过该索引树快速检索文件。</p>
-<h3 id="inline模式"><a href="#inline模式" class="headerlink" title="inline模式"></a>inline模式</h3><p>inline模式比较简单，数据就存储在inode的内部，其位置是通过inode成员遍历id2确定。该成员是一个联合体，在不同的场景下类型不同，在文件夹inline模式下为一个ocfs2_inline_data的结构体，具体如图所示。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-65d5d26bbed00931.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3\. inline模式文件夹inode格式"></p>
-<p>id2对象内部成员id_count表示该文件夹内部项目的数量，id_data指向具体存储文件夹内部项目的信息。具体项目是通过一个名为ocfs2_dir_entry的结构体描述的。文件夹内部的这些项目线性的排布在id_data分配的存储空间中。如图是文件夹内部项目排布示意图和ocfs2_dir_entry结构体定义。这里需要重点说明的是ocfs2_dir_entry的rec_len成员，这里记录了该结构体的长度，这样根据起始位置id_data和前一个成员的长度，就能找到下一个成员的位置，也即进行项目的遍历。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-70825b228b0d8873.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4\. 数据排布示意图"></p>
-<h3 id="extent模式"><a href="#extent模式" class="headerlink" title="extent模式"></a>extent模式</h3><p>在extent模式则相对复杂一些，该种模式下extent其实是以B+树的方式存储文件夹内部的数据的。关于B+树的概念超出了本文的范围，具体实现请参考其它文章，本文仅仅介绍该种场景下文件夹数据的布局情况。如前文所示，不同的模式下inode的id2成员的类型不同，在extent模式下，该成员为ocfs2_extent_list类型的结构体。此时该inode的结构体定义如图所示。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-2374504fbd65b509.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5\. extent模式文件夹inode格式"></p>
-<p>对于文件夹数据所组成的B+树，是以ocfs2_dinode为根的一颗树，如下图灰色虚线指示的为树的父子节点之间的关系。红色虚线指示的是对结构体的进一步细化。本例中为B+树的高度为2，其中树根指向下一级节点，该级节点全部为叶子节点。叶子节点中有相关的记录项，记录了逻辑位置与磁盘物理位置的关系，而此时物理块的 数据就是目录项。实际情况可能树高可能为1，此时inode中的id2成员中的数据记录了逻辑位置与磁盘物理位置的关系。也可能树高更改，此时中间层存储的映射到的物理块并不是存储目录项的内容，而是进一步的映射关系。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-78b3a10bf5da2dad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6\. 数据排布示意图"></p>
-<p>在extent模式下一共涉及4种数据结构，分别是ocfs2_inode、ocfs2_extent_block、ocfs2_extent_list和ocfs2_extent_rec。其中ocfs2_extent_list是树中一个节点维护记录列表的数据结构，其中l_recs成员是一个ocfs2_extent_rec类型的数组，每一项记录了一个映射关系（逻辑地址到磁盘物理地址）。ocfs2_extent_block结构体可以理解为B+树非根节点的描述，其中也包含一个ocfs2_extent_list类型的成员，通过其内部的记录可以指向下一级节点（非叶子节点场景），或者其本身就可以指向存储文件夹数据的磁盘块（叶子节点场景）。</p>
-<h2 id="文件内数据"><a href="#文件内数据" class="headerlink" title="文件内数据"></a>文件内数据</h2><p>文件内数据的存储方式与文件夹类似，也存在这两种模式。文件的数据布局的基本原理与文件夹是一样的，差异是其中存储的是文件的具体数据。具体实现可以阅读代码，本文不在赘述。</p>
-<p>关注作者微信公众号，更及时的获取原创IT技术文章。<br><img src="http://upload-images.jianshu.io/upload_images/11058170-b2a7bfdc2a9e9487.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="公众号二维码"></p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2018/12/01/linux/filesystem/ocfs2/OCFS2文件系统的集群管理及分布式锁/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Sunny Zhang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/itworld_logo_300.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SunnyZhang的IT世界">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2018/12/01/linux/filesystem/ocfs2/OCFS2文件系统的集群管理及分布式锁/" class="post-title-link" itemprop="url">OCFS2文件系统的集群管理及分布式锁</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-12-01 16:37:02" itemprop="dateCreated datePublished" datetime="2018-12-01T16:37:02+00:00">2018-12-01</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-05-23 10:55:17" itemprop="dateModified" datetime="2019-05-23T10:55:17+00:00">2019-05-23</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h2><p>OCFS2文件系统整体比较复杂，涉及的内核模块多达七八个。各个内核模块的名称及调用关系如图1所示。为了便于理解，我们对这个软件模块关系进行简化。简化后如图2所示。关于各个模块的详细分析我们放在后面，这样更利于理解。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-d3d837b0c89abb58.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 软件架构"></p>
-<p>简化后的软件栈变得比较简单，大概分为3层。从下网上分别是集群层，分布式锁和OCFS2文件系统。集群层用于建立一个集群的联系，也就是联通网络通信。分布式锁（DLM）层是分布式锁的具体实现，向文件系统层面提供抽象的、简单的锁接口。文件系统层是OCFS2文件系统的具体实现，其实现方式与常规文件系统并没有什么明显差异，只是在某些地方调用了分布式锁，以避免集群场景下多个节点对资源的冲突访问。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-be09a2f43193330a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 简化架构"><br>通过图2可以看到，下层是上层的基础，因此我们从下往上逐层介绍OCFS2文件系统各个组件的实现原理。为了便于后续阅读OCFS2文件系统的代码，本文会偶尔提到一些代码的信息，但不会大篇幅的贴源代码。</p>
-<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>集群管理的核心实现在ocfs2_nodemanager内核模块中。其代码在内核树的fs/ocfs2/cluster文件夹内，网络通信基于TCP协议。在集群各个节点启动起来之后，每个节点会根据配置文件中的节点信息向集群中其它节点发起连接请求，从而建立其网络通信的连接。如果以3个节点为例，最后形成的集群如图3所示，其中虚线是TCP连接。整个集群的所有节点其实是一个网状结构。这里需要说明的一点是节点在发起连接和接受连接的时候都会对双方的节点id进行判断，确保接收方的id小于发送方的id的情况才建立连接，否则不建立连接。这样保证在任意两个节点之间只有一个TCP连接，避免不必要的浪费。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-4b1b793360222495.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 网络连接"></p>
-<h3 id="集群初始化"><a href="#集群初始化" class="headerlink" title="集群初始化"></a>集群初始化</h3><p>在OCFS2文件系统中有一个o2cb服务，这个服务实现了对OCFS2文件系统的基本管理。其中比较重要的一点是其根据配置文件（/etc/ocfs2/cluster.conf）生成一个configfs目录树。里面包含整个文件系统集群的几乎全部管理信息，例如集群节点（含节点详情）、心跳间隔、重连间隔等等，如图所示是该目录树的整体结构。但需要注意的是，<code>heartbeat</code>目录及其下内容并不是在此时创建的，而是文件系统挂载的时候由mount.ocfs2命令（该命令会调用一个名为ocfs2_hb_ctl的子命令）创建的。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-9dad47dfc32821d6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 配置文件系统结构"></p>
-<p>OCFS2文件系统的网络通信是基于TCP协议。我们知道在TCP建立连接是需要服务的进行监听，而客户端进行连接。OCFS2的集群模块建立连接的大概流程是这样的。在configfs构建目录树创建集群节点（上图中ocfstest-&gt;node-&gt;ol6u9ext4路径）相关内容时，如果判断某个节点下local的值为1，也即该配置项节点就是本物理服务节点（注：这里物理服务节点并不是指物理服务器，可以是虚拟机等任何计算节点），那么就会起一个TCP的监听。同时需要了解的是，在设置节点编号（node-&gt;ol6u9ext4-&gt;num）时会对集群结构体（o2nm_cluster）中的cl_nodes成员进行填充，该成员是一个o2nm_node类型的数组，后续DLM中会用到相关的内容。</p>
-<p>前面已描述，本地监听是configfs构建目录项的时候触发的。其具体实现在ocfs2/cluster/nodemanager.c文件中，该文件中定义了在构建（和查看）目录树每一级目录项时会触发的动作。而上文中所说的，对某个节点下local项写数据时会触发o2nm_node_local_write函数，正是该函数触发了监听的建立。函数调用过程如下。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">o2nm_node_local_write-&gt;o2net_start_listening-&gt;o2net_open_listening_sock</span><br></pre></td></tr></table></figure>
-<p>在函数o2net_open_listening_sock内部调用内核的系统创建套接字等一系列API完成了监听的发起。同时在此时注册了一个回调函数，当有客户端发起连接时会触发回调函数进行具体的处理。</p>
-<p>除了完成套接字监听的建立外，这里还同时创建了一个名为o2net的独立线程工作队列（变量名为o2net_wq），另外创建变量名为o2net_listen_work工作任务（回调函数为o2net_accept_many）。当有客户端的连接请求时，套接字的回调函数会将上述工作任务提交给该工作队列进行处理。而该任务的作用就是接受连接请求，并创建一个新的套接字用于跟客户端进行通信。</p>
-<p>同理，TCP的连接请求也是在构建目录的时候发起的，但不同点在于，连接请求是在挂载文件系统时通过mount命令构建heartbeat目录时发起的。在构建heartbeat目录并完成基本信息的填充后，会触发内核启动一个内核线程。在该内核线程（o2hb_thread）内部会不断的触发心跳检测流程，在符合条件的情况下会发起网络连接请求。这样，由于有前面的监听和这里的发起连接的请求，最终会建立各个节点之间的网络通信，最后形成一个通信网络。这里形成的通信网络作为后续分布式锁的实现基础，分布式锁的整个通信就是依赖该通信网络。</p>
-<h3 id="磁盘心跳"><a href="#磁盘心跳" class="headerlink" title="磁盘心跳"></a>磁盘心跳</h3><p>除了网络连接之外，OCFS2文件系统的核心心跳机制其实是磁盘心跳，因为对于网络心跳，在2节点的情况下，如果出现网络连接的异常，节点是无法进行决策的。比如出现网络交换机故障，两个节点可能都会判断对方死亡，从而出现对磁盘的访问冲突。因此，这种情况下磁盘心跳就很必要了。磁盘心跳就不存在这样的问题，只要是节点对应区域的磁盘心跳信息没有更新，那必然是节点无法访问该磁盘（可能是节点宕机或者连接磁盘的链路故障），因此也不会出现磁盘访问冲突的问题。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-0d1f6c364694ed63.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 磁盘心跳"></p>
-<p>如图所示，OCFS2会在磁盘上划分一块磁盘区域用于做磁盘心跳，该区域按照512大小进行划分切割，每个节点可以使用一块。节点可以使用的区域以本节点的编号进行区分。这样不同的节点可以访问不同的磁盘区域，避免访问冲突。</p>
-<h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><p>OCFS2的分布式锁基于Kristin Thomas提出的理论实现。分布式锁是在集群环境下实现多个节点协同的，确保被访问的资源不会因为并发而出现不一致的情况。可以对比本地锁的概念理解分布式锁。</p>
-<h3 id="架构概述"><a href="#架构概述" class="headerlink" title="架构概述"></a>架构概述</h3><p>关于分布式锁的具体实现，需要关注的是有两个概念，一个是锁资源（lock resource），另外一个是锁（lock）。被锁的项被定义为锁资源，在一个应用第一次请求对资源进行加锁时，锁管理器会创建一个锁资源，锁资源是与实际资源相关联的。需要注意的是，一个锁资源可能会与多个锁相关联，但一个锁只能与一个锁资源关联。</p>
-<p>分布式锁的架构上并没有定义集群主节点的概念，而是以资源为粒度定义资源的主节点，这样每个节点都可以成为主节点，只不过是针对不同的资源。在OCFS2中，分布式锁资源是以inode为粒度进行的。由于没有集群主节点的概念，这样就可以将负载分摊在集群的所有节点上，从而避免单节点导致的性能瓶颈，同时也减少了主节点宕机时选择新主节点后的信息重构时间。</p>
-<p>锁资源在概念上需要包含3类组件，分别是：</p>
-<ul>
-<li>名称，作为锁资源的唯一性标识</li>
-<li>一个锁值块（lock value block， 简称LVB）</li>
-<li>一个锁队列的集合</li>
-</ul>
-<p>OCFS2具体实现的UML类图如图6所示，这里省略了部分成员。其中lockname是锁资源的名称，lvb是存储锁值块的字符数组，而granted、converting和blocked则是相关的队列。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-5e0977a90ca626ef.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 锁资源类图"></p>
-<h3 id="分布式锁的模式"><a href="#分布式锁的模式" class="headerlink" title="分布式锁的模式"></a>分布式锁的模式</h3><p>在DLM中，锁被定义为多种模式，以便于适应不同的应用场景。如表是各个模式的解释及互斥情况。</p>
-<table>
-<thead>
-<tr>
-<th>模式</th>
-<th>正在请求的进程</th>
-<th>其它进程</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Null (NL)</td>
-<td>无连接</td>
-<td>可以进行读或者写</td>
-</tr>
-<tr>
-<td>并发读 (CR)</td>
-<td>只允许读</td>
-<td>读或者写</td>
-</tr>
-<tr>
-<td>并发写 (CW)</td>
-<td>读或者写</td>
-<td>读或者写</td>
-</tr>
-<tr>
-<td>保护读 (PR)</td>
-<td>只允许读</td>
-<td>只允许读</td>
-</tr>
-<tr>
-<td>保护写 (PW)</td>
-<td>读或者写</td>
-<td>只允许读</td>
-</tr>
-<tr>
-<td>互斥 (EX)</td>
-<td>读或者写</td>
-<td>不允许访问</td>
-</tr>
-</tbody>
-</table>
-<h3 id="基本流程"><a href="#基本流程" class="headerlink" title="基本流程"></a>基本流程</h3><p>分布式锁模块涉及的流程很多，本文重点描述一下加锁的流程，其它流程后续介绍。OCFS2文件系统在具体实现的时候实现了一个粘合层，增加该粘合层的目的是为了在不同栈的情况下，为上层提供统一的接口。如图7为加锁接口的模块栈，最上层为ocfs2文件系统模块，然后依次是ocfs2_stackglue、ocfs2_stack_o2cb和ocfs2_dlm。</p>
-<p><strong>ocfs2_stackglue</strong>就是前面说的粘合层，这个为ocfs2文件系统提供统一的接口。<br><strong>ocfs2_stack_o2cb</strong>是栈插件，这个就是o2cb插件，是OCFS2默认使用的插件。<br><strong>ocfs2_dlm</strong>是分布式锁的具体实现，具体的锁协议在该模块中实现。</p>
-<p>这里还有另外的栈插件，这样可以使用用户态的集群管理软件，增加了OCFS2文件系统的普适性。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-36e1f4a567720d7f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图7 模块栈"></p>
-<p>分布式锁的核心实现在dlmlock函数中，这个函数是ocfs2_dlm模块的一个函数。另外还有一个dlmunlock的函数，实现解锁的功能。我们先看一下这2个函数的声明。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">enum</span> dlm_status <span class="title">dlmlock</span><span class="params">(struct dlm_ctxt *dlm, <span class="keyword">int</span> mode,</span></span></span><br><span class="line"><span class="function"><span class="params">                        struct dlm_lockstatus *lksb, <span class="keyword">int</span> flags,</span></span></span><br><span class="line"><span class="function"><span class="params">                        <span class="keyword">const</span> <span class="keyword">char</span> *name, <span class="keyword">int</span> namelen, <span class="keyword">dlm_astlockfunc_t</span> *ast,</span></span></span><br><span class="line"><span class="function"><span class="params">                        <span class="keyword">void</span> *data, <span class="keyword">dlm_bastlockfunc_t</span> *bast)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">enum</span> dlm_status <span class="title">dlmunlock</span><span class="params">(struct dlm_ctxt *dlm, struct dlm_lockstatus *lksb,</span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">int</span> flags, <span class="keyword">dlm_astunlockfunc_t</span> *unlockast, <span class="keyword">void</span> *data)</span></span></span><br></pre></td></tr></table></figure>
-<p>前文已经说了，OCFS2的主节点是以资源为粒度，也就是以被锁的对象为粒度的。因此，OCFS2在调用dlmlock进行加锁的时候，首先需要做的事情就是选主的过程。在OCFS2的分布式锁中实现了一个二阶段的算法的选主算法。当一个节点想对资源进行加锁时，首先在本第创建一个锁资源，然后会向集群其它节点发送成为主节点的请求。如果所有节点回复其本节点不是主，你可以成为主，则该节点会成为主节点，如果有一个节点回复本节点已经是主节点，则发送请求的节点将该节点作为主节点处理。完成选主之后，下面流程判断自己是否为主节点，如果是则走本地锁的流程，如果不是则向主节点发送锁请求。</p>
-<p>从描述上就是这么简单，但实际实现还是比较复杂的，主要是需要处理各种异常情况。比如在选主过程中出现节点宕机、两个或者多个节点同时对同一个资源选主等等。本文先介绍到这里，关于分布式锁的更多的细节，后续文章在逐渐介绍。</p>
-<p>关注作者微信公众号，更及时的获取原创IT技术文章。<br><img src="http://upload-images.jianshu.io/upload_images/11058170-b2a7bfdc2a9e9487.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="公众号二维码"></p>
 
           
         
@@ -2413,7 +2263,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2432,7 +2282,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">3</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">分类</span>
                   
                 </div>
@@ -2497,7 +2351,19 @@
                     
                       
                     
-                    <span class="site-state-item-count">26</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">32</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
