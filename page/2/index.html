@@ -128,16 +128,6 @@
 
 
 
-  <script>
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?3fb960eb6310643ffc24656f6dd2f50d";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
-
 
 
 
@@ -409,7 +399,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
               
             
           </span>
@@ -611,7 +601,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
               
             
           </span>
@@ -809,7 +799,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
               
             
           </span>
@@ -1008,7 +998,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
               
             
           </span>
@@ -1134,7 +1124,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_read_base/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_layout/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -1154,7 +1144,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/05/01/linux/filesystem/ext2/ext2_read_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 读数据流程</a>
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_layout/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 数据的磁盘布局</a>
               
             
           </h1>
@@ -1196,7 +1186,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
               
             
           </span>
@@ -1232,26 +1222,28 @@
       
         
           
-            <p>读数据流程关于如何从用户态到Ext2文件系统公共部分（VFS）的流程本文不再详细介绍，这一部分与写流程基本一致，具体可以参考文末的相关文章介绍。如图是从用户态到Ext2文件系统的函数调用图，从图上可以看到对于Ext2文件系统在读数据流程中调用了大量VFS的函数，这主要原因是Ext2是Linux的原生文件系统，其实耦合还是比较大的。我们仔细观察一下，实际起作用的函数是Ext2文件系统的ext2_file_read_iter函数。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-50cf9176885a38d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 读数据整体流程"></p>
-<p>像写数据一样，读数据也分为Direct读和缓存读两种形式，Direct读是从磁盘直接读取数据，而缓存读则需要先将磁盘数据读到页缓存，然后在将数据拷贝到用户的缓冲区。本文照例只介绍缓存读的场景，对于Direct读请自行阅读代码理解。</p>
-<p>对于缓存读的流程，概括起来分为两个主要步骤，<strong>一个是查找页缓存（如果没有则分配新的），第二步是根据页缓存的状态从磁盘读取数据并填充页缓存（如果页缓存数据最新则不需要从磁盘读取数据）</strong>。</p>
-<h2 id="缓存命中"><a href="#缓存命中" class="headerlink" title="缓存命中"></a>缓存命中</h2><p>其实上图是一个比较复杂的函数调用关系图，这里处理了缓存没有命中的情况下的读数据的流程。如果缓存命中，整个读数据的流程将非常简单，我们可以简化为图2所示。可以看出此时在VFS的函数do_generic_file_read中即可完成整个数据的读取过程。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-60153183383057b5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 读数据缓存命中"></p>
-<p>在VFS函数do_generic_file_read中的主要流程如图3所示。这里假设缓存中存储的数据是最新的，也即页缓存的数据新于磁盘的数据。这样整个读取过程可以分为两步，首先通过find_get_page获取缓存页；然后判断页缓存的标记满足条件后直接调用copy_page_to_iter将页缓存的内容拷贝到用户态的缓冲区。当然实际还有其它一些情况的存在，比如虽然页缓存存在但不是最新，则需要从磁盘读取数据。或者页缓存存在，但正在进行预读操作，则需要等待预读完成等。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-05d20ddc2e57b298.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 读数据缓存命中"></p>
-<p>总之来说，缓存命中的常见还是比较简单的，下面我们介绍一下缓存不命中的场景。</p>
-<h2 id="非缓存命中"><a href="#非缓存命中" class="headerlink" title="非缓存命中"></a>非缓存命中</h2><p>如果没有缓存命中，此时就需要做两件事情，一个是分配页缓存并建立与磁盘位置映射，另一个是向磁盘提交读取数据的请求，完成数据的读取。为了提高读取数据的效率，这里其实实现了一个称为“预读”的功能，所谓预读就是提前从磁盘读取比较多的数据，为下次读数据做准备。这个特性对顺序读非常有效，可以明显的减少磁盘请求的数量，从而提升读数据的性能。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-1fdc0d6f65fdffd1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 读数据缓存命中"></p>
-<p>预读的基本规则主要包含两个，一个是在读请求中读到缺失页面(missing page)，进行同步预读；另一个是读到预读页面(PG_readahead page)，则进行异步预读。如图4是预读的基本示意图，tx代表请求时间序列。<br>1） t0触发同步预读，也就是文件系统除了读取请求的数据外，还会额外读取一部分数据；<br>2） t1时由于读到的缓存页有预读标记，因此会触发异步预读；<br>3） t2时由于缓存已经存在，因此直接从缓存读取后返回；<br>以此类推，当再次碰到有预读标记的页时进行异步预读。另外，这里面有个概念叫“预读窗口”，预读窗口是指一次从磁盘预读数据的多少。预读窗口是滑动的，也就是大小会根据命中情况进行变化，如果命中则会变大，这样可以有效的提高读取的效率。如下是用于滑动窗口的数据结构。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">file_ra_state</span> &#123;</span></span><br><span class="line">	<span class="keyword">pgoff_t</span> start;			<span class="comment">/* where readahead started */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> size;		<span class="comment">/* # of readahead pages */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> async_size;	<span class="comment">/* do asynchronous readahead when</span></span><br><span class="line"><span class="comment">					   there are only # of pages ahead */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> ra_pages;		<span class="comment">/* Maximum readahead window */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> mmap_miss;		<span class="comment">/* Cache miss stat for mmap accesses */</span></span><br><span class="line">	<span class="keyword">loff_t</span> prev_pos;		<span class="comment">/* Cache last read() position */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<p>理解了上述概念之后，我们分析一下整个读操作的流程。由图1，同步预读和异步预读的起始逻辑在函数do_generic_file_read中。其中find_get_page用于查找是否有缓存并返回找到的缓存页。如果没有找到缓存页则运行红色方框的流程，进行同步预读。如果找到缓存页，并且该缓存页有预读标记则运行绿色方框的流程，进行异步预读。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-c44efcf5e97ef057.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 读数据缓存基本逻辑"></p>
-<p>对比一下同步预读和异步预读的主要调用流程，可以看出最终都会调用到<strong>do_page_cache_readahead函数。实现逻辑的差异主要在ondemand_readahead函数中。基本差异是对滑动窗口的计算，对于同步预读由于要考虑随机读的情况，避免读过多的内容；而对于异步预读则根据达到预读标记则调整一个比较大的滑动窗口。<br>`page_cache_sync_readahead-&gt;ondemand_readahead-&gt;</strong>do_page_cache_readahead<code></code>page_cache_async_readahead-&gt;ondemand_readahead-&gt;__do_page_cache_readahead`</p>
-<p>数据读取操作的最终实现在__do_page_cache_readahead函数中，这里面主要完成两个功能，一个是分配页缓存(page_cache_alloc_readahead)，另一个是提交读请求到块设备层(read_pages)。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-dd30b5ac06972787.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 读数据缓存基本逻辑"></p>
-<p>上图中的函数指针具体实现是Ext2文件系统ext2_readpages函数，该函数的调用流程大致如图7所示。该函数主要实现缓存页的映射和从磁盘读取数据的操作。磁盘读取调用的块设备层的submit_bio函数。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ce88c83a26626c5c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图7 读数据缓存基本逻辑"></p>
-<p>至此，将磁盘上的数据读取到了页缓存中，其后的流程与缓存命中场景一致，也即拷贝页缓存的内容到用户态缓冲区等。</p>
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Ext2文件系统将磁盘划分为大小相等的逻辑块进行管理，其默认大小是4KB（不做特殊说明，本文后续内容都采用该默认值）。文件系统逻辑块的大小在格式化的时候可以指定的。文件系统将磁盘划分为逻辑块就好像一个大厦划分为若干个房间，或者超市规划为若干货架一样。同时为了便于管理和避免访问冲突，其将若干个逻辑块组成一个大的逻辑块，称为块组（Block Group）。块组是Ext2文件系统的管理单元，块组中又包含若干管理数据（元数据）实现对块组中的逻辑块的管理，比如那些逻辑块是什么功能，那些逻辑块已经被使用等等。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ff373fa444ffedd2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 磁盘的块组划分"></p>
+<p>通过一个大厦对一个磁盘进行类比在形象不过了。大厦框架好比磁盘；而房间是对大厦规划后的结果，好比对磁盘的格式化；大厦每层的布局图好比元数据。我们可以通过楼层和每层的布局图很容易的找到房间。文件系统与此类似，它通过元数据查找和管理逻辑块。</p>
+<p>如图2是某货架示意图。每层都被划分为不同的货架，每个货架都有编号，且防止固定类型的商品。比如有些放酸奶，有些放调料还有放奶粉等，并规划。我们通过示意图和房间号可以很容易找到具体位置。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-b04dec1db0725f4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 超市货架图"></p>
+<p>如图3是Ext2文件系统的磁盘布局图。如中间蓝色为磁盘的逻辑空间，它被划分为若干个块组。每个块组的大小相等。如果我们在格式化的时候采用的是默认参数，此时块组的大小是128MB（后面介绍为什么是128MB），每个逻辑块的大小是4KB。</p>
+<h2 id="整体布局"><a href="#整体布局" class="headerlink" title="整体布局"></a>整体布局</h2><p>每个块组内部都有相关的元数据对该块组进行管理。如图3所示，第一个块组中的元数据包括<code>引导块、超级块、块组描述符、预留GDT块、数据块位图、inode位图、inode表</code>和其它数据块。后续块组中有些是对超级块的备份，有些则没有第一个块组这么完整的元数据信息，而只有数据块位图、inode位图和inode表等元数据信息。也就是说块组其实分为两种，一种是有超级块的，比较复杂的块组（如图3下面淡棕色所示），另外一种是没有超级块的，比较简单的块组（如图3上面淡绿色所示）。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-120bc6923ddbc9ad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 块组及内部细节"></p>
+<p>引导块是作为引导操作系统用的，在文件系统作为根文件系统时使用。在系统加电启动是，其内容有BIOS自动装载并执行。它包含一个启动装载程序，用于从计算机安装的操作系统中选择一个启动，还负责继续启动过程。因此Ext2文件系统把这个区域预留出来，不作为文件系统管理的磁盘区域。</p>
+<p>超级块是文件系统起始位置，用于整个文件系统，它作为文件系统的入口，记录了整个文件系统的关键信息。而上面提到的其它元数据则只针对本块组。下面本文介绍一下每个元数据的具体作用。</p>
+<h3 id="超级块（SuperBlock）"><a href="#超级块（SuperBlock）" class="headerlink" title="超级块（SuperBlock）"></a>超级块（SuperBlock）</h3><p>超级块记录了整个文件系统的各种信息，包括逻辑块的数量、inode数量、支持的特性和维护信息等内容。为了保证整个文件系统的完整性，例如突然断电或者系统崩溃等场景，文件系统出现元数据损坏的情况，Ext2文件系统对超级块进行了备份。这样可以保证即使在第一个超级块出现损坏的情况下，仍然可以通过其它块组中的超级块进行恢复，不至于整个文件系统都不可访问。</p>
+<p>超级块位于第1个逻辑块内，由于第一个块组预留了1KB的内容作为系统引导，因此在该块组超级块的位置在1KB偏移处，而其它备份块组中的超级块都在该块组偏移为0的地方。超级块会占用1个逻辑块的空间（实际占用空间要小于该值），也就是说块组描述符（ext2_group_desc）是在4KB偏移的地方。如下代码是超级块在磁盘存放的结构体，磁盘数据被读出来后按照该结构体的格式进行解析，其中变量__lexx表示变量是小端对齐，使用是需要转换为CPU的对齐方式。在文件系统中还有另外一个结构体super_block，这个结构体用于代码逻辑中使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">struct ext2_super_block &#123;</span><br><span class="line">        __le32  s_inodes_count;         /* 整个文件系统inode的数量 */</span><br><span class="line">        __le32  s_blocks_count;         /* 整个文件系统逻辑块的数量 */</span><br><span class="line">        __le32  s_r_blocks_count;       /* Reserved blocks count */</span><br><span class="line">        __le32  s_free_blocks_count;    /* 文件系统剩余逻辑块的数量 */</span><br><span class="line">        __le32  s_free_inodes_count;    /* 文件系统剩余inode的数量 */</span><br><span class="line">        __le32  s_first_data_block;     /* First Data Block */</span><br><span class="line">        __le32  s_log_block_size;       /* Block size */</span><br><span class="line">        __le32  s_log_frag_size;        /* Fragment size */</span><br><span class="line">        __le32  s_blocks_per_group;     /* 每一个块组中逻辑块的数量 */</span><br><span class="line">        __le32  s_frags_per_group;      /* # Fragments per group */</span><br><span class="line">        __le32  s_inodes_per_group;     /* 每一个块组中inode的数量 */</span><br><span class="line">        __le32  s_mtime;                /* 挂载时间 */</span><br><span class="line">        __le32  s_wtime;                /* 写时间 */</span><br><span class="line">        __le16  s_mnt_count;            /* 挂载数量 */</span><br><span class="line">        __le16  s_max_mnt_count;        /* Maximal mount count */</span><br><span class="line">        __le16  s_magic;                /* Magic signature */</span><br><span class="line">        __le16  s_state;                /* File system state */</span><br><span class="line">        __le16  s_errors;               /* Behaviour when detecting errors */</span><br><span class="line">        __le16  s_minor_rev_level;      /* minor revision level */</span><br><span class="line">        __le32  s_lastcheck;            /* time of last check */</span><br><span class="line">        __le32  s_checkinterval;        /* max. time between checks */</span><br><span class="line">        __le32  s_creator_os;           /* OS */</span><br><span class="line">        __le32  s_rev_level;            /* Revision level */</span><br><span class="line">        __le16  s_def_resuid;           /* Default uid for reserved blocks */</span><br><span class="line">        __le16  s_def_resgid;           /* Default gid for reserved blocks */</span><br><span class="line">        __le32  s_first_ino;            /* 第一个非保留inode的id，ext2有一些保留的inode，比如2用于根目录 */</span><br><span class="line">        __le16   s_inode_size;          /* inode结构体的大小 */</span><br><span class="line">        __le16  s_block_group_nr;       /* 本超级块所位于的块组的编号 */</span><br><span class="line">        __le32  s_feature_compat;       /* compatible feature set */</span><br><span class="line">        __le32  s_feature_incompat;     /* incompatible feature set */</span><br><span class="line">        __le32  s_feature_ro_compat;    /* readonly-compatible feature set */</span><br><span class="line">        __u8    s_uuid[16];             /* 128-bit uuid for volume */</span><br><span class="line">        char    s_volume_name[16];      /* volume name */</span><br><span class="line">        char    s_last_mounted[64];     /* directory where last mounted */</span><br><span class="line">        __le32  s_algorithm_usage_bitmap; /* For compression */</span><br><span class="line">        /*</span><br><span class="line">         * Performance hints.  Directory preallocation should only</span><br><span class="line">         * happen if the EXT2_COMPAT_PREALLOC flag is on.</span><br><span class="line">         */</span><br><span class="line">        __u8    s_prealloc_blocks;      /* Nr of blocks to try to preallocate*/</span><br><span class="line">        __u8    s_prealloc_dir_blocks;  /* Nr to preallocate for dirs */</span><br><span class="line">        __u16   s_padding1;</span><br><span class="line">        ... ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><strong>块组描述符</strong></p>
+<p>块组描述符，顾名思义是对该块组的描述，其中包括该块组中数据块位图的位置、inode位图位置和inode表位置等信息。另外，还包括数据块和inode的剩余情况等信息。块组描述符位于第2个逻辑块，占用一个逻辑块的空间。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">struct ext2_group_desc</span><br><span class="line">&#123;                                                   </span><br><span class="line">        __le32  bg_block_bitmap;                /* Blocks bitmap block */ </span><br><span class="line">        __le32  bg_inode_bitmap;                /* Inodes bitmap block */</span><br><span class="line">        __le32  bg_inode_table;         /* Inodes table block */</span><br><span class="line">        __le16  bg_free_blocks_count;   /* Free blocks count */</span><br><span class="line">        __le16  bg_free_inodes_count;   /* Free inodes count */</span><br><span class="line">        __le16  bg_used_dirs_count;     /* Directories count */</span><br><span class="line">        __le16  bg_pad;</span><br><span class="line">        __le32  bg_reserved[3];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p><strong>数据块位图</strong></p>
+<p>数据块位图标识了块组中那个数据块被使用了，那个没有被使用。磁盘中每个被管理的逻辑块在该位图中用1bit进行表示，0为未使用，1为已经使用。数据块位图占用1个逻辑块，对于默认块大小(4KB)情况，可以管理4096<em>8个逻辑块，也即4096</em>8*4096=128MB的空间。当然如果格式化的时候块大小为8KB，则管理的空间会更大一些。</p>
+<p><strong>inode位图</strong></p>
+<p>inode位图与逻辑块位图类似，描述inode的使用情况。inode用于唯一标识一个文件，其为一个编号。文件系统根据这个编号查找具体的问题。在inode位图中每一位标识inode表中的个inode是否被使用。关于什么是inode表，请参考下面的描述。<br>默认情况inode位图占用的空间也为4KB。</p>
+<p><strong>inode表</strong></p>
+<p>inode表一列表的形式保存了文件的元数据信息，包括文件大小、扩展属性和时间等内容。由于inode结构的大小根据格式化文件系统的属性而有差异，因此该表占用的磁盘空间不定，大概若干个逻辑块的大小。关于文件名称与inode数据结构的关系是通过inode的id确定的，在文件夹中的文件存储包含文件名和inode的id信息，而通过该id可以计算出inode数据结构位于的块组位置和inode表位置。</p>
+<p>本文简要介绍一下Ext4文件系统的磁盘布局情况，后续会更加详细的介绍每一部分的细节。</p>
 
           
         
@@ -1370,7 +1362,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
               
             
           </span>
@@ -1561,7 +1553,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
               
             
           </span>
@@ -1683,182 +1675,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_layout/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Sunny Zhang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/itworld_logo_300.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="SunnyZhang的IT世界">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/05/01/linux/filesystem/ext2/ext2_layout/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 数据的磁盘布局</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Ext2文件系统将磁盘划分为大小相等的逻辑块进行管理，其默认大小是4KB（不做特殊说明，本文后续内容都采用该默认值）。文件系统逻辑块的大小在格式化的时候可以指定的。文件系统将磁盘划分为逻辑块就好像一个大厦划分为若干个房间，或者超市规划为若干货架一样。同时为了便于管理和避免访问冲突，其将若干个逻辑块组成一个大的逻辑块，称为块组（Block Group）。块组是Ext2文件系统的管理单元，块组中又包含若干管理数据（元数据）实现对块组中的逻辑块的管理，比如那些逻辑块是什么功能，那些逻辑块已经被使用等等。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ff373fa444ffedd2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 磁盘的块组划分"></p>
-<p>通过一个大厦对一个磁盘进行类比在形象不过了。大厦框架好比磁盘；而房间是对大厦规划后的结果，好比对磁盘的格式化；大厦每层的布局图好比元数据。我们可以通过楼层和每层的布局图很容易的找到房间。文件系统与此类似，它通过元数据查找和管理逻辑块。</p>
-<p>如图2是某货架示意图。每层都被划分为不同的货架，每个货架都有编号，且防止固定类型的商品。比如有些放酸奶，有些放调料还有放奶粉等，并规划。我们通过示意图和房间号可以很容易找到具体位置。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-b04dec1db0725f4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 超市货架图"></p>
-<p>如图3是Ext2文件系统的磁盘布局图。如中间蓝色为磁盘的逻辑空间，它被划分为若干个块组。每个块组的大小相等。如果我们在格式化的时候采用的是默认参数，此时块组的大小是128MB（后面介绍为什么是128MB），每个逻辑块的大小是4KB。</p>
-<h2 id="整体布局"><a href="#整体布局" class="headerlink" title="整体布局"></a>整体布局</h2><p>每个块组内部都有相关的元数据对该块组进行管理。如图3所示，第一个块组中的元数据包括<code>引导块、超级块、块组描述符、预留GDT块、数据块位图、inode位图、inode表</code>和其它数据块。后续块组中有些是对超级块的备份，有些则没有第一个块组这么完整的元数据信息，而只有数据块位图、inode位图和inode表等元数据信息。也就是说块组其实分为两种，一种是有超级块的，比较复杂的块组（如图3下面淡棕色所示），另外一种是没有超级块的，比较简单的块组（如图3上面淡绿色所示）。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-120bc6923ddbc9ad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 块组及内部细节"></p>
-<p>引导块是作为引导操作系统用的，在文件系统作为根文件系统时使用。在系统加电启动是，其内容有BIOS自动装载并执行。它包含一个启动装载程序，用于从计算机安装的操作系统中选择一个启动，还负责继续启动过程。因此Ext2文件系统把这个区域预留出来，不作为文件系统管理的磁盘区域。</p>
-<p>超级块是文件系统起始位置，用于整个文件系统，它作为文件系统的入口，记录了整个文件系统的关键信息。而上面提到的其它元数据则只针对本块组。下面本文介绍一下每个元数据的具体作用。</p>
-<h3 id="超级块（SuperBlock）"><a href="#超级块（SuperBlock）" class="headerlink" title="超级块（SuperBlock）"></a>超级块（SuperBlock）</h3><p>超级块记录了整个文件系统的各种信息，包括逻辑块的数量、inode数量、支持的特性和维护信息等内容。为了保证整个文件系统的完整性，例如突然断电或者系统崩溃等场景，文件系统出现元数据损坏的情况，Ext2文件系统对超级块进行了备份。这样可以保证即使在第一个超级块出现损坏的情况下，仍然可以通过其它块组中的超级块进行恢复，不至于整个文件系统都不可访问。</p>
-<p>超级块位于第1个逻辑块内，由于第一个块组预留了1KB的内容作为系统引导，因此在该块组超级块的位置在1KB偏移处，而其它备份块组中的超级块都在该块组偏移为0的地方。超级块会占用1个逻辑块的空间（实际占用空间要小于该值），也就是说块组描述符（ext2_group_desc）是在4KB偏移的地方。如下代码是超级块在磁盘存放的结构体，磁盘数据被读出来后按照该结构体的格式进行解析，其中变量__lexx表示变量是小端对齐，使用是需要转换为CPU的对齐方式。在文件系统中还有另外一个结构体super_block，这个结构体用于代码逻辑中使用。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">struct ext2_super_block &#123;</span><br><span class="line">        __le32  s_inodes_count;         /* 整个文件系统inode的数量 */</span><br><span class="line">        __le32  s_blocks_count;         /* 整个文件系统逻辑块的数量 */</span><br><span class="line">        __le32  s_r_blocks_count;       /* Reserved blocks count */</span><br><span class="line">        __le32  s_free_blocks_count;    /* 文件系统剩余逻辑块的数量 */</span><br><span class="line">        __le32  s_free_inodes_count;    /* 文件系统剩余inode的数量 */</span><br><span class="line">        __le32  s_first_data_block;     /* First Data Block */</span><br><span class="line">        __le32  s_log_block_size;       /* Block size */</span><br><span class="line">        __le32  s_log_frag_size;        /* Fragment size */</span><br><span class="line">        __le32  s_blocks_per_group;     /* 每一个块组中逻辑块的数量 */</span><br><span class="line">        __le32  s_frags_per_group;      /* # Fragments per group */</span><br><span class="line">        __le32  s_inodes_per_group;     /* 每一个块组中inode的数量 */</span><br><span class="line">        __le32  s_mtime;                /* 挂载时间 */</span><br><span class="line">        __le32  s_wtime;                /* 写时间 */</span><br><span class="line">        __le16  s_mnt_count;            /* 挂载数量 */</span><br><span class="line">        __le16  s_max_mnt_count;        /* Maximal mount count */</span><br><span class="line">        __le16  s_magic;                /* Magic signature */</span><br><span class="line">        __le16  s_state;                /* File system state */</span><br><span class="line">        __le16  s_errors;               /* Behaviour when detecting errors */</span><br><span class="line">        __le16  s_minor_rev_level;      /* minor revision level */</span><br><span class="line">        __le32  s_lastcheck;            /* time of last check */</span><br><span class="line">        __le32  s_checkinterval;        /* max. time between checks */</span><br><span class="line">        __le32  s_creator_os;           /* OS */</span><br><span class="line">        __le32  s_rev_level;            /* Revision level */</span><br><span class="line">        __le16  s_def_resuid;           /* Default uid for reserved blocks */</span><br><span class="line">        __le16  s_def_resgid;           /* Default gid for reserved blocks */</span><br><span class="line">        __le32  s_first_ino;            /* 第一个非保留inode的id，ext2有一些保留的inode，比如2用于根目录 */</span><br><span class="line">        __le16   s_inode_size;          /* inode结构体的大小 */</span><br><span class="line">        __le16  s_block_group_nr;       /* 本超级块所位于的块组的编号 */</span><br><span class="line">        __le32  s_feature_compat;       /* compatible feature set */</span><br><span class="line">        __le32  s_feature_incompat;     /* incompatible feature set */</span><br><span class="line">        __le32  s_feature_ro_compat;    /* readonly-compatible feature set */</span><br><span class="line">        __u8    s_uuid[16];             /* 128-bit uuid for volume */</span><br><span class="line">        char    s_volume_name[16];      /* volume name */</span><br><span class="line">        char    s_last_mounted[64];     /* directory where last mounted */</span><br><span class="line">        __le32  s_algorithm_usage_bitmap; /* For compression */</span><br><span class="line">        /*</span><br><span class="line">         * Performance hints.  Directory preallocation should only</span><br><span class="line">         * happen if the EXT2_COMPAT_PREALLOC flag is on.</span><br><span class="line">         */</span><br><span class="line">        __u8    s_prealloc_blocks;      /* Nr of blocks to try to preallocate*/</span><br><span class="line">        __u8    s_prealloc_dir_blocks;  /* Nr to preallocate for dirs */</span><br><span class="line">        __u16   s_padding1;</span><br><span class="line">        ... ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p><strong>块组描述符</strong></p>
-<p>块组描述符，顾名思义是对该块组的描述，其中包括该块组中数据块位图的位置、inode位图位置和inode表位置等信息。另外，还包括数据块和inode的剩余情况等信息。块组描述符位于第2个逻辑块，占用一个逻辑块的空间。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">struct ext2_group_desc</span><br><span class="line">&#123;                                                   </span><br><span class="line">        __le32  bg_block_bitmap;                /* Blocks bitmap block */ </span><br><span class="line">        __le32  bg_inode_bitmap;                /* Inodes bitmap block */</span><br><span class="line">        __le32  bg_inode_table;         /* Inodes table block */</span><br><span class="line">        __le16  bg_free_blocks_count;   /* Free blocks count */</span><br><span class="line">        __le16  bg_free_inodes_count;   /* Free inodes count */</span><br><span class="line">        __le16  bg_used_dirs_count;     /* Directories count */</span><br><span class="line">        __le16  bg_pad;</span><br><span class="line">        __le32  bg_reserved[3];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<p><strong>数据块位图</strong></p>
-<p>数据块位图标识了块组中那个数据块被使用了，那个没有被使用。磁盘中每个被管理的逻辑块在该位图中用1bit进行表示，0为未使用，1为已经使用。数据块位图占用1个逻辑块，对于默认块大小(4KB)情况，可以管理4096<em>8个逻辑块，也即4096</em>8*4096=128MB的空间。当然如果格式化的时候块大小为8KB，则管理的空间会更大一些。</p>
-<p><strong>inode位图</strong></p>
-<p>inode位图与逻辑块位图类似，描述inode的使用情况。inode用于唯一标识一个文件，其为一个编号。文件系统根据这个编号查找具体的问题。在inode位图中每一位标识inode表中的个inode是否被使用。关于什么是inode表，请参考下面的描述。<br>默认情况inode位图占用的空间也为4KB。</p>
-<p><strong>inode表</strong></p>
-<p>inode表一列表的形式保存了文件的元数据信息，包括文件大小、扩展属性和时间等内容。由于inode结构的大小根据格式化文件系统的属性而有差异，因此该表占用的磁盘空间不定，大概若干个逻辑块的大小。关于文件名称与inode数据结构的关系是通过inode的id确定的，在文件夹中的文件存储包含文件名和inode的id信息，而通过该id可以计算出inode数据结构位于的块组位置和inode表位置。</p>
-<p>本文简要介绍一下Ext4文件系统的磁盘布局情况，后续会更加详细的介绍每一部分的细节。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_write_base/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1921,7 +1737,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
               
             
           </span>
@@ -2046,6 +1862,180 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_read_base/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_read_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 读数据流程</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>读数据流程关于如何从用户态到Ext2文件系统公共部分（VFS）的流程本文不再详细介绍，这一部分与写流程基本一致，具体可以参考文末的相关文章介绍。如图是从用户态到Ext2文件系统的函数调用图，从图上可以看到对于Ext2文件系统在读数据流程中调用了大量VFS的函数，这主要原因是Ext2是Linux的原生文件系统，其实耦合还是比较大的。我们仔细观察一下，实际起作用的函数是Ext2文件系统的ext2_file_read_iter函数。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-50cf9176885a38d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 读数据整体流程"></p>
+<p>像写数据一样，读数据也分为Direct读和缓存读两种形式，Direct读是从磁盘直接读取数据，而缓存读则需要先将磁盘数据读到页缓存，然后在将数据拷贝到用户的缓冲区。本文照例只介绍缓存读的场景，对于Direct读请自行阅读代码理解。</p>
+<p>对于缓存读的流程，概括起来分为两个主要步骤，<strong>一个是查找页缓存（如果没有则分配新的），第二步是根据页缓存的状态从磁盘读取数据并填充页缓存（如果页缓存数据最新则不需要从磁盘读取数据）</strong>。</p>
+<h2 id="缓存命中"><a href="#缓存命中" class="headerlink" title="缓存命中"></a>缓存命中</h2><p>其实上图是一个比较复杂的函数调用关系图，这里处理了缓存没有命中的情况下的读数据的流程。如果缓存命中，整个读数据的流程将非常简单，我们可以简化为图2所示。可以看出此时在VFS的函数do_generic_file_read中即可完成整个数据的读取过程。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-60153183383057b5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 读数据缓存命中"></p>
+<p>在VFS函数do_generic_file_read中的主要流程如图3所示。这里假设缓存中存储的数据是最新的，也即页缓存的数据新于磁盘的数据。这样整个读取过程可以分为两步，首先通过find_get_page获取缓存页；然后判断页缓存的标记满足条件后直接调用copy_page_to_iter将页缓存的内容拷贝到用户态的缓冲区。当然实际还有其它一些情况的存在，比如虽然页缓存存在但不是最新，则需要从磁盘读取数据。或者页缓存存在，但正在进行预读操作，则需要等待预读完成等。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-05d20ddc2e57b298.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 读数据缓存命中"></p>
+<p>总之来说，缓存命中的常见还是比较简单的，下面我们介绍一下缓存不命中的场景。</p>
+<h2 id="非缓存命中"><a href="#非缓存命中" class="headerlink" title="非缓存命中"></a>非缓存命中</h2><p>如果没有缓存命中，此时就需要做两件事情，一个是分配页缓存并建立与磁盘位置映射，另一个是向磁盘提交读取数据的请求，完成数据的读取。为了提高读取数据的效率，这里其实实现了一个称为“预读”的功能，所谓预读就是提前从磁盘读取比较多的数据，为下次读数据做准备。这个特性对顺序读非常有效，可以明显的减少磁盘请求的数量，从而提升读数据的性能。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-1fdc0d6f65fdffd1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 读数据缓存命中"></p>
+<p>预读的基本规则主要包含两个，一个是在读请求中读到缺失页面(missing page)，进行同步预读；另一个是读到预读页面(PG_readahead page)，则进行异步预读。如图4是预读的基本示意图，tx代表请求时间序列。<br>1） t0触发同步预读，也就是文件系统除了读取请求的数据外，还会额外读取一部分数据；<br>2） t1时由于读到的缓存页有预读标记，因此会触发异步预读；<br>3） t2时由于缓存已经存在，因此直接从缓存读取后返回；<br>以此类推，当再次碰到有预读标记的页时进行异步预读。另外，这里面有个概念叫“预读窗口”，预读窗口是指一次从磁盘预读数据的多少。预读窗口是滑动的，也就是大小会根据命中情况进行变化，如果命中则会变大，这样可以有效的提高读取的效率。如下是用于滑动窗口的数据结构。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">file_ra_state</span> &#123;</span></span><br><span class="line">	<span class="keyword">pgoff_t</span> start;			<span class="comment">/* where readahead started */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> size;		<span class="comment">/* # of readahead pages */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> async_size;	<span class="comment">/* do asynchronous readahead when</span></span><br><span class="line"><span class="comment">					   there are only # of pages ahead */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> ra_pages;		<span class="comment">/* Maximum readahead window */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> mmap_miss;		<span class="comment">/* Cache miss stat for mmap accesses */</span></span><br><span class="line">	<span class="keyword">loff_t</span> prev_pos;		<span class="comment">/* Cache last read() position */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>理解了上述概念之后，我们分析一下整个读操作的流程。由图1，同步预读和异步预读的起始逻辑在函数do_generic_file_read中。其中find_get_page用于查找是否有缓存并返回找到的缓存页。如果没有找到缓存页则运行红色方框的流程，进行同步预读。如果找到缓存页，并且该缓存页有预读标记则运行绿色方框的流程，进行异步预读。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-c44efcf5e97ef057.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 读数据缓存基本逻辑"></p>
+<p>对比一下同步预读和异步预读的主要调用流程，可以看出最终都会调用到<strong>do_page_cache_readahead函数。实现逻辑的差异主要在ondemand_readahead函数中。基本差异是对滑动窗口的计算，对于同步预读由于要考虑随机读的情况，避免读过多的内容；而对于异步预读则根据达到预读标记则调整一个比较大的滑动窗口。<br>`page_cache_sync_readahead-&gt;ondemand_readahead-&gt;</strong>do_page_cache_readahead<code></code>page_cache_async_readahead-&gt;ondemand_readahead-&gt;__do_page_cache_readahead`</p>
+<p>数据读取操作的最终实现在__do_page_cache_readahead函数中，这里面主要完成两个功能，一个是分配页缓存(page_cache_alloc_readahead)，另一个是提交读请求到块设备层(read_pages)。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-dd30b5ac06972787.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 读数据缓存基本逻辑"></p>
+<p>上图中的函数指针具体实现是Ext2文件系统ext2_readpages函数，该函数的调用流程大致如图7所示。该函数主要实现缓存页的映射和从磁盘读取数据的操作。磁盘读取调用的块设备层的submit_bio函数。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ce88c83a26626c5c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图7 读数据缓存基本逻辑"></p>
+<p>至此，将磁盘上的数据读取到了页缓存中，其后的流程与缓存命中场景一致，也即拷贝页缓存的内容到用户态缓冲区等。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/03/24/books/Go语言开发必读书目，从菜鸟到大牛必备/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2108,7 +2098,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
               
             
           </span>

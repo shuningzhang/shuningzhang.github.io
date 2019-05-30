@@ -128,16 +128,6 @@
 
 
 
-  <script>
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?3fb960eb6310643ffc24656f6dd2f50d";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
-
 
 
 
@@ -409,7 +399,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
               
             
           </span>
@@ -462,19 +452,18 @@
 
       
         
-          <p><img src="http://img.itworld123.com/11058170-93bbc0751d50dd94.png" alt="图1 Ceph的块存储"><br>Ceph可以提供文件、块和对象三种类型的存储形式，<strong>但最为主要的存储形式就是块存储</strong>。Ceph块存储可以直接与云计算平台进行对接，比如OpenStack等。另外，Ceph提供了访问块存储的API和内核模块。内核模块解决了通过裸机访问Ceph块存储的问题。本文主要介绍一下用户态块存储客户端的架构和基本的读写流程，后续再详细介绍内核模块客户端的实现。<br>
-          <!--noindex-->
           
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/05/23/storage/ceph/Ceph块存储客户端架构及流程简析/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
+            <p>Ceph可以提供文件、块和对象三种类型的存储形式，<strong>但最为主要的存储形式就是块存储</strong>。Ceph块存储可以直接与云计算平台进行对接，比如OpenStack等。另外，Ceph提供了访问块存储的API和内核模块。内核模块解决了通过裸机访问Ceph块存储的问题。本文主要介绍一下用户态块存储客户端的架构和基本的读写流程，后续再详细介绍内核模块客户端的实现。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-93bbc0751d50dd94.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 Ceph的块存储"><br>在介绍客户端实现之前我们有必要介绍一下Ceph块存储实现的基本原理。我们知道块存储（磁盘）在用户端呈现的其实就是一个线性空间，如图2蓝色长条。Ceph的做法是将该空间切割为等长的段，并用对象存储表示，而对象名称就是磁盘的LBA。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-794430faa13b5ea7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 Ceph块存储原理"><br>比如我们创建了一个1G的块存储，并采用Ceph默认的策略（每4MB用一个对象存储）。那么，如果在磁盘的开头有写数据（比如1KB），客户端就会创建一个4MB的对象，名称格式为image_hash_lba。如图3是一个块存储存储数据的对象的实例，其中红色方框中的内容正是数据的LBA。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-3b61eb02b8dd1bf6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 块存储对象的名称实例"><br>总的来说，<strong>Ceph的块存储是转换为对象来存储的</strong>。</p>
+<h1 id="Ceph的块存储API"><a href="#Ceph的块存储API" class="headerlink" title="Ceph的块存储API"></a>Ceph的块存储API</h1><p>在后续分析块存储架构之前，我们先了解一下客户端的API及使用方法。下面给出一些代码片段，这里并非完整的代码，也没有异常处理，仅仅用于说明基本流程。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 访问块存储需要定义的对象 */</span></span><br><span class="line">librados::Rados rados; <span class="comment">/* rados集群 */</span></span><br><span class="line">librados::IoCtx io_ctx;   <span class="comment">/* IO上下文 */</span></span><br><span class="line">librbd::RBD rbd;          <span class="comment">/* 块设备 */</span></span><br><span class="line">librbd::Image image;   <span class="comment">/* 具体的磁盘 */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 下面是基本的访问流程 */</span></span><br><span class="line"><span class="comment">/* 集群初始化工作，完成与Rados集群的连接 */</span></span><br><span class="line">ret = rados.init(<span class="string">"admin"</span>);</span><br><span class="line">rados.conf_read_file(<span class="string">"/etc/ceph/ceph.conf"</span>);</span><br><span class="line">rados.connect();</span><br><span class="line"><span class="comment">/* 创建一个IO上下文，用于对象级的读写 */</span></span><br><span class="line">rados.ioctx_create(pool_name, io_ctx);</span><br><span class="line"><span class="comment">/* 块设备的访问，构建image，并使用其方法 */</span></span><br><span class="line">rbd.open(io_ctx, image, image_name);</span><br><span class="line">image.write2(ofs_w, len_w, bl_r, <span class="number">0</span>);</span><br></pre></td></tr></table></figure></p>
+<p>了解到上述流程后，我们知道与块存储相关的有2个类，分别是RBD和Image。其中RBD是块存储系统相关的类，用于实现块存储相关的<strong>管理操作</strong>，比如创建删除镜像、创建镜像组和镜像的复制配对等等操作。而Image类则用于具体镜像（磁盘）的操作，比如镜像数据的读写、镜像属性和快照的创建删除等等。</p>
+<h1 id="Ceph块存储客户端基本架构"><a href="#Ceph块存储客户端基本架构" class="headerlink" title="Ceph块存储客户端基本架构"></a>Ceph块存储客户端基本架构</h1><p>在介绍块存储架构之前，我们先看一下块存储的使用流程。从上面代码可以看到这里核心的有2点，一个是创建一个IO上下文，这个是实现对象级数据读写的，我们在librados中曾经介绍过；另外一个是通过rbd.open打开一个块存储设备，<strong>而这里面最为重要的是传入了IO上下文参数（IoCtx）</strong>。<br>如果我们再继续深入介绍之前，我们先看一下rbd.open函数，如下是该函数的源代码（省略了部分不重要的内容）。从代码中可以看出这里的核心是创建了一个ImageCtx对象，并且通过参数传出。而传出的参数就是我们后面需要使用的访问磁盘的对象。同时，这里还需要注意的是构建ImageCtx对象时讲IO上下文传入其中，因此后续的IO操作就可以通过该上下文接口实现。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> RBD::open(IoCtx&amp; io_ctx, Image&amp; image, <span class="keyword">const</span> <span class="keyword">char</span> *name,</span><br><span class="line">              <span class="keyword">const</span> <span class="keyword">char</span> *snap_name)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">/* 构建一个ImageCtx对象，这里表示一个磁盘设备 */</span></span><br><span class="line">  ImageCtx *ictx = <span class="keyword">new</span> ImageCtx(name, <span class="string">""</span>, snap_name, io_ctx, <span class="literal">false</span>);</span><br><span class="line">  TracepointProvider::initialize&lt;tracepoint_traits&gt;(get_cct(io_ctx)); </span><br><span class="line">  ... ...</span><br><span class="line">  <span class="keyword">int</span> r = ictx-&gt;state-&gt;open(<span class="literal">false</span>);</span><br><span class="line">  <span class="keyword">if</span> (r &lt; <span class="number">0</span>) &#123; </span><br><span class="line">    tracepoint(librbd, open_image_exit, r);</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">  &#125;    </span><br><span class="line"></span><br><span class="line">  image.ctx = (<span class="keyword">image_ctx_t</span>) ictx;</span><br><span class="line">  tracepoint(librbd, open_image_exit, <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对于Ceph块存储客户端可以简单的划分为3层，分别是<strong>API接口层、块存储逻辑层和lirados层</strong>。当然，实际情况比这个要复杂的多（例如前文librados就包含4层），我们这里为了简化描述，暂且认为只包含这3层。后续，我们将深入介绍没一层。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-1ee8d70ca211dee5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 块设备基本架构"><br>结合上述3层架构，我们看一下每层涉及的类。在API层主要包括RBD和Image 2个类，关于这两个类的作用我们在前文已经做过介绍，这里不在赘述。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-7fa926ac7f1c463c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 块存储结构类图"><br>在<strong>块存储逻辑层</strong>最主要的类是ImageCtx类，其中主要包含CephContext、ImageRquestWQ和ObjectDispatcher类。其中<code>ImageCtx</code>类为块设备（Image）上下文类，该类负责处理块设备相关的，核心是实现块设备线性空间到对象存储之间的转换。除此之外，还包括一些高级功能，包括磁盘镜像、快照和磁盘组等。<br>上述<code>ImageRequestWQ</code>类是一个IO相关的队列类，接口层的异步请求会缓存到该队列中，并通过起内部接口实现IO的发送。而<code>ObjectDispatcher</code>类则负责将转换后的请求（对象请求）发送到RADOS集群中。</p>
+<h1 id="写数据的流程浅析"><a href="#写数据的流程浅析" class="headerlink" title="写数据的流程浅析"></a>写数据的流程浅析</h1><p>前面了解了RBD的基本架构及涉及的主要类，下面我们以写数据为例介绍一下其主要的流程。写流程的发起是以Image类的write函数开始的。整个调用流程如图4所示。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-ac99e3b71d839536.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 写数据基本流程"><br>具体细节我们不做介绍，这里需要注意的一点是调用了一个名为<code>file_to_extents</code>的函数，该函数将块设备的IO请求转化为对对象的IO请求。在该函数中，会根据块层IO的偏移和镜像的属性将IO切割为适合进行对象操作的IO序列。并且进一步的交给下层进行具体的处理。<br>好了，今天先到这里，今天我们介绍了Ceph块存储客户端的基本架构和写数据的流程，并对涉及的类进行了简单的介绍。后续，我们将进一步的深入细节，介绍块存储关键流程的实现。</p>
+
           
-          <!--/noindex-->
         
       
-    </p></div>
+    </div>
 
     
 
@@ -588,7 +577,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
               
             
           </span>
@@ -648,17 +637,37 @@
 
       
         
-          <p><img src="http://img.itworld123.com/5a7a50f0-82d6-11e9-a44e-47faa9708c8b.png" alt></p>
+          
+            <blockquote>
+<p>本号介绍的经典图书均有电子书，可用于学习用途。</p>
+</blockquote>
 <p>做程序开发工作，不仅仅要实践，读书也是非常重要的。读的书多了，知道的东西自然就多了，再通过实践的巩固，这样一方面知识整合的速度比较快，另一方面通过实践之后知识的掌握程度也更加深刻，才能转化为自己的能力。安德斯·艾利克森在《刻意练习》中强调练习要讲究方法，不能漫无目的做重复的工作，这样佐证了做程序开发要讲究方式方法，不能蛮干。</p>
-          <!--noindex-->
+<p>这里本号给大家推荐几本做C/C++开发必须要读的几本书，相信大家阅读后一定会有所裨益。当然，光读书是不行的，还要把书中的内容用在日常开发中，这样才能转化为自己的。</p>
+<h1 id="C-Primer-Plus"><a href="#C-Primer-Plus" class="headerlink" title="C Primer Plus"></a>C Primer Plus</h1><p>《C Primer Plus》是C语言的经典教材，也是学习C语言不可不读的教材之一。其中既包括基本语法的介绍，比如数据类型、变量、控制语句和函数等，还包括关于系统库等相对高级的介绍。同时，该书最大的特性是配合很多实例，让学习者通过不断的联系巩固对C语言的理解。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-3bf5e48bf087de61?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<h1 id="C标准库"><a href="#C标准库" class="headerlink" title="C标准库"></a>C标准库</h1><p>学习语言开发，第一步是学习基本语法，第二步就是学习库函数。因为我们不可能重复制造轮子。很多东西语言的标准库都已经提供了，我们只需要拿过来用就可以了。这本书是比较早的系统介绍C语言标准库的数据，作者普劳格非常详尽的介绍了ANSI/ISO C语言标准的所有库函数。并且最为关键的是配合了很多实例程序，通过实例让我们更加贴切的属性的函数的用法。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-5e63e3b4229a5495?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<h1 id="C语言参考手册"><a href="#C语言参考手册" class="headerlink" title="C语言参考手册"></a>C语言参考手册</h1><p>该书是介绍C语言另外一本经典著作。 最新的第5版增加了对C99标准的介绍，更加符合当前读者学习C语言的需要。该书通过两部分分别介绍了C语言的基本语法和库函数的使用。不必多说，请直接阅读本书。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-bf7ea2ecb8245342?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<h1 id="C专家编程"><a href="#C专家编程" class="headerlink" title="C专家编程"></a>C专家编程</h1><p>《C专家编程》是C语言开发者晋级的必读读物，作者林登更加深入的介绍了运行时和链接库等更为深层次的问题。本书可以帮助有一定经验的C程序员成为C编程方面的专家，对于具备相当的C语言基础的程序员，本书可以帮助他们站在C的高度了解和学习C++。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-1579caea2a74005e?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<h1 id="C与指针"><a href="#C与指针" class="headerlink" title="C与指针"></a>C与指针</h1><p>C语言的指针是最饱受诟病的地方，使用起来也是难度最大，最容易出问题的地方。而本书正是解决该问题的终极法宝。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-61aca23fe9835433?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<h1 id="C陷阱与缺陷"><a href="#C陷阱与缺陷" class="headerlink" title="C陷阱与缺陷"></a>C陷阱与缺陷</h1><p>书如其名，这本书介绍了C语言中常见的坑和一些稀奇古怪的编程“技巧”，不少刁钻的C语言面试题都源自这本小册子。如果你在开发中还没遇到过坑，那赶紧阅读以下把，可以避免采坑的葵花宝典。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/11058170-6078d609edb6a9cb?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<p>好了，今天我们主要推荐几本语言直接相关的数据，后续我们在推荐具体开发过程中用到的数据，比如代码质量，编程思路等相关的书籍，敬请期待。</p>
+<p>下面是从网上搜集的下载链接（如有侵权请联系删除）：</p>
+<ol>
+<li><a href="https://u19702000.ctfile.com/fs/19702000-355523082" target="_blank" rel="noopener">C Primer Plus(第五版)</a></li>
+<li><a href="https://u19702000.ctfile.com/fs/19702000-355523332" target="_blank" rel="noopener">C.编程思想(第二版)第一卷中文版</a></li>
+<li><a href="https://u19702000.ctfile.com/fs/19702000-355523436" target="_blank" rel="noopener">C专家编程</a></li>
+<li><a href="https://u19702000.ctfile.com/fs/19702000-355523425" target="_blank" rel="noopener">C和指针</a></li>
+<li><a href="https://u19702000.ctfile.com/fs/19702000-355523431" target="_blank" rel="noopener">C语言参考手册第五版</a> </li>
+<li><a href="https://u19702000.ctfile.com/fs/19702000-355523427" target="_blank" rel="noopener">C陷阱与缺陷</a></li>
+<li><a href="https://u19702000.ctfile.com/fs/19702000-355523997" target="_blank" rel="noopener">C标准库</a></li>
+</ol>
+
           
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/05/23/books/C语言开发必读书目推荐，从小工到专家必备/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
         
       
     </div>
@@ -775,7 +784,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
               
             
           </span>
@@ -962,7 +971,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
               
             
           </span>
@@ -1138,7 +1147,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
               
             
           </span>
@@ -1351,7 +1360,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
               
             
           </span>
@@ -1537,7 +1546,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
               
             
           </span>
@@ -1731,7 +1740,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
               
             
           </span>
@@ -2084,7 +2093,7 @@ DNS协议运行在UDP协议之上，使用端口号53
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:40" itemprop="dateModified" datetime="2019-05-24T11:52:40+00:00">2019-05-24</time>
               
             
           </span>
@@ -2296,7 +2305,7 @@ DNS协议运行在UDP协议之上，使用端口号53
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
               
             
           </span>

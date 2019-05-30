@@ -117,7 +117,7 @@
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-10b1183366b5fc54.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-f267b227d1980751.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-4470c25a65d72f02.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-05-30T12:31:18.065Z">
+<meta property="og:updated_time" content="2019-05-24T11:52:41.045Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OCFS2文件写数据流程分析">
 <meta name="twitter:description" content="本文主要介绍一下OCFS2文件系统写数据的流程，以及数据在磁盘的布局情况。在OCFS2文件系统中，文件数据的管理分为2种模式，对于非常小的文件，可以直接放在inode节点所在的区域，也就是inode内部；而对于inode无法容纳的数据则通过B+树的方式放在inode外的其它存储区域，通过inode内的成员指向数据的位置。 将数据直接放置在inode内部的方式成为inline模式，这种模式是最简单的">
@@ -146,16 +146,6 @@
 
 
 
-
-  <script>
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?3fb960eb6310643ffc24656f6dd2f50d";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
 
 
 
@@ -425,7 +415,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-05-24 11:52:41" itemprop="dateModified" datetime="2019-05-24T11:52:41+00:00">2019-05-24</time>
               
             
           </span>
