@@ -96,24 +96,25 @@
 
 
 
-  <meta name="description" content="Ceph RGW架构简介我们知道Ceph可以提供块、文件和对象三种形态的存储。而RGW就是提供对象存储的网关，也即对象存储网关。所谓对象存储网关，也就是对象存储的入口，本质上是一个HTTP服务器，与Nginx和Apache无异。通过这个入口，用户可以通过HTTP协议，以RESTful的方式访问Ceph的对象存储。Ceph RGW的整体架构如图1所示，对象存储网关实际上是调用librados的API">
+  <meta name="description" content="Ceph分布式存储已经成为目前最火的分布式存储系统，而其对象存储本身就有先天优势。今天我们介绍一下Ceph的对象存储及RGW的基本架构。">
 <meta name="keywords" content="Ceph,部署,安装">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Ceph对象存储RGW架构及安装实战">
 <meta property="og:url" content="http://www.itworld123.com/2019/05/19/storage/ceph/Ceph对象存储RGW架构及安装实战/index.html">
 <meta property="og:site_name" content="SunnyZhang的IT世界">
-<meta property="og:description" content="Ceph RGW架构简介我们知道Ceph可以提供块、文件和对象三种形态的存储。而RGW就是提供对象存储的网关，也即对象存储网关。所谓对象存储网关，也就是对象存储的入口，本质上是一个HTTP服务器，与Nginx和Apache无异。通过这个入口，用户可以通过HTTP协议，以RESTful的方式访问Ceph的对象存储。Ceph RGW的整体架构如图1所示，对象存储网关实际上是调用librados的API">
+<meta property="og:description" content="Ceph分布式存储已经成为目前最火的分布式存储系统，而其对象存储本身就有先天优势。今天我们介绍一下Ceph的对象存储及RGW的基本架构。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-8f2c843e9ce42952.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-e53c7cdca5d0b41f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-edf9ccb398841f49.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-558eb43452e01a19.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-03bc493b56dded58.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-05-30T12:31:18.073Z">
+<meta property="og:image" content="http://img.itworld123.com/storageceph3dfaaea-8411-11e9-9df5-db6b092d0e83.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-8f2c843e9ce42952.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-e53c7cdca5d0b41f.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-edf9ccb398841f49.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-558eb43452e01a19.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-03bc493b56dded58.png">
+<meta property="og:updated_time" content="2019-06-01T02:35:12.246Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ceph对象存储RGW架构及安装实战">
-<meta name="twitter:description" content="Ceph RGW架构简介我们知道Ceph可以提供块、文件和对象三种形态的存储。而RGW就是提供对象存储的网关，也即对象存储网关。所谓对象存储网关，也就是对象存储的入口，本质上是一个HTTP服务器，与Nginx和Apache无异。通过这个入口，用户可以通过HTTP协议，以RESTful的方式访问Ceph的对象存储。Ceph RGW的整体架构如图1所示，对象存储网关实际上是调用librados的API">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/11058170-8f2c843e9ce42952.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:description" content="Ceph分布式存储已经成为目前最火的分布式存储系统，而其对象存储本身就有先天优势。今天我们介绍一下Ceph的对象存储及RGW的基本架构。">
+<meta name="twitter:image" content="http://img.itworld123.com/storageceph3dfaaea-8411-11e9-9df5-db6b092d0e83.png">
 
 
 
@@ -417,7 +418,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-06-01 02:35:12" itemprop="dateModified" datetime="2019-06-01T02:35:12+00:00">2019-06-01</time>
               
             
           </span>
@@ -469,9 +470,10 @@
       
 
       
-        <h1 id="Ceph-RGW架构简介"><a href="#Ceph-RGW架构简介" class="headerlink" title="Ceph RGW架构简介"></a>Ceph RGW架构简介</h1><p>我们知道Ceph可以提供块、文件和对象三种形态的存储。而RGW就是提供对象存储的网关，也即对象存储网关。所谓对象存储网关，也就是对象存储的入口，本质上是一个HTTP服务器，与Nginx和Apache无异。通过这个入口，用户可以通过HTTP协议，以RESTful的方式访问Ceph的对象存储。<br>Ceph RGW的整体架构如图1所示，对象存储网关实际上是调用librados的API来实现数据的存储和读取。而该网关同时提供了<strong>兼容AWS S3和OpenStack Swift的对象存储访问接口（API）</strong>。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-8f2c843e9ce42952.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 RGW整体架构"><br>另外，有些同学可能不清楚对象存储的特点。在介绍后续内容之前，我们大概了解一下对象存储是如何存储数据的。对象存储的应用场景通常是互联网场景，一个对象存储通常会给多个<strong>用户</strong>（租户）使用。而在一个用户下面可以创建多个<strong>桶</strong>（swift里面称为容器container）。在桶中可以存储<strong>对象</strong>，对象就是我们存储的数据，比如图片或者是视频等。如果将对象存储与我们常规存储做一个类比，<strong>桶</strong>就好比文件夹，而<strong>对象</strong>就好比文件，但不同之处在于桶里面只能存储对象，而<strong>不能嵌套桶</strong>。如图2是对象存储数据组织形式。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-e53c7cdca5d0b41f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 对象存储数据组织"></p>
+        <p><img src="http://img.itworld123.com/storageceph3dfaaea-8411-11e9-9df5-db6b092d0e83.png" alt><br>Ceph分布式存储已经成为目前最火的分布式存储系统，而其对象存储本身就有先天优势。今天我们介绍一下Ceph的对象存储及RGW的基本架构。<br><a id="more"></a></p>
+<h1 id="Ceph-RGW架构简介"><a href="#Ceph-RGW架构简介" class="headerlink" title="Ceph RGW架构简介"></a>Ceph RGW架构简介</h1><p>我们知道Ceph可以提供块、文件和对象三种形态的存储。而RGW就是提供对象存储的网关，也即对象存储网关。所谓对象存储网关，也就是对象存储的入口，本质上是一个HTTP服务器，与Nginx和Apache无异。通过这个入口，用户可以通过HTTP协议，以RESTful的方式访问Ceph的对象存储。<br>Ceph RGW的整体架构如图1所示，对象存储网关实际上是调用librados的API来实现数据的存储和读取。而该网关同时提供了<strong>兼容AWS S3和OpenStack Swift的对象存储访问接口（API）</strong>。<br><img src="http://img.itworld123.com/11058170-8f2c843e9ce42952.png" alt="图1 RGW整体架构"><br>另外，有些同学可能不清楚对象存储的特点。在介绍后续内容之前，我们大概了解一下对象存储是如何存储数据的。对象存储的应用场景通常是互联网场景，一个对象存储通常会给多个<strong>用户</strong>（租户）使用。而在一个用户下面可以创建多个<strong>桶</strong>（swift里面称为容器container）。在桶中可以存储<strong>对象</strong>，对象就是我们存储的数据，比如图片或者是视频等。如果将对象存储与我们常规存储做一个类比，<strong>桶</strong>就好比文件夹，而<strong>对象</strong>就好比文件，但不同之处在于桶里面只能存储对象，而<strong>不能嵌套桶</strong>。如图2是对象存储数据组织形式。<br><img src="http://img.itworld123.com/11058170-e53c7cdca5d0b41f.png" alt="图2 对象存储数据组织"></p>
 <p>今天我们主要除了介绍Ceph对象存储网关基本架构外，我们重点介绍一下如何在几个Ceph集群上部署一个RGW，并且通过Swift客户端进行访问。</p>
-<h1 id="部署环境描述"><a href="#部署环境描述" class="headerlink" title="部署环境描述"></a>部署环境描述</h1><p>为了简化环境，本文使用的是2副本Ceph集群，在实际生产中通常是3副本。另外，本文使用的是本地虚拟机，也就是通过VirtualBox或者其它虚拟化平台安装的虚拟操作系统。<strong>本文操作系统版本为CentOS 7.4</strong>。如图3所示，我们的RGW安装在ceph-s节点。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-edf9ccb398841f49.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 Ceph集群"></p>
+<h1 id="部署环境描述"><a href="#部署环境描述" class="headerlink" title="部署环境描述"></a>部署环境描述</h1><p>为了简化环境，本文使用的是2副本Ceph集群，在实际生产中通常是3副本。另外，本文使用的是本地虚拟机，也就是通过VirtualBox或者其它虚拟化平台安装的虚拟操作系统。<strong>本文操作系统版本为CentOS 7.4</strong>。如图3所示，我们的RGW安装在ceph-s节点。<br><img src="http://img.itworld123.com/11058170-edf9ccb398841f49.png" alt="图3 Ceph集群"></p>
 <h1 id="部署Ceph-RGW"><a href="#部署Ceph-RGW" class="headerlink" title="部署Ceph RGW"></a>部署Ceph RGW</h1><p>进入安装Ceph集群的时候创建的目录中，本文之前的目录为mycluster，因此进入该目录。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> my-cluster</span><br></pre></td></tr></table></figure></p>
 <blockquote>
 <p>RGW默认使用Civetweb作为其Web Sevice，而Civetweb默认使用端口7480提供服务，如果想修改端口（如80端口），就需要修改Ceph的配置文件。在配置文件中增加一个section。<br>[client.rgw.ceph-s]<br>rgw_frontends = “civetweb port=80”<br><strong>注意</strong>： 这一步并不是必须的，根据实际情况进行设定</p>
@@ -480,8 +482,8 @@
 <p>比如在我们的ceph-s节点安装该软件，则可以执行如下命令：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ceph-deploy install –-rgw ceph<span class="_">-s</span></span><br></pre></td></tr></table></figure></p>
 <h2 id="创建RGW实例"><a href="#创建RGW实例" class="headerlink" title="创建RGW实例"></a>创建RGW实例</h2><p>上面步骤只是安装了必要的软件，但并没有创建需要的存储资源（存储池）。之前版本的安装需要用户手动创建多个存储池，安装比较麻烦，且容易出错。目前安装非常方便，可以通过ceph-deploy命令直接创建需要的资源，具体执行如下命令即可：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ceph-deploy rgw create ceph<span class="_">-s</span></span><br></pre></td></tr></table></figure></p>
 <p>创建完成后我们可以看一下目前Ceph集群的资源情况，在管理节点输入如下命令查看存储池的情况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rados lspools</span><br></pre></td></tr></table></figure></p>
-<p>具体结果如下：<br><img src="https://upload-images.jianshu.io/upload_images/11058170-558eb43452e01a19.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 对象存储所需的存储池"></p>
-<h2 id="基本验证"><a href="#基本验证" class="headerlink" title="基本验证"></a>基本验证</h2><p>如果上述配置没有出现任何问题的话，其实Ceph的对象存储网关已经正常工作了。前面我们说了，对象存储其实是基于HTTP协议的，因此我们可以通过浏览器进行访问，比如在浏览器中输入如下内容：<br><a href="http://192.168.142.133:7480" target="_blank" rel="noopener">http://192.168.142.133:7480</a><br>回车后，可以看到如下内容：<br><img src="https://upload-images.jianshu.io/upload_images/11058170-03bc493b56dded58.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 连通性验证"></p>
+<p>具体结果如下：<br><img src="http://img.itworld123.com/11058170-558eb43452e01a19.png" alt="图4 对象存储所需的存储池"></p>
+<h2 id="基本验证"><a href="#基本验证" class="headerlink" title="基本验证"></a>基本验证</h2><p>如果上述配置没有出现任何问题的话，其实Ceph的对象存储网关已经正常工作了。前面我们说了，对象存储其实是基于HTTP协议的，因此我们可以通过浏览器进行访问，比如在浏览器中输入如下内容：<br><a href="http://192.168.142.133:7480" target="_blank" rel="noopener">http://192.168.142.133:7480</a><br>回车后，可以看到如下内容：<br><img src="http://img.itworld123.com/11058170-03bc493b56dded58.png" alt="图5 连通性验证"></p>
 <h1 id="对象存储访问验证"><a href="#对象存储访问验证" class="headerlink" title="对象存储访问验证"></a>对象存储访问验证</h1><p>前面我们进行了安装和连通性的基本验证，对于对象存储的功能来说还差得远。下面我们通过swift的客户端工具进行验证。</p>
 <blockquote>
 <p>注意：后续创建用户的操作应该在RGW节点上运行。</p>
@@ -656,7 +658,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">5</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
                     <span class="site-state-item-name">分类</span>
                   
                 </div>

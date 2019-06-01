@@ -104,19 +104,19 @@
 <meta property="og:site_name" content="SunnyZhang的IT世界">
 <meta property="og:description" content="今天我们继续介绍关于TCP异常情况的内容。本篇文章接着上一篇文章，前面分析了在连接过程中的各种异常，本篇文章重点介绍的是在数据传输过程中的各种异常，以及出现异常后的TCP连接的情况。为了便于大家理解本文，这里我们将上一篇文章的前半部分内容拷贝到这里，这部分内容主要介绍协议的内容。 下图是网络通信中常见的架构，也就是CS架构。其中程序包括两部分，分别为客户端（Client）和服务端（Server）。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-383b7f62110be717?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-7ecf4c203e3355f1?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-008dbe92c9fe3f76?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-b68d8f61df36269b?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-5c9c81d8a5053ffc?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-490f580644c914fb?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-d7880f2e489f3edc?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-1765f8c5bca993f7?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-05-30T12:31:18.069Z">
+<meta property="og:image" content="http://img.itworld123.com/11058170-383b7f62110be717">
+<meta property="og:image" content="http://img.itworld123.com/11058170-7ecf4c203e3355f1">
+<meta property="og:image" content="http://img.itworld123.com/11058170-008dbe92c9fe3f76">
+<meta property="og:image" content="http://img.itworld123.com/11058170-b68d8f61df36269b">
+<meta property="og:image" content="http://img.itworld123.com/11058170-5c9c81d8a5053ffc">
+<meta property="og:image" content="http://img.itworld123.com/11058170-490f580644c914fb">
+<meta property="og:image" content="http://img.itworld123.com/11058170-d7880f2e489f3edc">
+<meta property="og:image" content="http://img.itworld123.com/11058170-1765f8c5bca993f7">
+<meta property="og:updated_time" content="2019-06-01T02:32:42.010Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="从TCP协议到TCP通信的各种异常现象和分析（下）">
 <meta name="twitter:description" content="今天我们继续介绍关于TCP异常情况的内容。本篇文章接着上一篇文章，前面分析了在连接过程中的各种异常，本篇文章重点介绍的是在数据传输过程中的各种异常，以及出现异常后的TCP连接的情况。为了便于大家理解本文，这里我们将上一篇文章的前半部分内容拷贝到这里，这部分内容主要介绍协议的内容。 下图是网络通信中常见的架构，也就是CS架构。其中程序包括两部分，分别为客户端（Client）和服务端（Server）。">
-<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/11058170-383b7f62110be717?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:image" content="http://img.itworld123.com/11058170-383b7f62110be717">
 
 
 
@@ -420,7 +420,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-06-01 02:32:42" itemprop="dateModified" datetime="2019-06-01T02:32:42+00:00">2019-06-01</time>
               
             
           </span>
@@ -456,26 +456,26 @@
       
         <p>今天我们继续介绍关于TCP异常情况的内容。本篇文章接着上一篇文章，前面分析了在连接过程中的各种异常，本篇文章<strong>重点介绍的是在数据传输过程中的各种异常</strong>，以及出现异常后的TCP连接的情况。<strong>为了便于大家理解本文，这里我们将上一篇文章的前半部分内容拷贝到这里，这部分内容主要介绍协议的内容。</strong></p>
 <p>下图是网络通信中常见的架构，也就是CS架构。其中程序包括两部分，分别为客户端（Client）和服务端（Server）。当然，实际的环境还要复杂的多，在客户端和服务端之间可能有多种不同种类和数量的设备，这些设备都会增加网络通信的复杂性。自然，也会增加程序开发容错的复杂性。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-383b7f62110be717?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 基本架构"></p>
+<p><img src="http://img.itworld123.com/11058170-383b7f62110be717" alt="图1 基本架构"></p>
 <h1 id="TCP的基本流程"><a href="#TCP的基本流程" class="headerlink" title="TCP的基本流程"></a><strong>TCP的基本流程</strong></h1><p>在分析异常情况之前，我们先回忆一下TCP协议的基本逻辑。在客户端和服务端能够收发数据之前首先必需建立连接。连接的建立在协议层面也是通过收发数据包完成，只不过在用户层面就是客户端调用了一个connect函数。连接的过程俗称“三次握手”，具体流程如图2所示。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-7ecf4c203e3355f1?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 TCP的三次握手流程"></p>
+<p><img src="http://img.itworld123.com/11058170-7ecf4c203e3355f1" alt="图2 TCP的三次握手流程"></p>
 <p>TCP连接的断开也是比较复杂的，需要经过所谓的“四次挥手”的流程。其原因是因为TCP是双工通信，分别需要从客户端和服务端2侧断开连接。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-008dbe92c9fe3f76?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 TCP的四次挥手"><br>另外一个比较重要的内容是TCP协议的状态转换，理解了这个内容，我们才能清楚出现各种异常情况下数据包的内容。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-b68d8f61df36269b?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 TCP状态转换图"></p>
+<p><img src="http://img.itworld123.com/11058170-008dbe92c9fe3f76" alt="图3 TCP的四次挥手"><br>另外一个比较重要的内容是TCP协议的状态转换，理解了这个内容，我们才能清楚出现各种异常情况下数据包的内容。</p>
+<p><img src="http://img.itworld123.com/11058170-b68d8f61df36269b" alt="图4 TCP状态转换图"></p>
 <p>本文只是简单回忆一下TCP的基本流程，详细的内容可以参考本号之前的文章《<a href="https://www.toutiao.com/i6658464588012454407/?group_id=6658464588012454407" target="_blank" rel="noopener">从TCP到Socket，彻底理解网络编程是怎么回事</a></p>
 <h1 id="异常情况分析"><a href="#异常情况分析" class="headerlink" title="异常情况分析"></a>异常情况分析</h1><p>本文的分析假设连接已经建立，目前正在数据收发过程。这种情况下会出现各种异常，比如服务器宕机、进程crash或者进程被kill等等。下面我们分别介绍上述集中情况在TCP通信中的表现。</p>
 <p><strong>服务进程crash</strong></p>
 <p>服务进程crash恐怕是我们日常生成环境最长遇到的情况，没有之一吧。<strong>那么在这种情况下客户端软件是什么反应？客户端是否可以感知？</strong></p>
 <p>我们分别写客户端和服务端的程序，客户端不断的发送数据，服务端接收数据。异常的模拟很简单，我们可以在服务端制造一个指针访问异常。此时服务端的程序就会crash掉。然后我们观察客户端的表现。先上结果，客户端的表现如下图所示。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-5c9c81d8a5053ffc?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<p><img src="http://img.itworld123.com/11058170-5c9c81d8a5053ffc" alt="image"></p>
 <p>可以看到客户端被reset掉了。我们在结合通过wireshark抓获的此时的数据报文内容，可以看到是一个RST报文。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-490f580644c914fb?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<p><img src="http://img.itworld123.com/11058170-490f580644c914fb" alt="image"></p>
 <p>回忆一下什么情况下服务端会发送RST报文。这种场景跟我们前文介绍的服务端没有监听的情况是类似的。由于服务端程序crash了，此时在操作系统中的套接字数据结构已经被释放，因此在协议层收到数据包的时候无法找到对应的套接字进行处理，于是发送了一个RST报文。</p>
 <p><strong>手动杀死服务端应用</strong></p>
 <p>这也是线上比较常见的操作，当一个模块上线时，ops同学总是会先把旧的进程杀死，然后再启动新的进程。<strong>那么在这个过程中TCP连接又会发生了什么呢？是否会像上一种情况一样被RST呢？</strong>同样，我们先看一下结果，如下是客户端的情况。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-d7880f2e489f3edc?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<p><img src="http://img.itworld123.com/11058170-d7880f2e489f3edc" alt="image"></p>
 <p>从上面错误码来看是管道破裂，其实也就是连接被中断了。我们再看一下通过wireshark的抓包结果可以看出服务端发送了一个FIN报文，这个报文表示服务端发起了关闭的请求。而接下来的一个报文是客户端对该请求的确认。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-1765f8c5bca993f7?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<p><img src="http://img.itworld123.com/11058170-1765f8c5bca993f7" alt="image"></p>
 <p>所以，从上面客户端的错误码和报文情况我们可以知道，在kill进程时TCP协议是能够感知到的，并且发送的FIN报文。</p>
 <p>我们再进一步的思考一下，<strong>为什么kill进程会有FIN呢？这个与前面crash的差异在哪？</strong>其实kill进程是通过shell想内核发送了SIGKILL或者SIGTERM，内核接收到该信号之后会进行相应的扫尾工作，因此可以看到服务端发送了FIN报文。</p>
 <p><strong>Server进程所在的主机关机</strong></p>
@@ -632,7 +632,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">5</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
                     <span class="site-state-item-name">分类</span>
                   
                 </div>

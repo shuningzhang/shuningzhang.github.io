@@ -96,21 +96,22 @@
 
 
 
-  <meta name="description" content="iSCSI是由IBM发明的基于以太网的存储协议，该协议与SUN的NFS协议都是为了解决存储资源共享问题的解决方案。两者意图一致，只不过两者是不同的实现方式，前者在客户机上呈现的是一个块设备，而后者则是一个目录树。关于两者的区别，可以参考本号之前的文章（分布式存储与传统SAN、NAS相比，有什么优势与劣势？），本位不再赘述。 本文今天主要介绍一下iSCSI的整体架构，以及在Linux平台上启动器端（">
+  <meta name="description" content="iSCSI是由IBM发明的基于以太网的存储协议，该协议与SUN的NFS协议都是为了解决存储资源共享问题的解决方案。两者意图一致，只不过两者是不同的实现方式，前者在客户机上呈现的是一个块设备，而后者则是一个目录树。关于两者的区别，可以参考本号之前的文章（分布式存储与传统SAN、NAS相比，有什么优势与劣势？），本位不再赘述。">
 <meta name="keywords" content="存储,iSCSI">
 <meta property="og:type" content="article">
 <meta property="og:title" content="iSCSI的基本架构及操作简介">
 <meta property="og:url" content="http://www.itworld123.com/2019/05/02/storage/san/iSCSI的基本架构及操作简介/index.html">
 <meta property="og:site_name" content="SunnyZhang的IT世界">
-<meta property="og:description" content="iSCSI是由IBM发明的基于以太网的存储协议，该协议与SUN的NFS协议都是为了解决存储资源共享问题的解决方案。两者意图一致，只不过两者是不同的实现方式，前者在客户机上呈现的是一个块设备，而后者则是一个目录树。关于两者的区别，可以参考本号之前的文章（分布式存储与传统SAN、NAS相比，有什么优势与劣势？），本位不再赘述。 本文今天主要介绍一下iSCSI的整体架构，以及在Linux平台上启动器端（">
+<meta property="og:description" content="iSCSI是由IBM发明的基于以太网的存储协议，该协议与SUN的NFS协议都是为了解决存储资源共享问题的解决方案。两者意图一致，只不过两者是不同的实现方式，前者在客户机上呈现的是一个块设备，而后者则是一个目录树。关于两者的区别，可以参考本号之前的文章（分布式存储与传统SAN、NAS相比，有什么优势与劣势？），本位不再赘述。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-f6032bba0a55acfa?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-776598fb9f59b7fc?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-05-30T12:31:18.073Z">
+<meta property="og:image" content="http://img.itworld123.com/logo/storagec3dfaaea-8411-11e9-9df5-db6b092d0e83.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-f6032bba0a55acfa">
+<meta property="og:image" content="http://img.itworld123.com/11058170-776598fb9f59b7fc">
+<meta property="og:updated_time" content="2019-06-01T02:22:18.270Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iSCSI的基本架构及操作简介">
-<meta name="twitter:description" content="iSCSI是由IBM发明的基于以太网的存储协议，该协议与SUN的NFS协议都是为了解决存储资源共享问题的解决方案。两者意图一致，只不过两者是不同的实现方式，前者在客户机上呈现的是一个块设备，而后者则是一个目录树。关于两者的区别，可以参考本号之前的文章（分布式存储与传统SAN、NAS相比，有什么优势与劣势？），本位不再赘述。 本文今天主要介绍一下iSCSI的整体架构，以及在Linux平台上启动器端（">
-<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/11058170-f6032bba0a55acfa?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:description" content="iSCSI是由IBM发明的基于以太网的存储协议，该协议与SUN的NFS协议都是为了解决存储资源共享问题的解决方案。两者意图一致，只不过两者是不同的实现方式，前者在客户机上呈现的是一个块设备，而后者则是一个目录树。关于两者的区别，可以参考本号之前的文章（分布式存储与传统SAN、NAS相比，有什么优势与劣势？），本位不再赘述。">
+<meta name="twitter:image" content="http://img.itworld123.com/logo/storagec3dfaaea-8411-11e9-9df5-db6b092d0e83.png">
 
 
 
@@ -414,7 +415,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-05-30 12:31:18" itemprop="dateModified" datetime="2019-05-30T12:31:18+00:00">2019-05-30</time>
+                <time title="修改时间：2019-06-01 02:22:18" itemprop="dateModified" datetime="2019-06-01T02:22:18+00:00">2019-06-01</time>
               
             
           </span>
@@ -448,12 +449,11 @@
       
 
       
-        <p>iSCSI是由IBM发明的基于以太网的存储协议，该协议与SUN的NFS协议都是为了解决存储资源共享问题的解决方案。两者意图一致，只不过两者是不同的实现方式，前者在客户机上呈现的是一个块设备，而后者则是一个目录树。<strong>关于两者的区别，可以参考本号之前的文章（<a href="https://www.toutiao.com/i6640939526892028429/?group_id=6640939526892028429" target="_blank" rel="noopener">分布式存储与传统SAN、NAS相比，有什么优势与劣势？</a>），本位不再赘述</strong>。</p>
-<p>本文今天主要介绍一下iSCSI的整体架构，以及在Linux平台上<strong>启动器端</strong>（可以理解为客户端，后续介绍该概念）如何实现对存储设备（系统）的配置和访问。</p>
+        <p><img src="http://img.itworld123.com/logo/storagec3dfaaea-8411-11e9-9df5-db6b092d0e83.png" alt><br>iSCSI是由IBM发明的基于以太网的存储协议，该协议与SUN的NFS协议都是为了解决存储资源共享问题的解决方案。两者意图一致，只不过两者是不同的实现方式，前者在客户机上呈现的是一个块设备，而后者则是一个目录树。<strong>关于两者的区别，可以参考本号之前的文章（<a href="https://www.toutiao.com/i6640939526892028429/?group_id=6640939526892028429" target="_blank" rel="noopener">分布式存储与传统SAN、NAS相比，有什么优势与劣势？</a>），本位不再赘述</strong>。<br><a id="more"></a><br>本文今天主要介绍一下iSCSI的整体架构，以及在Linux平台上<strong>启动器端</strong>（可以理解为客户端，后续介绍该概念）如何实现对存储设备（系统）的配置和访问。</p>
 <h1 id="整体架构概述"><a href="#整体架构概述" class="headerlink" title="整体架构概述"></a>整体架构概述</h1><p>概括的说，iSCSI是一种存储设备远程映射技术，它可以将一个远程服务器上的存储设备映射到本地，并呈现为一个块设备（大白话就是磁盘）。从普通用户的角度，映射过来的磁盘与本地安装的磁盘毫无差异。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-f6032bba0a55acfa?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<p><img src="http://img.itworld123.com/11058170-f6032bba0a55acfa" alt="image"></p>
 <p>这种映射方式基于是基于SCSI协议的，SCSI协议是计算机与外围设备（例如硬盘、光盘等）通信的协议。而iSCSI则是通过TCP协议对SCSI进行封装的一种协议，也就是通过以太网传输SCSI协议的内容。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-776598fb9f59b7fc?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+<p><img src="http://img.itworld123.com/11058170-776598fb9f59b7fc" alt="image"></p>
 <p>从上图可以看出来，iSCSI其实也是一种典型的客户端服务器架构（CS架构），其中访问存储系统的计算机成为客户端，其中负责连接的软件成为<strong>启动器</strong>。而提供存储服务的计算机成为服务端，其中的软件成为<strong>目标器</strong>。</p>
 <p>由于iSCSI是基于TCP协议的，因此启动器和目标器可以是纯软件实现，也可以基于硬件实现。如果是硬件实现，硬件实现主要是对SCSI命令封装和解析等，这样可以释放CPU资源。目前在Linux下面，启动器和目标器都有纯软件的实现，比如启动器的实现Open-iSCSI，目标器的实现LIO、SCST和TGT等。</p>
 <h1 id="基本概念介绍"><a href="#基本概念介绍" class="headerlink" title="基本概念介绍"></a>基本概念介绍</h1><p>本节介绍关于iSCSI的一些基本概念，理解这些概念便于我们理解iSCSI的原理及后续阅读iSCSI的开源代码。</p>
@@ -471,8 +471,8 @@
 <h1 id="启动器端配置"><a href="#启动器端配置" class="headerlink" title="启动器端配置"></a>启动器端配置</h1><p>Linux的启动器包含内核态的启动器、用户态的守护进程和命令行工具3部分内容，整体架构还是比较复杂的。但是如果不想理解其原理，只是一般使用的话，还是比较简单方便的。下面我们介绍一下其操作步骤（<strong>这里假设已经有一个存储设备</strong>），关于更详细的原理我们后续再进行详细的介绍。</p>
 <p><strong>启动iscsi守护进程</strong></p>
 <p>在启动器端是有一个守护进程的，首先要保证该守护进程是处于正常运行状态。如果没有运行的情况下需要启动该服务。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">service iscsi start</span></span><br></pre></td></tr></table></figure>
-<p>默认情况下，系统启动后此进程会自动运行的。如果没有自动运行可以通过下面命令进行控制和查看。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> chkconfig iscsi on</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> chkconfig iscsi --list （查看ISCSI启动状态）</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>service iscsi start</span><br></pre></td></tr></table></figure>
+<p>默认情况下，系统启动后此进程会自动运行的。如果没有自动运行可以通过下面命令进行控制和查看。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> chkconfig iscsi on</span><br><span class="line"><span class="meta">#</span> chkconfig iscsi --list （查看ISCSI启动状态）</span><br></pre></td></tr></table></figure></p>
 <p><strong>发现目标</strong></p>
 <p>默认情况下，iscsi发起方和目标方之间通过端口3260连接。假设已知iscsi的目标方IP是192.168.1.1，运行下列命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># iscsiadm -m discovery -t sendtargets -p 192.168.1.1:3260</span><br></pre></td></tr></table></figure></p>
 <p>如果一切正常，过此时找到并拥有了一个目标（target）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.1.1:3260,1 iqn.1997-05.com.test:itworld123</span><br></pre></td></tr></table></figure></p>
@@ -637,7 +637,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">5</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
                     <span class="site-state-item-name">分类</span>
                   
                 </div>
