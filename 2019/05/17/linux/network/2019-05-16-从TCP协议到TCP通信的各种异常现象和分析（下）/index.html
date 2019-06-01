@@ -96,14 +96,15 @@
 
 
 
-  <meta name="description" content="今天我们继续介绍关于TCP异常情况的内容。本篇文章接着上一篇文章，前面分析了在连接过程中的各种异常，本篇文章重点介绍的是在数据传输过程中的各种异常，以及出现异常后的TCP连接的情况。为了便于大家理解本文，这里我们将上一篇文章的前半部分内容拷贝到这里，这部分内容主要介绍协议的内容。 下图是网络通信中常见的架构，也就是CS架构。其中程序包括两部分，分别为客户端（Client）和服务端（Server）。">
+  <meta name="description" content="今天我们继续介绍关于TCP异常情况的内容。本篇文章接着上一篇文章，前面分析了在连接过程中的各种异常，本篇文章重点介绍的是在数据传输过程中的各种异常，以及出现异常后的TCP连接的情况。为了便于大家理解本文，这里我们将上一篇文章的前半部分内容拷贝到这里，这部分内容主要介绍协议的内容。">
 <meta name="keywords" content="TCP,网络,问题分析">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从TCP协议到TCP通信的各种异常现象和分析（下）">
 <meta property="og:url" content="http://www.itworld123.com/2019/05/17/linux/network/2019-05-16-从TCP协议到TCP通信的各种异常现象和分析（下）/index.html">
 <meta property="og:site_name" content="SunnyZhang的IT世界">
-<meta property="og:description" content="今天我们继续介绍关于TCP异常情况的内容。本篇文章接着上一篇文章，前面分析了在连接过程中的各种异常，本篇文章重点介绍的是在数据传输过程中的各种异常，以及出现异常后的TCP连接的情况。为了便于大家理解本文，这里我们将上一篇文章的前半部分内容拷贝到这里，这部分内容主要介绍协议的内容。 下图是网络通信中常见的架构，也就是CS架构。其中程序包括两部分，分别为客户端（Client）和服务端（Server）。">
+<meta property="og:description" content="今天我们继续介绍关于TCP异常情况的内容。本篇文章接着上一篇文章，前面分析了在连接过程中的各种异常，本篇文章重点介绍的是在数据传输过程中的各种异常，以及出现异常后的TCP连接的情况。为了便于大家理解本文，这里我们将上一篇文章的前半部分内容拷贝到这里，这部分内容主要介绍协议的内容。">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img.itworld123.com/logo/network1.png">
 <meta property="og:image" content="http://img.itworld123.com/11058170-383b7f62110be717">
 <meta property="og:image" content="http://img.itworld123.com/11058170-7ecf4c203e3355f1">
 <meta property="og:image" content="http://img.itworld123.com/11058170-008dbe92c9fe3f76">
@@ -112,11 +113,11 @@
 <meta property="og:image" content="http://img.itworld123.com/11058170-490f580644c914fb">
 <meta property="og:image" content="http://img.itworld123.com/11058170-d7880f2e489f3edc">
 <meta property="og:image" content="http://img.itworld123.com/11058170-1765f8c5bca993f7">
-<meta property="og:updated_time" content="2019-06-01T02:32:42.010Z">
+<meta property="og:updated_time" content="2019-06-01T02:48:35.326Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="从TCP协议到TCP通信的各种异常现象和分析（下）">
-<meta name="twitter:description" content="今天我们继续介绍关于TCP异常情况的内容。本篇文章接着上一篇文章，前面分析了在连接过程中的各种异常，本篇文章重点介绍的是在数据传输过程中的各种异常，以及出现异常后的TCP连接的情况。为了便于大家理解本文，这里我们将上一篇文章的前半部分内容拷贝到这里，这部分内容主要介绍协议的内容。 下图是网络通信中常见的架构，也就是CS架构。其中程序包括两部分，分别为客户端（Client）和服务端（Server）。">
-<meta name="twitter:image" content="http://img.itworld123.com/11058170-383b7f62110be717">
+<meta name="twitter:description" content="今天我们继续介绍关于TCP异常情况的内容。本篇文章接着上一篇文章，前面分析了在连接过程中的各种异常，本篇文章重点介绍的是在数据传输过程中的各种异常，以及出现异常后的TCP连接的情况。为了便于大家理解本文，这里我们将上一篇文章的前半部分内容拷贝到这里，这部分内容主要介绍协议的内容。">
+<meta name="twitter:image" content="http://img.itworld123.com/logo/network1.png">
 
 
 
@@ -420,7 +421,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-01 02:32:42" itemprop="dateModified" datetime="2019-06-01T02:32:42+00:00">2019-06-01</time>
+                <time title="修改时间：2019-06-01 02:48:35" itemprop="dateModified" datetime="2019-06-01T02:48:35+00:00">2019-06-01</time>
               
             
           </span>
@@ -454,8 +455,7 @@
       
 
       
-        <p>今天我们继续介绍关于TCP异常情况的内容。本篇文章接着上一篇文章，前面分析了在连接过程中的各种异常，本篇文章<strong>重点介绍的是在数据传输过程中的各种异常</strong>，以及出现异常后的TCP连接的情况。<strong>为了便于大家理解本文，这里我们将上一篇文章的前半部分内容拷贝到这里，这部分内容主要介绍协议的内容。</strong></p>
-<p>下图是网络通信中常见的架构，也就是CS架构。其中程序包括两部分，分别为客户端（Client）和服务端（Server）。当然，实际的环境还要复杂的多，在客户端和服务端之间可能有多种不同种类和数量的设备，这些设备都会增加网络通信的复杂性。自然，也会增加程序开发容错的复杂性。</p>
+        <p><img src="http://img.itworld123.com/logo/network1.png" alt><br>今天我们继续介绍关于TCP异常情况的内容。本篇文章接着上一篇文章，前面分析了在连接过程中的各种异常，本篇文章<strong>重点介绍的是在数据传输过程中的各种异常</strong>，以及出现异常后的TCP连接的情况。<strong>为了便于大家理解本文，这里我们将上一篇文章的前半部分内容拷贝到这里，这部分内容主要介绍协议的内容。</strong><br><a id="more"></a><br>下图是网络通信中常见的架构，也就是CS架构。其中程序包括两部分，分别为客户端（Client）和服务端（Server）。当然，实际的环境还要复杂的多，在客户端和服务端之间可能有多种不同种类和数量的设备，这些设备都会增加网络通信的复杂性。自然，也会增加程序开发容错的复杂性。</p>
 <p><img src="http://img.itworld123.com/11058170-383b7f62110be717" alt="图1 基本架构"></p>
 <h1 id="TCP的基本流程"><a href="#TCP的基本流程" class="headerlink" title="TCP的基本流程"></a><strong>TCP的基本流程</strong></h1><p>在分析异常情况之前，我们先回忆一下TCP协议的基本逻辑。在客户端和服务端能够收发数据之前首先必需建立连接。连接的建立在协议层面也是通过收发数据包完成，只不过在用户层面就是客户端调用了一个connect函数。连接的过程俗称“三次握手”，具体流程如图2所示。</p>
 <p><img src="http://img.itworld123.com/11058170-7ecf4c203e3355f1" alt="图2 TCP的三次握手流程"></p>
