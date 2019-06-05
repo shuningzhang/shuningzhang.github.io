@@ -426,7 +426,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-05 11:39:24" itemprop="dateModified" datetime="2019-06-05T11:39:24+00:00">2019-06-05</time>
+                <time title="修改时间：2019-06-05 12:16:07" itemprop="dateModified" datetime="2019-06-05T12:16:07+00:00">2019-06-05</time>
               
             
           </span>
@@ -486,15 +486,17 @@
 
       
         
-          
-            <p><img src="http://img.itworld123.com/logo/storageceph3dfaaea-8411-11e9-9df5-db6b092d0e83.png" alt></p>
+          <p><img src="http://img.itworld123.com/logo/storageceph3dfaaea-8411-11e9-9df5-db6b092d0e83.png" alt></p>
 <p>前文我们创建了一个单节点的Ceph集群，并且创建了2个基于BlueStore的OSD。同时，为了便于学习，这两个OSD分别基于不同的布局，也就是一个OSD是基于3中不同的存储介质（这里是模拟的，并非真的不同介质），另外一个OSD所有内容放在一个裸设备上。</p>
-<h1 id="什么是BlueStore"><a href="#什么是BlueStore" class="headerlink" title="什么是BlueStore"></a>什么是BlueStore</h1><p>在老版本的Ceph当中FileStore是默认的对象存储引擎，但FileStore最大的问题是写放大的问题。同时由于需要经过操作系统通用文件系统层（例如Ext4和XFS等），因此整体性能欠佳。因此，开发一种新的对象存储引擎迫在眉睫，这个就是现在大家都在使用的BlueStore对象存储引擎。BlueStore最大的特点是构建在裸磁盘设备之上，并且对诸如SSD等新的存储设备做了很多优化工作。下图来自Ceph官方，该图是BlueStore的整体架构图。<br><img src="http://img.itworld123.com/11058170-00bb2deaa1a86f46.png" alt="图1 BlueStore整体架构"><br>也就是说BlueStore主要目的是对性能进行优化，以提升Ceph集群整体的性能。那么BlueStore对Ceph集群到底有多大的性能提升呢？我们看看官方给出的性能测试数据。如下是3副本情况下的性能测试对比数据，从测试结果可以看出大多数场景下有了将近1倍的性能提升。<br><img src="http://img.itworld123.com/11058170-430cdaee4c56a280.png" alt="图2 3副本性能测试对比"><br>那对于纠删码场景下的性能提升情况又是怎么样的呢？看看下面的测试结果。<br><img src="http://img.itworld123.com/11058170-ca1f50e913bf4569.png" alt="图3 纠删码性能对比"></p>
-<p>性能提升确实是很明显，接下来我们就要具体学习一下BlueStore的技术细节了。从图1可以看出BlueStore最大的特点是OSD可以直接管理裸磁盘设备，并且将对象数据存储在该设备当中。另外，我们知道对象有很多KV属性信息，这些信息之前是存储在文件的扩展属性或者LevelDB当中的。而在BlueStore中，这些信息存储在RocksDB当中。RocksDB本身是需要运行在文件系统之上的，因此为了使用RocksDB存储这些元数据，需要开发一个简单的文件系统（BlueFS）。<br>通过上面的整体架构可以看出，如果想彻底的了解BlueStore，<strong>对对象数据的分配管理和BlueFS的实现原理</strong>的理解是基础。因此，我们这里先分析上述2部分的内容。RocksDB是对元数据进行管理的子系统，因此我们先从RocksDB相关的内容讲起。</p>
-<h1 id="BlueFS简析"><a href="#BlueFS简析" class="headerlink" title="BlueFS简析"></a>BlueFS简析</h1><p>从图1可以看出BlueFS是基础，RocksDB通过中间层BlueRocksDB访问文件系统的接口。这个文件系统与传统的Linux文件系统（例如Ext4和XFS）是不同的，它不是在VFS下面的通用文件系统，而是一个用户态的逻辑。BlueFS通过函数接口（API，非POSIX）的方式为BlueRocksDB提供类似文件系统的能力。<br>虽然BlueFS提供的接口方式不同，但起原理与通用文件系统是类似的。为了提高BlueFS文件系统的可靠性，BlueFS被设计成日志文件系统，也就是数据在写入之前会先写上日志中，这样可以保证出现掉电等异常情况下可以通过日志恢复数据。<br>虽然从官方配图上（图1）来看，BlueFS是基于裸设备的，实际上并非如此。<strong>BlueFS实际上基于BlueStore的磁盘空间分配器</strong>，也就是BlueFS使用的磁盘空间需要经过分配器来分配。BlueStore目前支持2种类型的磁盘空间分配器，分别是BitMapAllocator和StupidAllocator。<br><img src="http://img.itworld123.com/11058170-40f3f8813476b68c.png" alt="图4 BlueFS与分配器的关系"><br>如图4是BlueFS文件系统与分配器之间的关系，其中分配器（Allocator）作为BlueFS的成员，当文件系统需要磁盘空间时通过分配器的接口分配空间。整个类的内容非常丰富，本文仅仅给出它们之间的简单关系，后续会详细介绍内部的实现。<br>关于上文所说的BitMapAllocator和StupidAllocator分配器继承自Allocator类，三者之间的关系如图5所示。关于分配器的具体实现细节还是比较复杂的，限于篇幅问题本文暂时不做介绍。<br><img src="http://img.itworld123.com/11058170-47b72fb206195d92.png" alt="图5 BlueFS与分配器的关系"><br>BlueFS与传统文件系统不同另外一个地方是并没有设计单独存储fnode的存储空间，而是将其存储在WAL（Write Ahead Log）日志当中。当文件系统挂载的时候通过回放该日志实现内存数据结构的构建。这样，在内存中就可以查到磁盘中的目录和文件信息，从而可以实现对文件的读写。BlueFS本身就是一个功能阉割的，迷你文件系统。BlueFS可以这么实现得益于其只服务于RocksDB，其文件数量非常有限，使用场景也非常有限。</p>
-<h1 id="创建文件流程"><a href="#创建文件流程" class="headerlink" title="创建文件流程"></a>创建文件流程</h1><p>为了更加清晰的理解BlueFS的整体架构和原理，我们通过一个具体的实例介绍该文件系统是如何运行的。由于BlueFS只服务于RocksDB，因此创建文件的流程自然也是由RocksDB触发的。因此，整个流程的分析也是从RocksDB的环境类作为入口进行介绍。在介绍具体流程之前，我们先看一下更加详细的BlueFS类的类图，这里面比较重要的是其中的<code>dir_map</code>和<code>file_map</code>两个成员。这两个成员其实就是存储文件系统中的目录和文件的一个映射。<br><img src="http://img.itworld123.com/11058170-cbbc57e36dd5dec8.png" alt="图6 文件系统类简图"><br>创建文件的操作是由RocksDB触发的，比如创建一个新的SSTable文件。具体函数调用过程如图7左侧流程所示。最终调用的是BlueFS的事务接口，用于构建一个向日志文件写数据的事务。<br><img src="http://img.itworld123.com/11058170-6fefe09947d9516e.png" alt="图7 创建文件流程"><br>之后，上层会触发一个刷写数据的流程，具体如图7右侧所示，最终会将数据写到日志文件中。至此，一个新的文件就创建成功了。<br>今天我们非常粗略的介绍了一下BlueStore及BlueFS的整体架构和一些关键的数据结构，很多细节没有介绍，大家可能有一些迷糊。后续我们将深入细节介绍每个特性的具体实现。<strong>有任何不明白的也请大家在下面留言，本号将尽力解释清楚。</strong></p>
-
+          <!--noindex-->
           
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/06/04/storage/ceph/Ceph存储引擎BlueStore简析/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
