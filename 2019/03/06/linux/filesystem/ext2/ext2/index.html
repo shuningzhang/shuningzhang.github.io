@@ -96,23 +96,24 @@
 
 
 
-  <meta name="description" content="在实际写数据到磁盘之前需要分配磁盘上的空间。这里的写数据包括写文件数据、在目录中创建文件和添加扩展属性等等。但凡需要存储新数据的场景都需要分配磁盘空间。分配磁盘空间的主要功能在函数ext2_get_blocks中实现，该函数的原型如下所示： 1234static int ext2_get_blocks(struct inode *inode,                           s">
+  <meta name="description" content="Ext2文件系统在实际写数据到磁盘之前需要分配磁盘上的空间。这里的写数据包括写文件数据、在目录中创建文件和添加扩展属性等等。">
 <meta name="keywords" content="Linux,Ext2">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Ext2文件系统彻底分析 | 磁盘空间分配">
-<meta property="og:url" content="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2/index.html">
+<meta property="og:url" content="http://www.itworld123.com/2019/03/06/linux/filesystem/ext2/ext2/index.html">
 <meta property="og:site_name" content="SunnyZhang的IT世界">
-<meta property="og:description" content="在实际写数据到磁盘之前需要分配磁盘上的空间。这里的写数据包括写文件数据、在目录中创建文件和添加扩展属性等等。但凡需要存储新数据的场景都需要分配磁盘空间。分配磁盘空间的主要功能在函数ext2_get_blocks中实现，该函数的原型如下所示： 1234static int ext2_get_blocks(struct inode *inode,                           s">
+<meta property="og:description" content="Ext2文件系统在实际写数据到磁盘之前需要分配磁盘上的空间。这里的写数据包括写文件数据、在目录中创建文件和添加扩展属性等等。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-81172e6a9ebf0ff4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-917f2044a4904607.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-982b4d64f56d30da.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/11058170-5ec6130362f2f167.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-06-05T12:16:07.433Z">
+<meta property="og:image" content="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-81172e6a9ebf0ff4.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-917f2044a4904607.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-982b4d64f56d30da.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-5ec6130362f2f167.png">
+<meta property="og:updated_time" content="2019-06-07T03:48:39.505Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ext2文件系统彻底分析 | 磁盘空间分配">
-<meta name="twitter:description" content="在实际写数据到磁盘之前需要分配磁盘上的空间。这里的写数据包括写文件数据、在目录中创建文件和添加扩展属性等等。但凡需要存储新数据的场景都需要分配磁盘空间。分配磁盘空间的主要功能在函数ext2_get_blocks中实现，该函数的原型如下所示： 1234static int ext2_get_blocks(struct inode *inode,                           s">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/11058170-81172e6a9ebf0ff4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:description" content="Ext2文件系统在实际写数据到磁盘之前需要分配磁盘上的空间。这里的写数据包括写文件数据、在目录中创建文件和添加扩展属性等等。">
+<meta name="twitter:image" content="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg">
 
 
 
@@ -120,7 +121,7 @@
 
   
   
-  <link rel="canonical" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2/">
+  <link rel="canonical" href="http://www.itworld123.com/2019/03/06/linux/filesystem/ext2/ext2/">
 
 
 
@@ -373,7 +374,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/03/06/linux/filesystem/ext2/ext2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -416,7 +417,7 @@
                 
               
 
-              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+              <time title="创建时间：2019-03-06 11:57:02" itemprop="dateCreated datePublished" datetime="2019-03-06T11:57:02+00:00">2019-03-06</time>
             
 
             
@@ -433,11 +434,36 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-05 12:16:07" itemprop="dateModified" datetime="2019-06-05T12:16:07+00:00">2019-06-05</time>
+                <time title="修改时间：2019-06-07 03:48:39" itemprop="dateModified" datetime="2019-06-07T03:48:39+00:00">2019-06-07</time>
               
             
           </span>
 
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/文件系统/" itemprop="url" rel="index"><span itemprop="name">文件系统</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/文件系统/Ext2/" itemprop="url" rel="index"><span itemprop="name">Ext2</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -467,17 +493,20 @@
       
 
       
-        <p>在实际写数据到磁盘之前需要分配磁盘上的空间。这里的写数据包括写文件数据、在目录中创建文件和添加扩展属性等等。但凡需要存储新数据的场景都需要分配磁盘空间。分配磁盘空间的主要功能在函数<code>ext2_get_blocks</code>中实现，该函数的原型如下所示：</p>
+        <p><img src="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg" alt></p>
+<p>Ext2文件系统在实际写数据到磁盘之前需要分配磁盘上的空间。这里的写数据包括写文件数据、在目录中创建文件和添加扩展属性等等。</p>
+<a id="more"></a>
+<p>但凡需要存储新数据的场景都需要分配磁盘空间。分配磁盘空间的主要功能在函数<code>ext2_get_blocks</code>中实现，该函数的原型如下所示：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ext2_get_blocks</span><span class="params">(struct inode *inode,</span></span></span><br><span class="line"><span class="function"><span class="params">                           <span class="keyword">sector_t</span> iblock, <span class="keyword">unsigned</span> <span class="keyword">long</span> maxblocks,</span></span></span><br><span class="line"><span class="function"><span class="params">                           struct buffer_head *bh_result,</span></span></span><br><span class="line"><span class="function"><span class="params">                           <span class="keyword">int</span> create)</span></span></span><br></pre></td></tr></table></figure>
-<p>该函数原型中，重点需要说明的是iblock参数，该参数表示文件的逻辑位置，位置以文件系统的块大小为单位，值为文件系统的以0为起始位置逻辑地址。举个简单的例子，加入文件系统格式化时块大小是2K，而此时写入数据的偏移为4K，那么此时iblock就是2。也就是说，该函数通过数据在文件中的逻辑位置计算需要分配多少磁盘空间。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-81172e6a9ebf0ff4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 磁盘空间分配主流程"></p>
+<p>该函数原型中，重点需要说明的是iblock参数，该参数表示文件的逻辑位置，位置以文件系统的块大小为单位，值为文件系统的以0为起始位置逻辑地址。举个简单的例子，加入文件系统格式化时块大小是2K，而此时写入数据的偏移为4K，那么此时iblock就是2。也就是说，该函数通过数据在文件中的逻辑位置计算需要分配多少磁盘空间。<br><img src="http://img.itworld123.com/11058170-81172e6a9ebf0ff4.png" alt="图1 磁盘空间分配主流程"></p>
 <p>函数ext2_get_blocks的主流程如图1所示，该函数主要完成三方面的工作：</p>
 <ol>
 <li><strong>计算并获取存储路径</strong>，我们知道文件数据是通过间接块的方式存储的，因此这里主要是根据数据逻辑地址计算出其存储的路径情况，并获得该路径。</li>
 <li>计算需要分配的块的数量和期望的磁盘物理位置。</li>
-<li><strong>分配磁盘空间</strong>，计算出需要的磁盘空间的数量后，最后该函数调用ext2_alloc_branch来分配需要的磁盘空间，具体就是将空间管理的位图置位。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-917f2044a4904607.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 Ext2间接块数组组织形式"></li>
+<li><strong>分配磁盘空间</strong>，计算出需要的磁盘空间的数量后，最后该函数调用ext2_alloc_branch来分配需要的磁盘空间，具体就是将空间管理的位图置位。<br><img src="http://img.itworld123.com/11058170-917f2044a4904607.png" alt="图2 Ext2间接块数组组织形式"></li>
 </ol>
 <p>为了容易理解磁盘整个分配磁盘空间的流程，我们先回顾一下Ext2的间接块结构，如图2所示（具体解释请参考本号历史文章）。为了理解更清楚一些，我们假设请求的数据位置需要二级间接块，因此，我们将该关系放大，如图3所示。我们知道对于Ext2来说，其地址是32位的，因此在间接块中的数据其实可以理解为无符号整型的大数组。其中数组中的每一项就是一个下一级磁盘数据块的地址。这样我们根据数据在文件中的逻辑地址就可以计算出来需要几级间接块及位置数据在该间接块中存放的位置。</p>
-<p><img src="https://upload-images.jianshu.io/upload_images/11058170-982b4d64f56d30da.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 二级间接块路径示例"></p>
+<p><img src="http://img.itworld123.com/11058170-982b4d64f56d30da.png" alt="图3 二级间接块路径示例"></p>
 <p>有了间接块需要的数据，我们在结合数据本身需要的磁盘空间，就可以计算出本次请求需要申请的磁盘空间。最后就是根据这些来分配磁盘空间了。下面我们分布详细介绍一下各个流程的实现细节。</p>
 <h2 id="计算存储路径"><a href="#计算存储路径" class="headerlink" title="计算存储路径"></a>计算存储路径</h2><p>所谓计算存储路径是指计文件数据逻辑地址在间接块中存储的物理地址表示。仍然以上述图3为例，对于二级间接块可存储的情况，在分配磁盘空间之前需要计算出其在一级间接块和二级间接块中的位置。这样，在后续的数据查找流程，根据这些间接块中存储的地址信息就可以找到文件某个位置的数据在磁盘的物理地址。<br>函数<code>ext2_block_to_path</code>用于计算数据在间接块数组中存放的路径。<strong>该函数的功能主要是根据逻辑地址计算出在深度及每一层的位置</strong>。前文我们已经知道文件数据的放置方式，结合图3以比较清楚的理解本函数的代码。这里根据数据的逻辑地址分为4种情况，分别如下：</p>
 <ol>
@@ -485,15 +514,15 @@
 <li><strong> 一级间接块 </strong>： 数据范围在一级间接块可表示的范围内，此时表示路径的数组的第一个元素是inode数组中的第12个元素，而第二个元素则是在间接块中的具体位置。比如i_block是18，此时通过直接寻址无法满足要求，因此需要一级间接块。这样，offsets中第一个元素的值是12，表示是一级间接块；offsets的第二个元素是6，因为直接索引可以表示12个数据块，因此在间接块中的分别可以存储从第13到256+12的数据范围，对于位置为18的数据在间接块的位置就是6。</li>
 <li><strong> 二三级间接块 </strong>： 以此类推，根据逻辑地址的大小可能会需要二级甚至三级间接块，依照这种算法可以计算出每一级间接块的位置。这里不在赘述。</li>
 </ol>
-<p>下面是本函数的代码，本文加了一些注释，代码本身比较简单，本文不在赘述。这里需要注意的是，除了返回深度和每一层的位置外，还会返回在最后的间接块上可容纳的地址的数量。比如计算出来在最后一级间接块的位置是250，那么最多可容纳6个地址。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">static int ext2_block_to_path(struct inode *inode,</span><br><span class="line">                        long i_block, int offsets[4], int *boundary)</span><br><span class="line">&#123;</span><br><span class="line">        int ptrs = EXT2_ADDR_PER_BLOCK(inode-&gt;i_sb);  	//这里计算出每个间接块可以存储多少地址</span><br><span class="line">        int ptrs_bits = EXT2_ADDR_PER_BLOCK_BITS(inode-&gt;i_sb);  //块大小的位数</span><br><span class="line">        const long direct_blocks = EXT2_NDIR_BLOCKS,  	//直接块的数量</span><br><span class="line">                indirect_blocks = ptrs,					//间接块可存储地址的数量</span><br><span class="line">                double_blocks = (1 &lt;&lt; (ptrs_bits * 2)); //二级间接块可存储地址的数量</span><br><span class="line">        int n = 0; </span><br><span class="line">        int final = 0; </span><br><span class="line"></span><br><span class="line">        if (i_block &lt; 0) &#123; </span><br><span class="line">                ext2_msg(inode-&gt;i_sb, KERN_WARNING,</span><br><span class="line">                        &quot;warning: %s: block &lt; 0&quot;, __func__);</span><br><span class="line">        &#125; else if (i_block &lt; direct_blocks) &#123;</span><br><span class="line">                offsets[n++] = i_block;</span><br><span class="line">                final = direct_blocks;</span><br><span class="line">        &#125; else if ( (i_block -= direct_blocks) &lt; indirect_blocks) &#123;</span><br><span class="line">                offsets[n++] = EXT2_IND_BLOCK;</span><br><span class="line">                offsets[n++] = i_block;</span><br><span class="line">                final = ptrs;</span><br><span class="line">        &#125; else if ((i_block -= indirect_blocks) &lt; double_blocks) &#123;</span><br><span class="line">                offsets[n++] = EXT2_DIND_BLOCK;</span><br><span class="line">                offsets[n++] = i_block &gt;&gt; ptrs_bits;</span><br><span class="line">                offsets[n++] = i_block &amp; (ptrs - 1);</span><br><span class="line">                final = ptrs;</span><br><span class="line">        &#125; else if (((i_block -= double_blocks) &gt;&gt; (ptrs_bits * 2)) &lt; ptrs) &#123;</span><br><span class="line">                offsets[n++] = EXT2_TIND_BLOCK;</span><br><span class="line">                offsets[n++] = i_block &gt;&gt; (ptrs_bits * 2);</span><br><span class="line">                offsets[n++] = (i_block &gt;&gt; ptrs_bits) &amp; (ptrs - 1);</span><br><span class="line">                offsets[n++] = i_block &amp; (ptrs - 1);</span><br><span class="line">                final = ptrs;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">                ext2_msg(inode-&gt;i_sb, KERN_WARNING,</span><br><span class="line">                        &quot;warning: %s: block is too big&quot;, __func__);</span><br><span class="line">        &#125;</span><br><span class="line">        if (boundary)</span><br><span class="line">                *boundary = final - 1 - (i_block &amp; (ptrs - 1));</span><br><span class="line"></span><br><span class="line">        return n;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>下面是本函数的代码，本文加了一些注释，代码本身比较简单，本文不在赘述。这里需要注意的是，除了返回深度和每一层的位置外，还会返回在最后的间接块上可容纳的地址的数量。比如计算出来在最后一级间接块的位置是250，那么最多可容纳6个地址。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">ext2_block_to_path</span><span class="params">(struct inode *inode,</span></span></span><br><span class="line"><span class="function"><span class="params">                        <span class="keyword">long</span> i_block, <span class="keyword">int</span> offsets[<span class="number">4</span>], <span class="keyword">int</span> *boundary)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> ptrs = EXT2_ADDR_PER_BLOCK(inode-&gt;i_sb);  	<span class="comment">//这里计算出每个间接块可以存储多少地址</span></span><br><span class="line">        <span class="keyword">int</span> ptrs_bits = EXT2_ADDR_PER_BLOCK_BITS(inode-&gt;i_sb);  <span class="comment">//块大小的位数</span></span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">long</span> direct_blocks = EXT2_NDIR_BLOCKS,  	<span class="comment">//直接块的数量</span></span><br><span class="line">                indirect_blocks = ptrs,					<span class="comment">//间接块可存储地址的数量</span></span><br><span class="line">                double_blocks = (<span class="number">1</span> &lt;&lt; (ptrs_bits * <span class="number">2</span>)); <span class="comment">//二级间接块可存储地址的数量</span></span><br><span class="line">        <span class="keyword">int</span> n = <span class="number">0</span>; </span><br><span class="line">        <span class="keyword">int</span> final = <span class="number">0</span>; </span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (i_block &lt; <span class="number">0</span>) &#123; </span><br><span class="line">                ext2_msg(inode-&gt;i_sb, KERN_WARNING,</span><br><span class="line">                        <span class="string">"warning: %s: block &lt; 0"</span>, __func__);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (i_block &lt; direct_blocks) &#123;</span><br><span class="line">                offsets[n++] = i_block;</span><br><span class="line">                final = direct_blocks;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ( (i_block -= direct_blocks) &lt; indirect_blocks) &#123;</span><br><span class="line">                offsets[n++] = EXT2_IND_BLOCK;</span><br><span class="line">                offsets[n++] = i_block;</span><br><span class="line">                final = ptrs;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((i_block -= indirect_blocks) &lt; double_blocks) &#123;</span><br><span class="line">                offsets[n++] = EXT2_DIND_BLOCK;</span><br><span class="line">                offsets[n++] = i_block &gt;&gt; ptrs_bits;</span><br><span class="line">                offsets[n++] = i_block &amp; (ptrs - <span class="number">1</span>);</span><br><span class="line">                final = ptrs;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (((i_block -= double_blocks) &gt;&gt; (ptrs_bits * <span class="number">2</span>)) &lt; ptrs) &#123;</span><br><span class="line">                offsets[n++] = EXT2_TIND_BLOCK;</span><br><span class="line">                offsets[n++] = i_block &gt;&gt; (ptrs_bits * <span class="number">2</span>);</span><br><span class="line">                offsets[n++] = (i_block &gt;&gt; ptrs_bits) &amp; (ptrs - <span class="number">1</span>);</span><br><span class="line">                offsets[n++] = i_block &amp; (ptrs - <span class="number">1</span>);</span><br><span class="line">                final = ptrs;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                ext2_msg(inode-&gt;i_sb, KERN_WARNING,</span><br><span class="line">                        <span class="string">"warning: %s: block is too big"</span>, __func__);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (boundary)</span><br><span class="line">                *boundary = final - <span class="number">1</span> - (i_block &amp; (ptrs - <span class="number">1</span>));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> n;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <h2 id="获取存储路径"><a href="#获取存储路径" class="headerlink" title="获取存储路径"></a>获取存储路径</h2><p>前面逻辑计算出了深度和每一级间接块应该存储的信息，但具体的间接块目前处于什么情况并不清楚。仍然以上述二级间接块为例，可能会出现如下几种情况：</p>
 <ol>
 <li>用户访问的数据位置所需要的间接块已经全部分配了</li>
 <li>一级间接块已经具备了，但二级间接块不具备</li>
 <li>所有间接块都不具备</li>
 </ol>
-<p>因此，这里的工作就是根据当前信息及上一步计算出的信息进行综合判断，确定已经具备的间接块，并返回关键信息，为后续流程分配磁盘空间做准备。具体实现在函数ext2_get_branch中。该函数的输入是上一个函数的计算结果，输出是需要分配的间接块的信息（chain）。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">static Indirect *ext2_get_branch(struct inode *inode,</span><br><span class="line">                                 int depth,</span><br><span class="line">                                 int *offsets,</span><br><span class="line">                                 Indirect chain[4],</span><br><span class="line">                                 int *err)</span><br></pre></td></tr></table></figure></p>
-<h2 id="分配磁盘空间"><a href="#分配磁盘空间" class="headerlink" title="分配磁盘空间"></a>分配磁盘空间</h2><p>完成间接块情况分析之后，再经过简单的计算，就可以计算出总共需要分配的磁盘块的数量。然后就可以调用ext2_alloc_branch函数分配磁盘空间了。该函数主要调用了2个函数，具体如图3所示。其中ext2_alloc_blocks用户分配磁盘块，本质是将管理磁盘空间的位图的对应位进行置位操作；另外一个函数sb_getblk用于从磁盘读取该块的数据，并进行初始化。<br><img src="https://upload-images.jianshu.io/upload_images/11058170-5ec6130362f2f167.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 空间分配函数主流程"></p>
+<p>因此，这里的工作就是根据当前信息及上一步计算出的信息进行综合判断，确定已经具备的间接块，并返回关键信息，为后续流程分配磁盘空间做准备。具体实现在函数ext2_get_branch中。该函数的输入是上一个函数的计算结果，输出是需要分配的间接块的信息（chain）。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> Indirect *<span class="title">ext2_get_branch</span><span class="params">(struct inode *inode,</span></span></span><br><span class="line"><span class="function"><span class="params">                                 <span class="keyword">int</span> depth,</span></span></span><br><span class="line"><span class="function"><span class="params">                                 <span class="keyword">int</span> *offsets,</span></span></span><br><span class="line"><span class="function"><span class="params">                                 Indirect chain[<span class="number">4</span>],</span></span></span><br><span class="line"><span class="function"><span class="params">                                 <span class="keyword">int</span> *err)</span></span></span><br></pre></td></tr></table></figure></p>
+<h2 id="分配磁盘空间"><a href="#分配磁盘空间" class="headerlink" title="分配磁盘空间"></a>分配磁盘空间</h2><p>完成间接块情况分析之后，再经过简单的计算，就可以计算出总共需要分配的磁盘块的数量。然后就可以调用ext2_alloc_branch函数分配磁盘空间了。该函数主要调用了2个函数，具体如图3所示。其中ext2_alloc_blocks用户分配磁盘块，本质是将管理磁盘空间的位图的对应位进行置位操作；另外一个函数sb_getblk用于从磁盘读取该块的数据，并进行初始化。<br><img src="http://img.itworld123.com/11058170-5ec6130362f2f167.png" alt="图4 空间分配函数主流程"></p>
 <p>初始化的目的比较明确，因为间接块用来存储地址信息，如果是从磁盘读取的新间接块数据可能是未知值，因此需要清零操作，并且完成本请求地址的初始化操作。</p>
 <p>至此，磁盘空间分配的主要流程执行完成，但仍然有一些小的处理流程，比如更新inode中的记录最后一次分配位置、更新时间和将inode变脏等等。这些细节读者可以自行阅读代码理解。</p>
 <p>另外，为了简化，本文有些内容没有介绍，比如预留窗口，还有就是跨越间接块的处理等问题。这些问题相对复杂一些，我们后续文章会继续介绍。</p>
@@ -535,8 +564,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/05/01/linux/filesystem/ext2/ext2_read_base/" rel="next" title="Ext2文件系统彻底分析 | 读数据流程">
-                <i class="fa fa-chevron-left"></i> Ext2文件系统彻底分析 | 读数据流程
+              <a href="/2019/03/04/programe_lang/c/三天学会C语言编程｜下篇/" rel="next" title="三天学会C语言编程-下篇">
+                <i class="fa fa-chevron-left"></i> 三天学会C语言编程-下篇
               </a>
             
           </div>
@@ -545,8 +574,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/05/01/linux/filesystem/ext2/ext2_write_base/" rel="prev" title="Ext2文件系统彻底分析 | 写数据流程">
-                Ext2文件系统彻底分析 | 写数据流程 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/03/23/books/Linux内核开发必读书目，从菜鸟到大牛必备/" rel="prev" title="Linux内核开发必读书目，从菜鸟到大牛必备">
+                Linux内核开发必读书目，从菜鸟到大牛必备 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -618,7 +647,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">29</span>
+                    <span class="site-state-item-count">33</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -649,7 +678,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">9</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">17</span>
                     <span class="site-state-item-name">分类</span>
                   
                 </div>
@@ -736,7 +781,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">35</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">37</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

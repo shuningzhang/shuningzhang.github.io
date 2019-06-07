@@ -96,22 +96,23 @@
 
 
 
-  <meta name="description" content="概述Ext2文件系统将磁盘划分为大小相等的逻辑块进行管理，其默认大小是4KB（不做特殊说明，本文后续内容都采用该默认值）。文件系统逻辑块的大小在格式化的时候可以指定的。文件系统将磁盘划分为逻辑块就好像一个大厦划分为若干个房间，或者超市规划为若干货架一样。同时为了便于管理和避免访问冲突，其将若干个逻辑块组成一个大的逻辑块，称为块组（Block Group）。块组是Ext2文件系统的管理单元，块组中又">
+  <meta name="description" content="本文是Ext2文件系统文章的第一篇，主要介绍一下Ext2文件系统的数据在磁盘上是如何放置的，也就是磁盘数据布局。理解磁盘数据布局是理解文件系统的前提，只有理解的数据布局才能更好的了解文件系统的逻辑。">
 <meta name="keywords" content="Linux,Ext2">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Ext2文件系统彻底分析 | 数据的磁盘布局">
 <meta property="og:url" content="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_layout/index.html">
 <meta property="og:site_name" content="SunnyZhang的IT世界">
-<meta property="og:description" content="概述Ext2文件系统将磁盘划分为大小相等的逻辑块进行管理，其默认大小是4KB（不做特殊说明，本文后续内容都采用该默认值）。文件系统逻辑块的大小在格式化的时候可以指定的。文件系统将磁盘划分为逻辑块就好像一个大厦划分为若干个房间，或者超市规划为若干货架一样。同时为了便于管理和避免访问冲突，其将若干个逻辑块组成一个大的逻辑块，称为块组（Block Group）。块组是Ext2文件系统的管理单元，块组中又">
+<meta property="og:description" content="本文是Ext2文件系统文章的第一篇，主要介绍一下Ext2文件系统的数据在磁盘上是如何放置的，也就是磁盘数据布局。理解磁盘数据布局是理解文件系统的前提，只有理解的数据布局才能更好的了解文件系统的逻辑。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-ff373fa444ffedd2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-b04dec1db0725f4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/11058170-120bc6923ddbc9ad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-06-05T12:16:07.433Z">
+<meta property="og:image" content="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-ff373fa444ffedd2.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-b04dec1db0725f4a.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-120bc6923ddbc9ad.png">
+<meta property="og:updated_time" content="2019-06-07T05:12:32.463Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ext2文件系统彻底分析 | 数据的磁盘布局">
-<meta name="twitter:description" content="概述Ext2文件系统将磁盘划分为大小相等的逻辑块进行管理，其默认大小是4KB（不做特殊说明，本文后续内容都采用该默认值）。文件系统逻辑块的大小在格式化的时候可以指定的。文件系统将磁盘划分为逻辑块就好像一个大厦划分为若干个房间，或者超市规划为若干货架一样。同时为了便于管理和避免访问冲突，其将若干个逻辑块组成一个大的逻辑块，称为块组（Block Group）。块组是Ext2文件系统的管理单元，块组中又">
-<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/11058170-ff373fa444ffedd2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:description" content="本文是Ext2文件系统文章的第一篇，主要介绍一下Ext2文件系统的数据在磁盘上是如何放置的，也就是磁盘数据布局。理解磁盘数据布局是理解文件系统的前提，只有理解的数据布局才能更好的了解文件系统的逻辑。">
+<meta name="twitter:image" content="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg">
 
 
 
@@ -432,11 +433,36 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-05 12:16:07" itemprop="dateModified" datetime="2019-06-05T12:16:07+00:00">2019-06-05</time>
+                <time title="修改时间：2019-06-07 05:12:32" itemprop="dateModified" datetime="2019-06-07T05:12:32+00:00">2019-06-07</time>
               
             
           </span>
 
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/文件系统/" itemprop="url" rel="index"><span itemprop="name">文件系统</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/文件系统/Ext2/" itemprop="url" rel="index"><span itemprop="name">Ext2</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -466,14 +492,15 @@
       
 
       
-        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Ext2文件系统将磁盘划分为大小相等的逻辑块进行管理，其默认大小是4KB（不做特殊说明，本文后续内容都采用该默认值）。文件系统逻辑块的大小在格式化的时候可以指定的。文件系统将磁盘划分为逻辑块就好像一个大厦划分为若干个房间，或者超市规划为若干货架一样。同时为了便于管理和避免访问冲突，其将若干个逻辑块组成一个大的逻辑块，称为块组（Block Group）。块组是Ext2文件系统的管理单元，块组中又包含若干管理数据（元数据）实现对块组中的逻辑块的管理，比如那些逻辑块是什么功能，那些逻辑块已经被使用等等。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-ff373fa444ffedd2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 磁盘的块组划分"></p>
+        <p><img src="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg" alt><br>本文是Ext2文件系统文章的第一篇，主要介绍一下Ext2文件系统的数据在磁盘上是如何放置的，也就是磁盘数据布局。理解磁盘数据布局是理解文件系统的前提，只有理解的数据布局才能更好的了解文件系统的逻辑。<br><a id="more"></a></p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Ext2文件系统将磁盘划分为大小相等的逻辑块进行管理，其默认大小是4KB（不做特殊说明，本文后续内容都采用该默认值）。文件系统逻辑块的大小在格式化的时候可以指定的。文件系统将磁盘划分为逻辑块就好像一个大厦划分为若干个房间，或者超市规划为若干货架一样。同时为了便于管理和避免访问冲突，其将若干个逻辑块组成一个大的逻辑块，称为块组（Block Group）。块组是Ext2文件系统的管理单元，块组中又包含若干管理数据（元数据）实现对块组中的逻辑块的管理，比如那些逻辑块是什么功能，那些逻辑块已经被使用等等。</p>
+<p><img src="http://img.itworld123.com/11058170-ff373fa444ffedd2.png" alt="图1 磁盘的块组划分"></p>
 <p>通过一个大厦对一个磁盘进行类比在形象不过了。大厦框架好比磁盘；而房间是对大厦规划后的结果，好比对磁盘的格式化；大厦每层的布局图好比元数据。我们可以通过楼层和每层的布局图很容易的找到房间。文件系统与此类似，它通过元数据查找和管理逻辑块。</p>
 <p>如图2是某货架示意图。每层都被划分为不同的货架，每个货架都有编号，且防止固定类型的商品。比如有些放酸奶，有些放调料还有放奶粉等，并规划。我们通过示意图和房间号可以很容易找到具体位置。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-b04dec1db0725f4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 超市货架图"></p>
+<p><img src="http://img.itworld123.com/11058170-b04dec1db0725f4a.png" alt="图2 超市货架图"></p>
 <p>如图3是Ext2文件系统的磁盘布局图。如中间蓝色为磁盘的逻辑空间，它被划分为若干个块组。每个块组的大小相等。如果我们在格式化的时候采用的是默认参数，此时块组的大小是128MB（后面介绍为什么是128MB），每个逻辑块的大小是4KB。</p>
 <h2 id="整体布局"><a href="#整体布局" class="headerlink" title="整体布局"></a>整体布局</h2><p>每个块组内部都有相关的元数据对该块组进行管理。如图3所示，第一个块组中的元数据包括<code>引导块、超级块、块组描述符、预留GDT块、数据块位图、inode位图、inode表</code>和其它数据块。后续块组中有些是对超级块的备份，有些则没有第一个块组这么完整的元数据信息，而只有数据块位图、inode位图和inode表等元数据信息。也就是说块组其实分为两种，一种是有超级块的，比较复杂的块组（如图3下面淡棕色所示），另外一种是没有超级块的，比较简单的块组（如图3上面淡绿色所示）。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/11058170-120bc6923ddbc9ad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 块组及内部细节"></p>
+<p><img src="http://img.itworld123.com/11058170-120bc6923ddbc9ad.png" alt="图3 块组及内部细节"></p>
 <p>引导块是作为引导操作系统用的，在文件系统作为根文件系统时使用。在系统加电启动是，其内容有BIOS自动装载并执行。它包含一个启动装载程序，用于从计算机安装的操作系统中选择一个启动，还负责继续启动过程。因此Ext2文件系统把这个区域预留出来，不作为文件系统管理的磁盘区域。</p>
 <p>超级块是文件系统起始位置，用于整个文件系统，它作为文件系统的入口，记录了整个文件系统的关键信息。而上面提到的其它元数据则只针对本块组。下面本文介绍一下每个元数据的具体作用。</p>
 <h3 id="超级块（SuperBlock）"><a href="#超级块（SuperBlock）" class="headerlink" title="超级块（SuperBlock）"></a>超级块（SuperBlock）</h3><p>超级块记录了整个文件系统的各种信息，包括逻辑块的数量、inode数量、支持的特性和维护信息等内容。为了保证整个文件系统的完整性，例如突然断电或者系统崩溃等场景，文件系统出现元数据损坏的情况，Ext2文件系统对超级块进行了备份。这样可以保证即使在第一个超级块出现损坏的情况下，仍然可以通过其它块组中的超级块进行恢复，不至于整个文件系统都不可访问。</p>
@@ -526,8 +553,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/03/24/books/Go语言开发必读书目，从菜鸟到大牛必备/" rel="next" title="Go语言开发必读书目，从菜鸟到大牛必备">
-                <i class="fa fa-chevron-left"></i> Go语言开发必读书目，从菜鸟到大牛必备
+              <a href="/2019/05/01/linux/filesystem/ext2/ext2_write_base/" rel="next" title="Ext2文件系统彻底分析 | 写数据流程">
+                <i class="fa fa-chevron-left"></i> Ext2文件系统彻底分析 | 写数据流程
               </a>
             
           </div>
@@ -536,8 +563,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/05/01/linux/filesystem/ext2/ext2_read_base/" rel="prev" title="Ext2文件系统彻底分析 | 读数据流程">
-                Ext2文件系统彻底分析 | 读数据流程 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/" rel="prev" title="Ext2文件系统彻底分析 | 扩展属性">
+                Ext2文件系统彻底分析 | 扩展属性 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -609,7 +636,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">29</span>
+                    <span class="site-state-item-count">33</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -640,7 +667,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">9</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">17</span>
                     <span class="site-state-item-name">分类</span>
                   
                 </div>
@@ -727,7 +770,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">35</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">37</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

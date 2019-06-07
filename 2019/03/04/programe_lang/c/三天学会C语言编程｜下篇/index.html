@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="本文是《三天学会C语言编程》的下篇，承接上一篇《三天学会C语言编程｜上篇》。本文重点介绍C语言的数据类型、表达式、变量和函数等内容。">
+<meta name="keywords" content="C语言">
+<meta property="og:type" content="article">
+<meta property="og:title" content="三天学会C语言编程-下篇">
+<meta property="og:url" content="http://www.itworld123.com/2019/03/04/programe_lang/c/三天学会C语言编程｜下篇/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:description" content="本文是《三天学会C语言编程》的下篇，承接上一篇《三天学会C语言编程｜上篇》。本文重点介绍C语言的数据类型、表达式、变量和函数等内容。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img.itworld123.com/logo/datastruct1.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-58022db10ddfed7c.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-62de6661cb62a571.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-8c0a52da2d89fcc7.jpg">
+<meta property="og:updated_time" content="2019-06-07T03:17:27.148Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="三天学会C语言编程-下篇">
+<meta name="twitter:description" content="本文是《三天学会C语言编程》的下篇，承接上一篇《三天学会C语言编程｜上篇》。本文重点介绍C语言的数据类型、表达式、变量和函数等内容。">
+<meta name="twitter:image" content="http://img.itworld123.com/logo/datastruct1.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/2019/03/04/programe_lang/c/三天学会C语言编程｜下篇/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>三天学会C语言编程-下篇 | SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3fb960eb6310643ffc24656f6dd2f50d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-commonweal">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>公益 404</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/03/04/programe_lang/c/三天学会C语言编程｜下篇/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">三天学会C语言编程-下篇
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-04 19:13:21" itemprop="dateCreated datePublished" datetime="2019-03-04T19:13:21+00:00">2019-03-04</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-07 03:17:27" itemprop="dateModified" datetime="2019-06-07T03:17:27+00:00">2019-06-07</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/编程语言/" itemprop="url" rel="index"><span itemprop="name">编程语言</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/编程语言/C/" itemprop="url" rel="index"><span itemprop="name">C</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="http://img.itworld123.com/logo/datastruct1.png" alt><br>本文是《三天学会C语言编程》的下篇，承接上一篇《<a href="https://www.jianshu.com/p/5bcaeecbf076" target="_blank" rel="noopener">三天学会C语言编程｜上篇</a>》。本文重点介绍C语言的数据类型、表达式、变量和函数等内容。<br><a id="more"></a></p>
+<h1 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a><strong>数据类型</strong></h1><p>C语言中有多种数据类型，这些数据的类型与我们日常生活中的数据的类型有些类似。比如整型数和浮点型数（小数），还有一些我们平时接触不到的数据类型，如字符串类型（上文中的hello world！就是一个字符串类型的数据）。如下表是C语言支持的数据类型（部分），这里先不用过多理解，只需要知道有这些类型就行，后面会详细介绍。通过这个表可以看出<strong>不同类型的数据占用的内存空间大小是不同的</strong>。</p>
+<p><img src="http://img.itworld123.com/11058170-58022db10ddfed7c.jpg" alt="图1 C语言数据类型列表"></p>
+<h1 id="变量"><a href="#变量" class="headerlink" title="变量"></a><strong>变量</strong></h1><p>变量其实是内存的一个区域，用于存储具体的数据，需要说明的是变量是有<strong>名称</strong>的。变量的名称就好像邮箱的编号一样，这样我们在编程的时候就可以通过这个名字方便的访问（读或者写）变量。</p>
+<p>在C语言中变量的名称可以是英文字符、下划线和数字，但只能以英文字符和下划线开头，不能以数字开头。另外，C语言中变量名称是区分大小写的，也就是var_name和var_Name是两个不同的变量。</p>
+<p>我们知道在C语言中数据是有不同的类型的，同样变量也有不同的类型。不同类型的变量用于存储不同类型的数据，而且不同类型变量占用的空间大小是不同的。那么如何定义一个变量呢？很简单，其基本格式就是类型+变量名称，如下定义了一个整形的变量：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int var_name;</span><br></pre></td></tr></table></figure></p>
+<p>其它类型的变量与此类似，只是变量的类型不同。至于名称则遵循上文所描述的规范。</p>
+<h1 id="表达式"><a href="#表达式" class="headerlink" title="表达式"></a><strong>表达式</strong></h1><p>我们知道程序最主要的功能就是进行计算的，因此在程序中会有一些表达式进行计算。表达的形式与日常数学中的表达式基本一致，运算的优先级也类似。如下是一个简单的表达式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3 + 5 * 6</span><br></pre></td></tr></table></figure>
+<p>这个表达式进行简单的数据计算，但该表达式在实际编程时并不没有太大意义，因为计算出的值将被直接丢弃。通常我们需要将表达式计算的值放到一个变量这，这样我们后面才能使用该表达式计算的结果。下面是一个具体的示例：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	 <span class="keyword">int</span> a; <span class="comment">//声明整型变量</span></span><br><span class="line">	 <span class="keyword">long</span> b; <span class="comment">// 声明长整型变量</span></span><br><span class="line">	 <span class="keyword">short</span> c; <span class="comment">// 声明短整型变量</span></span><br><span class="line">	 <span class="keyword">char</span> d; <span class="comment">// 声明字符类型的变量</span></span><br><span class="line">	 <span class="keyword">float</span> e = <span class="number">1.2</span>; <span class="comment">//声明浮点型（小数）变量，在声明的时候可以直接初始化</span></span><br><span class="line">	 <span class="keyword">int</span> f = <span class="number">0</span>;</span><br><span class="line">	 unsigined <span class="keyword">int</span> = <span class="number">3</span>; <span class="comment">// 声明无符号整型变量，无符号整形只能是非负整数</span></span><br><span class="line">	 b = <span class="number">10</span>; <span class="comment">//给变量赋值，赋值就是改变变量的内容，让其等于某个值</span></span><br><span class="line">	 c = <span class="number">11</span>; <span class="comment">// 注意赋值的方向，变量在等号左边（又称“左值”），数据在等号右面</span></span><br><span class="line">	 a = a + <span class="number">10</span>; <span class="comment">// 进行基本的加法运算</span></span><br><span class="line">	 c = a + b; <span class="comment">/* 可以进行不同类型的变量之间的运算，但可能会丢失数据。因为每种类型变量存储的数值大小是有限的，超过就会溢出。本例中变量c是短整型，范围是-32,768 到 32,767。而变量b是长整形，范围是从-2,147,483,648 到 2,147,483,647。因此，如果计算结果超过了c的范围，将会出现溢出，因此在计算是需要注意。*/</span></span><br><span class="line">	 e = a + b * c; <span class="comment">// 这里的*是星号，也就是键盘8上面的字符，代表乘法</span></span><br><span class="line">	 a = (a + e) * c; <span class="comment">//可以使用括弧提升运算的优先级，本例中</span></span><br><span class="line">	 a = a /c ; <span class="comment">//除法运算</span></span><br><span class="line">	 a = a % c; <span class="comment">//取模运算</span></span><br><span class="line">	 a --; <span class="comment">//自减运算，也就是自己减1</span></span><br><span class="line">	 a ++; <span class="comment">//自加运算</span></span><br><span class="line"></span><br><span class="line">	 <span class="comment">/*除了进行基本的算术运算外，还可以进行位运算。所谓位运算就是逐位运算。*/</span></span><br><span class="line"></span><br><span class="line">	 a = a &amp; b; <span class="comment">//按位“与”运算</span></span><br><span class="line">	 a = a | b; <span class="comment">//或</span></span><br><span class="line">	 a = a ^ b; <span class="comment">//异或</span></span><br><span class="line">	 a = ~a; <span class="comment">//非</span></span><br><span class="line">	 <span class="comment">/*关系运算，也就是判断两个或者多个变量的关系。*/</span></span><br><span class="line">	 a == b; <span class="comment">//判断两者是否相等，相等返回真，否则返回假</span></span><br><span class="line">	 a &gt;= b; </span><br><span class="line">	 a &gt; b;</span><br><span class="line">	 a &lt;=b; </span><br><span class="line">	 a != b; <span class="comment">//判断两者是否相等，相等返回假，否则返回真</span></span><br><span class="line"></span><br><span class="line">	 a &amp;&amp; b; <span class="comment">//注意是2个&amp;，两者都为真是结果为真。可以多余2个进行运算</span></span><br><span class="line">	 a || b; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="函数"><a href="#函数" class="headerlink" title="函数"></a><strong>函数</strong></h1><p>我们在最一开始的时候已经使用了函数，但还没有对函数进行任何介绍。下面本文将介绍一下什么是函数，为什么要有函数以及函数怎么使用。</p>
+<p>函数是对实现某个功能的代码的封装。有了函数之后，具体的功能我们调用该函数就可以完成，而不同将代码黏贴过来，增加了便利性。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="comment">/*下面是函数的定义*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span> <span class="comment">/*这一行成为函数头，其中int是函数的返回值类型，add是函数名称，int a和int b是函数的参数（形参）。</span></span></span><br><span class="line"><span class="function"><span class="comment">这里返回值和参数可以是任何类型。*/</span></span></span><br><span class="line"><span class="function"></span>&#123; <span class="comment">/*函数头后面要紧跟着&#123;，可以与函数头在同一行，或者另起一行，这个代表函数体的开始*/</span></span><br><span class="line">	 <span class="keyword">int</span> c = <span class="number">0</span>;</span><br><span class="line">	 c = a + b; <span class="comment">//这里是函数的具体实现，根其它地方没有任何差异</span></span><br><span class="line">	 <span class="keyword">return</span> c; <span class="comment">//函数的返回值，类型要与在函数头中定义的一直，否则有截断的风险</span></span><br><span class="line">&#125;<span class="comment">/*函数体的结束*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	 <span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">	 a = add(<span class="number">1</span>, <span class="number">2</span>); <span class="comment">/*函数的调用，这里相当于使用add函数的功能，进行加法运算。*/</span></span><br><span class="line">	 <span class="built_in">printf</span>(<span class="string">"result: %d</span></span><br><span class="line"><span class="string">	"</span>, a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>函数可以与入口函数在相同的文件中，也可以在一个单独的文件中。函数的定义通常在.c文件中，而在头文件（.h文件）中添加声明。这样我们只需要包含头文件就可以使用该函数了。</p>
+<h1 id="控制语句"><a href="#控制语句" class="headerlink" title="控制语句"></a><strong>控制语句</strong></h1><p>通过上面的知识只能写从上往下依次执行的程序。显然这个不能满足实际开发的需求，比如有的时候我们要根据不同的情况执行不同的代码，或者需要重复执行相同的代码等场景。C语言中有多中控制语句，实现对程序不同流程的控制，下面我们以例子的形式进行介绍。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt; stdio.h &gt;</span></span></span><br><span class="line"><span class="comment">/*这个函数实现成绩的转换，如果大于等于90分则打印“优秀”， 如果在80到90之间，则打印“良好”，如果在70-80之间则打印“中等”， 如果在60到70之间则打印“及格”，否则打印“不及格”。*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">print_score</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> score)</span> </span>&#123;</span><br><span class="line">    <span class="comment">/* if 是C语言的判断语句，用于判断是否执行后面的代码。</span></span><br><span class="line"><span class="comment"> * 在if关键字后是具体的判断条件表达式，表达式需要</span></span><br><span class="line"><span class="comment"> * 用括弧包括。*/</span></span><br><span class="line">    <span class="keyword">if</span> (score &gt; <span class="number">100</span>) &#123;</span><br><span class="line">        <span class="comment">/* 如果条件判断后执行的代码是多行，则需要有&#123;作为执行体的头。 */</span></span><br><span class="line">        <span class="keyword">return</span> - <span class="number">1</span>;</span><br><span class="line">        <span class="comment">/*由于成绩不会大于100，因此这里返回-1，表示错误*/</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/* 如果条件判断后执行的代码是多行，则需要有&#125;作为执行体的尾。</span></span><br><span class="line"><span class="comment"> * 如果只有一行代码则不需要&#123;和&#125;两个字符*/</span></span><br><span class="line">    <span class="comment">/* 下面进行分类打印 */</span></span><br><span class="line">    <span class="keyword">if</span> (score &gt;= <span class="number">90</span>) &#123;</span><br><span class="line">        <span class="comment">/* 语句块标识符&#123;不一定要另起一行，可以与if在同一行。*/</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"优秀</span></span><br><span class="line"><span class="string">"</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (score &gt;= <span class="number">80</span>) &#123;</span><br><span class="line">        <span class="comment">/* 语句 else if 表示另外一种情况。 如果上面符合条件，则不会执行本行。*/</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"良好</span></span><br><span class="line"><span class="string">"</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (score &gt;= <span class="number">70</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"中等</span></span><br><span class="line"><span class="string">"</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (socore &gt;= <span class="number">60</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"中等</span></span><br><span class="line"><span class="string">"</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/* else后面可以没有if语句，这样该语句不进行任何判断。如果前面都不满足条件，则到最后执行该语句。*/</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"不及格</span></span><br><span class="line"><span class="string">"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">//返回0表示执行成功</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*上面实现了程序的分支控制，也就是不同的条件执行不同的代码。还有一种情况是需要不断执行某一项重复的计算。这时就需要用到循环语句。</span></span><br><span class="line"><span class="comment">下面这个函数执行连续整数的累加和，也就是从begin按1递增，一直到end的累加和。比如从5开始一直到9，也就是5 + 6 + 7 + 8 + 9。下面看看如何用循环语句实现这个功能。*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">int</span> begin, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> result = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">/* 循环的关键字是for， 后面（）里面的是控制语句。括弧是必须的。括弧内用分号“;”将控制语句分为3部分。第一部分进行初始化，只执行一次；第二部分进行条件判断，每次执行，如果符合条件则执行循环体（&#123;&#125;内，这个在单行的情况下可以省略）内的内容，否则跳出循环；最后一个则执行一些额外的运算。上面三部分任何一个都可以为空，三者也可同时为空，但分号不能省略。 */</span></span><br><span class="line">    <span class="keyword">for</span> (index = begin; index &lt;= end; index++) &#123;</span><br><span class="line">        <span class="comment">/* 这个是开始字符，同判断语句，这里不做过多解释*/</span></span><br><span class="line">        result = result + index;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* C语言中还有另外一个关键字实现循环控制，那就是while语句。*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum2</span><span class="params">(<span class="keyword">int</span> begin, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> result = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">/*想必大家已经找到规律了，while循环也是关键字后面是括弧，然后是循环体。 while语句在括弧中只有一个条件判断，如果满足条件则执行循环体，如果不满足则从循环退出。*/</span></span><br><span class="line">    index = begin;</span><br><span class="line">    <span class="keyword">while</span> (index &lt;= end) &#123;</span><br><span class="line">        result = result + begin;</span><br><span class="line">        index++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> score = <span class="number">80</span>;</span><br><span class="line"></span><br><span class="line">    print_score(score);</span><br><span class="line">    sum(<span class="number">1</span>, <span class="number">5</span>);</span><br><span class="line">    sum2(<span class="number">1</span>, <span class="number">5</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>本文作为入门级教程并没有介绍全部的循环语句，但作为入门已经够用了。后续再详细介绍更多的用法。</p>
+<h1 id="指针"><a href="#指针" class="headerlink" title="指针"></a><strong>指针</strong></h1><p>指针给了我们更大的权限，可以让我们直接操作系统的内存。但是指针也是C语言中最为复杂的部分，也是饱受诟病的部分。只是由于指针的存在使得C语言开发的软件出现问题的复杂度更大，也更难解决。凡事有利有弊，废话少说，我们看看什么是指针。</p>
+<p><strong>简单的理解，指针其实就是内存的地址</strong>。由于我们要访问内存，内存肯定要有个编号，这样我们才知道访问哪里的内存。有人可能会说，你不是在前面说通过变量名称进行访问吗？是的，但是变量名称只是在我们编程层面使用内存的方式，真正到操作系统层面都是通过内存的地址进行访问的。</p>
+<p>了解了指针的概念之后，那我们现在谈一下什么是<strong>指针变量</strong>。我们知道变量是存储数据的，从名称上可以推测出来指针变量就是存储指针的。没错，<strong>指针变量就是存储指针的变量，也就是存储内存地址的变量。</strong></p>
+<p><img src="http://img.itworld123.com/11058170-62de6661cb62a571.jpg" alt="图2 变量与指针变量示意图"></p>
+<p>为了便于说明什么是指针及指针变量，我们通过图1进行。假设我们有一个整形变量age，其中的值是0x12345，数据存储在0x1000（这里是为了便于说明，实际位置值的格式大概类似这样，0x7ffc6a95fb14）的位置。</p>
+<p>现在我们想用另外一个变量（比如名称为age_tmp）将该变量的地址保存起来，而且可以通过age_tmp访问age变量中的内容，那该怎么办？没错，就是定义一个指针变量。如图1所示，age_tmp就是这个指针变量，它在0x0800的位置，其内部存储的值是age的地址。好了，废了半天话，那具体怎么编写代码呢？下面我们通过一个例子说明。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt; stdio.h &gt; int main(void) &#123;</span></span></span><br><span class="line">    <span class="keyword">int</span> age = <span class="number">0x12345</span>;</span><br><span class="line">    <span class="keyword">int</span> * age_tmp;</span><br><span class="line">    <span class="comment">/* 这里是定义一个指针类型的变量，仔细看一下在变量名称前有个星号（*）,这个代表变量是指针变量。这里定义的是整形指针变量，我们可以定义任何类型的指针变量。通常，某种类型的指针变量只能存储该类型变量的指针（地址）。 */</span></span><br><span class="line">    age_tmp = &amp;age;</span><br><span class="line">    <span class="comment">/*这里是将变量age的地址赋值给指针变量age_tmp，注意看age前面有个与符号（&amp;），这个是取变量地址的意思。*/</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"age value: 0x%x</span></span><br><span class="line"><span class="string">"</span>, age);</span><br><span class="line">    <span class="comment">/*打印变量的值*/</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"age address: %p</span></span><br><span class="line"><span class="string">"</span>, &amp;age);</span><br><span class="line">    <span class="comment">/*打印变量age的地址*/</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"age_tmp value: %p</span></span><br><span class="line"><span class="string">"</span>, age_tmp);</span><br><span class="line">    <span class="comment">/* 打印指针变量的值*/</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"age_tmp address: %p</span></span><br><span class="line"><span class="string">"</span>, &amp;age_tmp);</span><br><span class="line">    <span class="comment">/* 打印指针变量的地址*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如下是程序执行后的结果，可以看出值的关系与图1是完全一致的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">age value: 0x12345</span><br><span class="line">age address: 0x7ffd64adf68c</span><br><span class="line">age_tmp value: 0x7ffd64adf68c</span><br><span class="line">age_tmp address: 0x7ffd64adf690</span><br></pre></td></tr></table></figure>
+<p>好了，关于指针的相关内容就先介绍到这里，关于指针足够专门写一本书了。</p>
+<h1 id="复合数据类型"><a href="#复合数据类型" class="headerlink" title="复合数据类型"></a>复合数据类型</h1><p><strong>结构体</strong></p>
+<p>C语言最为厉害的地方在于可以支持复合数据类型，所谓复合数据类型就是可以将集中数据类型进行组合封装，形成另外一个新的数据类型。实现这种强大功能的名称叫做<strong>结构体</strong>，结构体通过struct关键字实现，并用{}界定结构体的内容。下面我们看一个具体的例子。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt; stdio.h &gt;</span></span></span><br><span class="line"><span class="comment">/*下面是结构体的定义，需要关键字struct，后果是结构体的名字。*/</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">new_type</span> &#123;</span></span><br><span class="line">    <span class="comment">/*结构体具体内容有左大括弧开始。*/</span></span><br><span class="line">    <span class="keyword">int</span> number;</span><br><span class="line">    <span class="comment">/*成员变量的第一根我们平时定义变量一样 */</span></span><br><span class="line">    <span class="keyword">long</span> age;</span><br><span class="line">    <span class="keyword">float</span> score;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">/*结构体的具体内容以右大括弧结束，注意后面还有一个分号。*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">new_type</span> <span class="title">var_name</span>;</span></span><br><span class="line">    <span class="comment">/* 如何使用新的变量类型，定义方式与普通变量一样，只是需要有struct关键字。 */</span></span><br><span class="line">    var_name.number = <span class="number">12</span>;</span><br><span class="line">    <span class="comment">/* 对新类型变量成员赋值的方法，中间用点符号（.）连接变量名称和成员名称。 */</span></span><br><span class="line">    var_name.age = <span class="number">15</span>;</span><br><span class="line">    var_name.score = <span class="number">96.5</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"score: %f</span></span><br><span class="line"><span class="string">"</span>, var_name.score);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结构体同样也可以有指针类型，本文暂时不做介绍。这部分内容我们后续专门介绍。</p>
+<p><strong>数组</strong></p>
+<p>从名称上也可以看出来，数组是指<strong>一组数</strong>。<em>数组</em>是用来存储一系列数据，而且是一系列相同类型的数据。</p>
+<p><img src="http://img.itworld123.com/11058170-8c0a52da2d89fcc7.jpg" alt="图3 数组变量示意图"></p>
+<p>如图2所示，我们假设一个整型的数组变量，名称为new_array，由图可以看出其数据在内存总会依次存放。这样有个有点，我们知道该变量的首地址，就能知道后续其它成员的地址，因此也就可以直接访问。下面我们通过实例解释一下。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt; stdio.h &gt; int main(void) &#123;</span></span></span><br><span class="line">    <span class="keyword">int</span> new_array[<span class="number">4</span>];</span><br><span class="line">    <span class="comment">/* 数组的定义通过在变量名称后面根一对中括号确定，中括号里面的整数是该数组的大小，也即存储几个成员。*/</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"first member: %d</span></span><br><span class="line"><span class="string">"</span>, new_array[<span class="number">0</span>]);</span><br><span class="line">    <span class="comment">/* 数组的访问也是通过在变量名称后面跟一个中括弧，其里面的整数表示要访问哪一个成员，需要注意的是数组的成员是从0开始的，表示第一个成员。另外，这里没有对成员进行初始化就进行访问，因此内容是随机的。 */</span></span><br><span class="line">    new_array[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line">    <span class="comment">/*成员初始化的方法*/</span></span><br><span class="line">    new_array[<span class="number">1</span>] = <span class="number">2</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"first member: %d</span></span><br><span class="line"><span class="string">"</span>, new_array[<span class="number">0</span>]);</span><br><span class="line">    <span class="comment">/* 初始化后再次访问 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>下面是运行后的结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">first member: 4195840</span><br><span class="line">first member: 2</span><br></pre></td></tr></table></figure>
+<p>数组可以是任何类型的上面只是数组的基本用法。数组可以一开始就初始化，也可以结合指针使用。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>到今天本文就算结束了，学完这些基础知识只能算<strong>刚抬起脚迈进门槛，另外一只脚还在外面呢</strong>。后面需要学习的内容还多着呢。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C语言/" rel="tag"># C语言</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/02/24/programe_lang/c/三天学会C语言编程｜上篇/" rel="next" title="三天学会C语言编程-上篇">
+                <i class="fa fa-chevron-left"></i> 三天学会C语言编程-上篇
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/06/linux/filesystem/ext2/ext2/" rel="prev" title="Ext2文件系统彻底分析 | 磁盘空间分配">
+                Ext2文件系统彻底分析 | 磁盘空间分配 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">33</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">17</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">37</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据类型"><span class="nav-number">1.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#变量"><span class="nav-number">2.</span> <span class="nav-text">变量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#表达式"><span class="nav-number">3.</span> <span class="nav-text">表达式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#函数"><span class="nav-number">4.</span> <span class="nav-text">函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#控制语句"><span class="nav-number">5.</span> <span class="nav-text">控制语句</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#指针"><span class="nav-number">6.</span> <span class="nav-text">指针</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#复合数据类型"><span class="nav-number">7.</span> <span class="nav-text">复合数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
