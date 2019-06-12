@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="王大拿在给新员工培训：“无论是使用过Windows操作系统还是Linux操作系统的同学，相信都知道什么是文件系统。”">
+<meta name="keywords" content="文件系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="为什么要有文件系统？文件系统都有那些种类？">
+<meta property="og:url" content="http://www.itworld123.com/2019/05/28/linux/filesystem/为什么要有文件系统？文件系统都有那些种类？/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:description" content="王大拿在给新员工培训：“无论是使用过Windows操作系统还是Linux操作系统的同学，相信都知道什么是文件系统。”">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img.itworld123.com/11058170-193edab65254b486.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-23db61dd7bbd1bb5.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-c9512f713854d7e3.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-0e06da408d614e45.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-1ad674d9ebb87a5a.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-b228cc0dd59c7603.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-7e3297c000df158e.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-09222dc59cde1e85.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-193edab65254b486.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-65902c626dfdcf04.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-a424fff3c2594da0.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-b6e331c59ac02f93.png">
+<meta property="og:updated_time" content="2019-06-12T13:00:49.398Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="为什么要有文件系统？文件系统都有那些种类？">
+<meta name="twitter:description" content="王大拿在给新员工培训：“无论是使用过Windows操作系统还是Linux操作系统的同学，相信都知道什么是文件系统。”">
+<meta name="twitter:image" content="http://img.itworld123.com/11058170-193edab65254b486.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/2019/05/28/linux/filesystem/为什么要有文件系统？文件系统都有那些种类？/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>为什么要有文件系统？文件系统都有那些种类？ | SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3fb960eb6310643ffc24656f6dd2f50d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-commonweal">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>公益 404</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/28/linux/filesystem/为什么要有文件系统？文件系统都有那些种类？/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">为什么要有文件系统？文件系统都有那些种类？
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-05-28 19:13:21" itemprop="dateCreated datePublished" datetime="2019-05-28T19:13:21+00:00">2019-05-28</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-12 13:00:49" itemprop="dateModified" datetime="2019-06-12T13:00:49+00:00">2019-06-12</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/文件系统/" itemprop="url" rel="index"><span itemprop="name">文件系统</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="http://img.itworld123.com/11058170-193edab65254b486.png" alt="图8 分布式文件系统"></p>
+<p>王大拿在给新员工培训：“无论是使用过Windows操作系统还是Linux操作系统的同学，<strong>相信都知道什么是文件系统</strong>。”</p>
+<a id="more"></a>
+<p>赵二狗插嘴到：“<strong>什么是文件系统？</strong>”<br>好吧，我惊呆了！<br><img src="http://img.itworld123.com/11058170-23db61dd7bbd1bb5.png" alt="图1 小伙伴惊呆图"><br>给个截图吧，下面这个都见过吧。一堆文件夹，然后里面又有一堆文件，这些东东就是<strong>文件系统的表象</strong>。那本质是什么呢？我们知道这些东西其实都是存在磁盘上的，具体磁盘空间是什么样的我们并不知道，但文件系统软件给我们呈现出来了一个非常清晰的表象，我们可以创建、删除和复制这些文件。而实现这些功能是通过一个软件实现的，<strong>这个软件就是文件系统</strong>。<br><img src="http://img.itworld123.com/11058170-c9512f713854d7e3.png" alt="图2 Windows的文件系统"></p>
+<h1 id="什么是文件系统"><a href="#什么是文件系统" class="headerlink" title="什么是文件系统"></a>什么是文件系统</h1><blockquote>
+<p>任何技术的出现是为了解决问题，文件系统也是为了解决某些问题。那文件系统是为了解决什么问题呢？</p>
+</blockquote>
+<p>我们有了一个相对形象的概念，文件系统管理着很多文件。而这些文件其实就是数据，这些数据又是存储在磁盘上的。因此，实质上文件系统是管理磁盘的软件系统，它简化了用户对磁盘空间的使用方法，并降低了磁盘空间的使用难度，通过更加形象的方式将磁盘中的数据展示给用户。<br>赵二狗窃窃私语：“好啰嗦”<br>大家对磁盘都比较清楚，其实就是存储数据的地方，我们可以将磁盘与仓库类比。如图3所示是一个空仓库，一个没有格式化的磁盘就好像一个空仓库，空间非常大，我们可以随便使用。<br><img src="http://img.itworld123.com/11058170-0e06da408d614e45.png" alt="图3 空仓库"><br>磁盘的内部虽然非常复杂，但磁盘生产厂商做了很多工作，将磁盘的复杂性掩盖起来了。对于普通用户来说，磁盘就是一个线性空间，就好像C语言中的数组一样，通过偏移就可以访问其空间（读写数据）。<br><img src="http://img.itworld123.com/11058170-1ad674d9ebb87a5a.png" alt="图4 磁盘空间示意图"><br>但是，我们虽然可以直接访问磁盘的空间，如果缺乏规划，那么使用的最终结果可能是这样样子的。数据被毫无规律的放到磁盘上，最后查找的时候会非常费劲，甚至可能找不到需要的数据。<br><img src="http://img.itworld123.com/11058170-b228cc0dd59c7603.png" alt="图5 杂乱无章"><br>因此，文件系统出现了。文件系统实现对磁盘空间的统一管理，<strong>一方面文件系统对磁盘空间进行统一规划，另外一方面文件系统提供给普通用户人性化的接口</strong>。就好比仓库中的货架，将空间进行规划和编排，这样根据编号可以方便的找到具体的货物。而文件系统也是类似，将磁盘空间进行规划和编号处理，<strong>这样通过文件名就可以找到具体的数据</strong>，而不用关心数据到底是怎么存储的。<br><img src="http://img.itworld123.com/11058170-7e3297c000df158e.png" alt="图6 统一规划的存储空间"><br>以Ext4文件系统为例，它将磁盘空间进行划分，并通过元数据实现对磁盘空间的管理。这样，用户对文件的操作就转化为文件系统对磁盘空间的操作。<br><img src="http://img.itworld123.com/11058170-09222dc59cde1e85.png" alt="图7 Ext4 文件系统"><br><strong>也就是说，文件系统解决了普通用户使用磁盘存储数据的问题。</strong></p>
+<h1 id="什么是分布式文件系统"><a href="#什么是分布式文件系统" class="headerlink" title="什么是分布式文件系统"></a>什么是分布式文件系统</h1><p>上面说的是普通本地文件系统的概念，比如Ext4、XFS、FAT32和Btrfs等文件系统。这些文件系统只能在本地进行磁盘格式化并使用。那么什么是分布式文件系统呢？下面是维基百科给出的定义。</p>
+<blockquote>
+<p>相对于本机端的文件系统而言，<strong>分布式文件系统</strong>（英语：Distributed file system, DFS），或是<strong>网络文件系统</strong>（英语：Network File System），是一种允许文件透过网络在多台主机上分享的文件系统，可让多机器上的多用户分享文件和存储空间。</p>
+</blockquote>
+<p>通过定义我肯可以看出，<strong>分布式文件系统解决的是资源共享的问题。</strong>我们先看一个实例，以NFS文件系统为例，它分为服务端和客户端，客户端通过某种协议连接到服务端，此时会在客户端的目录树中映射一个子树，这样在客户端就能访问服务端的文件系统。然而，对于客户端来说，这个目录树关系是透明的，也就是用户不知道这些内容是在远程计算机，也不用关心。</p>
+<p><img src="http://img.itworld123.com/11058170-193edab65254b486.png" alt="图8 分布式文件系统"><br>分布式文件系统解决的最大的问题是资源共享的问题，因此分布式文件系统最大的特点是多个客户端可以访问相同的服务端。<br><img src="http://img.itworld123.com/11058170-65902c626dfdcf04.png" alt="图9 NFS网络拓扑"></p>
+<p>NFS可以供多个客户端访问，但其毕竟是单机，处理能力是有限的。因此在大规模数据领域，不如电商网站、大数据处理等，采用单机模式无法满足要求。问题有出来了，为了解决这个问题，谷歌开发了GFS分布式文件系统，该文件系统的服务端通过一个集群来实现，客户端可以并发的访问该集群的多达数万个节点，因此承载能力得到极大的提升。<br>如图10是HDFS的架构图，HDFS是GFS的开源实现，起基本架构是一样的。整个集群的节点分为2中角色，一个是Master节点，负责管理元数据；另外一个是数据节点，负责存储文件的数据。在这种架构中，客户端通过Master节点可以得到文件数据的具体位置，然后可以直接与数据节点交互。由于数据节点可以很多（数万个），因此承载能力得到极大的提升。<br><img src="http://img.itworld123.com/11058170-a424fff3c2594da0.png" alt="图10 HDFS架构"><br>除了上述HDFS和GFS等分布式文件系统外，还有GlusterFS、CephFS等很多分布式文件系统，但每种分布式文件系统的细节又有所差异，<strong>这个也是与它们所要解决的具体问题相关的</strong>。</p>
+<h1 id="什么是集群文件系统"><a href="#什么是集群文件系统" class="headerlink" title="什么是集群文件系统"></a>什么是集群文件系统</h1><p>虽然分布式文件系统可以处理高并发访问的问题，但对于同一个文件同时写会存在数据不一致的问题。这个需要客户端的应用做特殊处理。如图11所示，客户端1从服务端读取的某个文件的数据，而此时在客户端进行了追加写操作，由于网络延迟或者什么原因，数据并没有达到服务端。此时，客户端2读取了服务端的数据，显然此时数据是旧数据。如果此时客户端2进行写操作，无法保证服务端最终的数据是客户端1的还是客户端2的，因此存在不可预料的结果。<br><img src="http://img.itworld123.com/11058170-b6e331c59ac02f93.png" alt="图11 多客户端访问"><br>为了解决同一个文件被不同客户端的应用并发写的问题，这个时候开发了集群文件系统。其中比较著名的是Oracle的OCFS2文件系统。OCFS2通过分布式锁解决了写并发的问题，如果有进程对某个文件的区域进行写操作时会加锁，这样其它客户端如果对相同区域写数据时就必须等待。这样，OCFS2文件系统就保证了数据的一致性。<br>到此为止，我们介绍文件系统的原理及市面上常见的各种类型的文件系统。通过分析我们看到，不同的文件系统解决的问题是不同的，因此应用场景也是有很大差异的。因此，大家在工作中如果选型时，也需要考虑这些差异。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/文件系统/" rel="tag"># 文件系统</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/23/storage/ceph/Ceph块存储客户端架构及流程简析/" rel="next" title="Ceph块存储客户端架构及流程简析">
+                <i class="fa fa-chevron-left"></i> Ceph块存储客户端架构及流程简析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/01/storage/leveldb/LevelDB深入浅出之整体架构/" rel="prev" title="LevelDB深入浅出之整体架构">
+                LevelDB深入浅出之整体架构 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">35</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">38</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是文件系统"><span class="nav-number">1.</span> <span class="nav-text">什么是文件系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是分布式文件系统"><span class="nav-number">2.</span> <span class="nav-text">什么是分布式文件系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是集群文件系统"><span class="nav-number">3.</span> <span class="nav-text">什么是集群文件系统</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

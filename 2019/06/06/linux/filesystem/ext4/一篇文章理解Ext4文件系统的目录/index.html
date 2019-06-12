@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="使用过Linux的同学应该对Ext4文件系统都有了解。在Linux文件系统中一切皆文件，同样目录也是文件的一种类型。熟悉Linux服务器的同学经常会看到如下内容，上图是某个目录的列表内容。">
+<meta name="keywords" content="文件系统,Ext4">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一篇文章理解Ext4文件系统的目录">
+<meta property="og:url" content="http://www.itworld123.com/2019/06/06/linux/filesystem/ext4/一篇文章理解Ext4文件系统的目录/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:description" content="使用过Linux的同学应该对Ext4文件系统都有了解。在Linux文件系统中一切皆文件，同样目录也是文件的一种类型。熟悉Linux服务器的同学经常会看到如下内容，上图是某个目录的列表内容。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img.itworld123.com/11058170-54aee727342c28ee.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-e50cb7b381d0a5c8.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-cbe0a63a7410260f.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-666bd7ccb480228f.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-9517ff81bbc22fe1.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-8d2c6cf95822625e.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-36694a8861643073.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-a3ac46fb59ba7bca.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-a2cc4dd52a2fbfd7.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-08778e2e665e0638.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-ade9d6c6621275b5.png">
+<meta property="og:updated_time" content="2019-06-12T13:00:49.398Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一篇文章理解Ext4文件系统的目录">
+<meta name="twitter:description" content="使用过Linux的同学应该对Ext4文件系统都有了解。在Linux文件系统中一切皆文件，同样目录也是文件的一种类型。熟悉Linux服务器的同学经常会看到如下内容，上图是某个目录的列表内容。">
+<meta name="twitter:image" content="http://img.itworld123.com/11058170-54aee727342c28ee.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/2019/06/06/linux/filesystem/ext4/一篇文章理解Ext4文件系统的目录/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>一篇文章理解Ext4文件系统的目录 | SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3fb960eb6310643ffc24656f6dd2f50d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-commonweal">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>公益 404</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/06/06/linux/filesystem/ext4/一篇文章理解Ext4文件系统的目录/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">一篇文章理解Ext4文件系统的目录
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-06 19:13:21" itemprop="dateCreated datePublished" datetime="2019-06-06T19:13:21+00:00">2019-06-06</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-12 13:00:49" itemprop="dateModified" datetime="2019-06-12T13:00:49+00:00">2019-06-12</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/文件系统/" itemprop="url" rel="index"><span itemprop="name">文件系统</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/文件系统/Ext4/" itemprop="url" rel="index"><span itemprop="name">Ext4</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="http://img.itworld123.com/11058170-54aee727342c28ee.png" alt="图1 Linux中目录列表"></p>
+<p>使用过Linux的同学应该对Ext4文件系统都有了解。在Linux文件系统中一切皆文件，同样目录也是文件的一种类型。熟悉Linux服务器的同学经常会看到如下内容，上图是某个目录的列表内容。</p>
+<a id="more"></a>
+<p>在上图中每一行的前面形如<code>drwxr-xr-x</code>的内容为文件的属性，而第一个字符<code>d</code>则表示这个文件是一个特殊的文件，也就是目录（directory）。第一个字符是用于标示文件类型的，对于块设备则是<code>b</code>，字符设备是<code>c</code>等等，每种特殊的文件这个字符都是不同的。</p>
+<p>对于有图像界面（GUI）的情况下，目录的呈现形式更加丰富，如图2所示，目录中有子目录和文件。同时有些文件（例如图片和PDF等）还可以呈现其概览。这样在浏览文件的时候很有帮助，可以很方便的找到想要的文件。<br><img src="http://img.itworld123.com/11058170-e50cb7b381d0a5c8.png" alt="图2 目录呈现形式"></p>
+<h1 id="什么是目录"><a href="#什么是目录" class="headerlink" title="什么是目录"></a>什么是目录</h1><p>废话说了一大箩，下面我们进入正题。<strong>到底什么是目录？目录的本质是什么？</strong>我们知道在Ext4中文件是被组织成树型结构的，而目录就是其中的中间节点。如图是一个目录结构的基本示意图。<br><img src="http://img.itworld123.com/11058170-cbe0a63a7410260f.png" alt="图3 目录结构"><br>直观上感觉目录就是一个<code>容器</code>，其中子目录和文件是包含在目录中的。那么目录在磁盘空间上有事怎么样一个存在呢？直观的感觉是目录是一个比较大的存储区域，然后子目录和文件等都在这个区域中，如图4所示。<br><img src="http://img.itworld123.com/11058170-666bd7ccb480228f.png" alt="图4 猜测的数据布局形式"><br>然而，上述存储形式可能问题会比较多：</p>
+<ul>
+<li>由于目录是层层嵌套的，如果采用这种形式，那子目录中的内容就不容易放置</li>
+<li>由于文件大小差异比较大，目录中内容的检索不太容易<br><strong>实际上，在目录中并没有存储文件的数据信息，而只是存储了一个类似C语言指针的东东</strong>，这个东东就是文件的<code>inode id</code>。而目录中的子目录数据和文件数据仍然是平铺在磁盘上的。这样，在目录中通过这个<code>指针</code>就可以轻易的找到文件的数据，而且目录的数据和文件的数据组织也变得非常简单。<br><img src="http://img.itworld123.com/11058170-9517ff81bbc22fe1.png" alt="图5 目录数据存储形式"><h1 id="目录数据结构与组织"><a href="#目录数据结构与组织" class="headerlink" title="目录数据结构与组织"></a>目录数据结构与组织</h1>前面我们了解了Ext4文件系统目录的组织形式，但还是停留在感性的认识层面。接下来我们结合Ext4文件系统中关键的数据结构和磁盘实际数据理解一下目录数据到底是怎么存储的。首先我们需要意识到的是<strong>目录本质上也是一个文件</strong>，只不过其中存储的数据是关于<strong>子目录和文件的名称</strong>信息。理解到这一层面对理解后续内容来说很重要。在逻辑层面上，文件就是一个线性空间，可以理解为一个大的数组（物理层面可能是分散的，暂时不考虑）。<br>那么这个<code>大数组</code>中的元素是什么呢？就是图6所示的这个结构体。从该结构体可以看出，每一项内容包括inode的id、该结构体的大小、文件（子目录）名大小和文件名等信息。在检索目录内容的时候，其实就是根据文件名获得inode的id，然后在根据该id从inode表中获得inode（文件）的详细信息。<br><img src="http://img.itworld123.com/11058170-8d2c6cf95822625e.png" alt="图6 目录子项内容"><br>为了便于理解上述数据结构，我们看一个具体的例子。我们在一个目录中创建文件名为test-0到test-2000等几千个文件，然后把目录中一部分数据导出到某个文件中，图7是这个文件的局部数据。可以对照这图7的数据和图6的数据结构理解一下，图中test-223文件的inode是0X800E1（524513），文件名长度为0X8，结构体长度为0X10（16）。<br><img src="http://img.itworld123.com/11058170-36694a8861643073.png" alt="图7 目录内容细节"><br>我们再通过<code>stat</code>命令看一下test-223文件的详细信息。可以看到inode信息与上面存储的<strong>信息是一致的</strong>。<br><img src="http://img.itworld123.com/11058170-a3ac46fb59ba7bca.png" alt="图8 文件详细信息"><br>目录数据组织本文就介绍到这里，关于逻辑地址与物理地址的对应关系部分本文不再介绍。如果想了解，可以参考《<a href="https://www.jianshu.com/p/903af75665d9" target="_blank" rel="noopener">Ext4文件系统之文件数据组织</a>》一文，目录和文件的数据组织形式是一致的。<br>细心的同学可能会发现图7中文件名并不是有序的，这样就存在一个问题。如果一个目录中文件的数量非常多，比如数万个，那么查找文件的性能就会非常差，这个问题怎么解决？<h1 id="目录查询加速"><a href="#目录查询加速" class="headerlink" title="目录查询加速"></a>目录查询加速</h1>上面我们提出了一个问题，那就是对于大目录，如何提升查询性能。在Ext4文件系统中实现了一个名为<code>目录索引</code>的特性，通过索引可以极大的提升性能。<blockquote>
+<p>Use hashed b-trees to speed up name lookups in large directories.  This feature is supported by ext3 and ext4 file systems, and is ignored by ext2 file systems.</p>
+</blockquote>
+</li>
+</ul>
+<p>在Ext4文件系统中这个索引是通过一个成为哈希树（多叉树）的方式实现的，其中Key为文件名的哈希值，而Value则是具体的数据位置（磁盘块位置）。由于Key是有序的，因此查找非常方便，也就是可以通过文件名快速的找到ext4_dir_entry_2，然后可以找到inode信息。<br>如图9是关于哈希树的一个简单示意图，例如其中hash1和hash2之间的值的文件名都存储在hash1所指向的块中，而hash2和hash3之间的内容则存储在hash2存储的块中，以此类推。当然，这里给出的是一个一层的哈希树，实际上可以是二层。<br><img src="http://img.itworld123.com/11058170-a2cc4dd52a2fbfd7.png" alt="图9 哈希树示意图"><br>可以通过<code>debugfs</code>工具查看目录的哈希树信息，如图10为本文构造的目录的哈希树树根内容。其中<strong>Entry #0</strong>就是一个哈希项的内容，其中包括哈希值（Key）和指向的逻辑地址（Value）。<br><img src="http://img.itworld123.com/11058170-08778e2e665e0638.png" alt="图10 哈希树根内容"><br>我们结合Ext4文件系统的数据结构可以将哈希树调整为图11所示。从这个图上可以看出inode节点并没有任何变化，而是其中i_block指针发生了变化。这里从原来的Extent B树变成了现在的哈希树。<br><img src="http://img.itworld123.com/11058170-ade9d6c6621275b5.png" alt="图11 Ext4哈希树结构"></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/文件系统/" rel="tag"># 文件系统</a>
+          
+            <a href="/tags/Ext4/" rel="tag"># Ext4</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/04/storage/ceph/Ceph存储引擎BlueStore简析/" rel="next" title="Ceph存储引擎BlueStore简析">
+                <i class="fa fa-chevron-left"></i> Ceph存储引擎BlueStore简析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">35</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">38</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是目录"><span class="nav-number">1.</span> <span class="nav-text">什么是目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#目录数据结构与组织"><span class="nav-number">2.</span> <span class="nav-text">目录数据结构与组织</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#目录查询加速"><span class="nav-number">3.</span> <span class="nav-text">目录查询加速</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
