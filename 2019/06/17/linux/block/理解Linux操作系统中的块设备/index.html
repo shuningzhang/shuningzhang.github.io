@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="块设备也就是存储以“块”为单位数据的设备，比较典型的如磁盘设备、光盘或者优盘。本文首先集中在磁盘设备的相关内容的分析，其它设备类型很类似，暂时不做介绍。">
+<meta name="keywords" content="Linux,块存储,磁盘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理解Linux操作系统中的块设备">
+<meta property="og:url" content="http://www.itworld123.com/2019/06/17/linux/block/理解Linux操作系统中的块设备/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:description" content="块设备也就是存储以“块”为单位数据的设备，比较典型的如磁盘设备、光盘或者优盘。本文首先集中在磁盘设备的相关内容的分析，其它设备类型很类似，暂时不做介绍。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img.itworld123.com/11058170-439a25e24692d676.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-438dbf04295c1df5.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-1f5b258e00c43356.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-f38b0fb8fd271578.png">
+<meta property="og:updated_time" content="2019-06-17T11:16:21.090Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="理解Linux操作系统中的块设备">
+<meta name="twitter:description" content="块设备也就是存储以“块”为单位数据的设备，比较典型的如磁盘设备、光盘或者优盘。本文首先集中在磁盘设备的相关内容的分析，其它设备类型很类似，暂时不做介绍。">
+<meta name="twitter:image" content="http://img.itworld123.com/11058170-439a25e24692d676.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/2019/06/17/linux/block/理解Linux操作系统中的块设备/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>理解Linux操作系统中的块设备 | SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3fb960eb6310643ffc24656f6dd2f50d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-commonweal">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>公益 404</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/06/17/linux/block/理解Linux操作系统中的块设备/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">理解Linux操作系统中的块设备
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-17 19:03:15 / 修改时间：11:16:21" itemprop="dateCreated datePublished" datetime="2019-06-17T19:03:15+00:00">2019-06-17</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/块存储/" itemprop="url" rel="index"><span itemprop="name">块存储</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="http://img.itworld123.com/11058170-439a25e24692d676.png" alt="图1 Windows磁盘设备"><br>块设备也就是存储以“块”为单位数据的设备，比较典型的如磁盘设备、光盘或者优盘。本文首先集中在磁盘设备的相关内容的分析，其它设备类型很类似，暂时不做介绍。<br><a id="more"></a><br>在Windows操作系统下磁盘设备似乎是一个实实在在的设备，我们可以通过图形界面对磁盘设备进行管理。如图1是Windows下的磁盘管理界面，可以通过这个界面清晰的看到磁盘设备，并且可以对其进行格式化等操作。<br>Linux操作系统的磁盘设备并不直观，在LInux系统中“一切皆文件”的理念下，<strong>磁盘设备其实也是一个文件</strong>，只不过是一个比较特殊的文件。如图2是某些磁盘和分区的文件路径，其中黄色字体部分是磁盘的路径，而前面红色方框内的<code>b</code>表示这个文件是磁盘设备文件，而非普通文件。<br><img src="http://img.itworld123.com/11058170-438dbf04295c1df5.png" alt="图2 Linux系统下磁盘设备"><br><strong>磁盘设备文件也是位于VFS（虚拟文件系统）下面，与Ext4等文件系统类似</strong>。用户层面可以用访问普通文件的接口（API）访问磁盘。如下代码是用Python实现的一个向磁盘写入字符串的程序。代码很简单，就是打开磁盘所在的路径（path），然后调用<code>write</code>函数写数据。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os, sys </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">write_file</span><span class="params">(filename, data)</span>:</span></span><br><span class="line">        fd = file(filename, <span class="string">"a+"</span>)</span><br><span class="line">        fd.write(data)</span><br><span class="line">        fd.close()</span><br><span class="line"></span><br><span class="line">write_file(<span class="string">"/dev/sdb"</span>, <span class="string">"itworld123"</span>)</span><br></pre></td></tr></table></figure></p>
+<h1 id="Linux系统中磁盘的本质"><a href="#Linux系统中磁盘的本质" class="headerlink" title="Linux系统中磁盘的本质"></a>Linux系统中磁盘的本质</h1><p><strong>通过上面的描述我们知道对于Linux操作系统来说，磁盘就是一个文件</strong>。而磁盘本身就是一个线性存储空间（可以理解为一个大数组），这种方式与文件也是非常类似的。鉴于上述相似性，Linux将磁盘设备抽象为一个文件并没有任何不妥之处。<br>实质上，在Linux操作系统磁盘设备是基于一个称为<code>bdev</code>的伪文件系统来管理的，bdev文件系统是一个在内存中的伪文件系统（在内存的文件系统，无持久化的数据），位置与Ext4等文件系统相同。如图3所示，bdev文件系统的位置为图中红色区域。</p>
+<p><img src="http://img.itworld123.com/11058170-1f5b258e00c43356.png" alt="图3 bdev文件系统位置"></p>
+<p>理解了块设备的管理方式，再结合我们之前对文件系统的相关介绍，这样就很容易理解后续的内容了。在文件系统相关文章介绍中我们知道，不同文件系统数据处理的关键是其提供的函数集，而这个函数集是在打开文件的时候确定的。磁盘设备也是如此，当我们打开磁盘设备时，操作系统根据磁盘设备的特性，会初始化inode中的函数集。而后续对该磁盘设备的读写操作就能通过该函数集完成。如下代码所示 ，块设备连同字符设备和管道都作为特殊的文件进行处理，并初始化对应的函数集。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">init_special_inode</span><span class="params">(struct inode *inode, <span class="keyword">umode_t</span> mode, <span class="keyword">dev_t</span> rdev)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	inode-&gt;i_mode = mode;</span><br><span class="line">	<span class="keyword">if</span> (S_ISCHR(mode)) &#123;</span><br><span class="line">		inode-&gt;i_fop = &amp;def_chr_fops;</span><br><span class="line">		inode-&gt;i_rdev = rdev;</span><br><span class="line">	&#125; <span class="keyword">else</span> <span class="keyword">if</span> (S_ISBLK(mode)) &#123;  <span class="comment">/*块设备函数集*/</span></span><br><span class="line">		inode-&gt;i_fop = &amp;def_blk_fops;</span><br><span class="line">		inode-&gt;i_rdev = rdev;</span><br><span class="line">	&#125; <span class="keyword">else</span> <span class="keyword">if</span> (S_ISFIFO(mode))</span><br><span class="line">		inode-&gt;i_fop = &amp;pipefifo_fops;</span><br><span class="line">... ...</span><br></pre></td></tr></table></figure></p>
+<p>完成函数集的初始化后，当用户调用VFS层的接口是，VFS层就可以找到具体的处理函数，进而完成用户的操作。<strong>这里的函数集与本地文件系统的函数集别无二致，差异在于普通文件系统需要管理目录和文件，而这里是将磁盘看作一个大文件</strong>。</p>
+<h1 id="磁盘的缓存"><a href="#磁盘的缓存" class="headerlink" title="磁盘的缓存"></a>磁盘的缓存</h1><p>既然磁盘伪文件系统bdev本身也是一个文件系统，因此自然也可以有缓存。这个缓存就是用于提升磁盘性能的缓存系统。磁盘的缓存系统与文件系统的缓存系统类似，也是通过页缓存来实现的。当然，Linux磁盘的缓存是可以关闭的，此时将调用另外一套函数集。<br>这样说起来可能比较抽象，下面我们以一个具体的例子来看一下磁盘缓存的具体实现。如下是磁盘伪文件系统的函数集，我们以写数据为例进行介绍。<br><img src="http://img.itworld123.com/11058170-f38b0fb8fd271578.png" alt="图4 磁盘"><br>写数据的函数为blkdev_write_iter，该函数会调用generic_perform_write函数。如果大家阅读过<strong>本号</strong>关于文件系统的文件的话，很清楚后者就是VFS中向页缓存写数据的函数。也就是说块设备伪文件系统的逻辑与本地文件系统完全一致。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/块存储/" rel="tag"># 块存储</a>
+          
+            <a href="/tags/磁盘/" rel="tag"># 磁盘</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/17/programmer/一个走丢的程序员/" rel="next" title="一个走丢的程序员">
+                <i class="fa fa-chevron-left"></i> 一个走丢的程序员
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/17/programmer/由孙子兵法看程序员跳槽/" rel="prev" title="由孙子兵法看程序员跳槽">
+                由孙子兵法看程序员跳槽 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">39</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">42</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux系统中磁盘的本质"><span class="nav-number">1.</span> <span class="nav-text">Linux系统中磁盘的本质</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#磁盘的缓存"><span class="nav-number">2.</span> <span class="nav-text">磁盘的缓存</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
