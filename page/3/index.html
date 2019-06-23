@@ -1219,7 +1219,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_read_base/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -1239,7 +1239,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/05/01/linux/filesystem/ext2/ext2_read_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 读数据流程</a>
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 扩展属性</a>
               
             
           </h1>
@@ -1341,11 +1341,11 @@
 
       
         
-          <p><img src="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg" alt><br>读数据流程关于如何从用户态到Ext2文件系统公共部分（VFS）的流程本文不再详细介绍，这一部分与写流程基本一致，具体可以参考文末的相关文章介绍。如图是从用户态到Ext2文件系统的函数调用图，从图上可以看到对于Ext2文件系统在读数据流程中调用了大量VFS的函数，这主要原因是Ext2是Linux的原生文件系统，其实耦合还是比较大的。我们仔细观察一下，实际起作用的函数是Ext2文件系统的ext2_file_read_iter函数。<br>
+          <p><img src="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg" alt><br>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/05/01/linux/filesystem/ext2/ext2_read_base/#more" rel="contents">
+              <a class="btn" href="/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1591,7 +1591,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_read_base/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -1611,7 +1611,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 扩展属性</a>
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_read_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 读数据流程</a>
               
             
           </h1>
@@ -1713,11 +1713,11 @@
 
       
         
-          <p><img src="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg" alt><br>
+          <p><img src="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg" alt><br>读数据流程关于如何从用户态到Ext2文件系统公共部分（VFS）的流程本文不再详细介绍，这一部分与写流程基本一致，具体可以参考文末的相关文章介绍。如图是从用户态到Ext2文件系统的函数调用图，从图上可以看到对于Ext2文件系统在读数据流程中调用了大量VFS的函数，这主要原因是Ext2是Linux的原生文件系统，其实耦合还是比较大的。我们仔细观察一下，实际起作用的函数是Ext2文件系统的ext2_file_read_iter函数。<br>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/#more" rel="contents">
+              <a class="btn" href="/2019/05/01/linux/filesystem/ext2/ext2_read_base/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
