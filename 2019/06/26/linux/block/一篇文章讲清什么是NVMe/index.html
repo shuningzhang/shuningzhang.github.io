@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="因为NVMe的出现，硬盘的性能得到了极大的提升。这个极大是多少呢？读带宽从500MB/s提高到了3200MB/s，写带宽从400MB/s提高到了1200MB/s左右。而读IOPS则达到了50万，甚至更高。也就是说，现在一块基于NVMe的SSD硬盘的性能比一个企业级磁盘阵列还要好。牛皮吹了这么多，那到底什么是NVMe呢？NVMe的全称是Non-Volatile Memory Express，如果翻译">
+<meta name="keywords" content="Linux,块存储,SSD">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一篇文章讲清什么是NVMe">
+<meta property="og:url" content="http://www.itworld123.com/2019/06/26/linux/block/一篇文章讲清什么是NVMe/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:description" content="因为NVMe的出现，硬盘的性能得到了极大的提升。这个极大是多少呢？读带宽从500MB/s提高到了3200MB/s，写带宽从400MB/s提高到了1200MB/s左右。而读IOPS则达到了50万，甚至更高。也就是说，现在一块基于NVMe的SSD硬盘的性能比一个企业级磁盘阵列还要好。牛皮吹了这么多，那到底什么是NVMe呢？NVMe的全称是Non-Volatile Memory Express，如果翻译">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img.itworld123.com/11058170-128f6bdd8fdc4746.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-2572c159b8432a52.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-d6f8a38c646638e0.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-d6a9f40e307e3491.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-ba1768a44f96e377.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-ece1e2d8117c2f23.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-8d1d64c7c5e20314.png">
+<meta property="og:updated_time" content="2019-07-01T12:27:44.820Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一篇文章讲清什么是NVMe">
+<meta name="twitter:description" content="因为NVMe的出现，硬盘的性能得到了极大的提升。这个极大是多少呢？读带宽从500MB/s提高到了3200MB/s，写带宽从400MB/s提高到了1200MB/s左右。而读IOPS则达到了50万，甚至更高。也就是说，现在一块基于NVMe的SSD硬盘的性能比一个企业级磁盘阵列还要好。牛皮吹了这么多，那到底什么是NVMe呢？NVMe的全称是Non-Volatile Memory Express，如果翻译">
+<meta name="twitter:image" content="http://img.itworld123.com/11058170-128f6bdd8fdc4746.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/2019/06/26/linux/block/一篇文章讲清什么是NVMe/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>一篇文章讲清什么是NVMe | SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3fb960eb6310643ffc24656f6dd2f50d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-commonweal">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>公益 404</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/06/26/linux/block/一篇文章讲清什么是NVMe/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">一篇文章讲清什么是NVMe
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-26 21:32:36" itemprop="dateCreated datePublished" datetime="2019-06-26T21:32:36+00:00">2019-06-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-01 12:27:44" itemprop="dateModified" datetime="2019-07-01T12:27:44+00:00">2019-07-01</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/块存储/" itemprop="url" rel="index"><span itemprop="name">块存储</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>因为NVMe的出现，硬盘的性能得到了<strong>极大的提升</strong>。这个极大是多少呢？读带宽<strong>从500MB/s提高到了3200MB/s</strong>，写带宽从400MB/s提高到了1200MB/s左右。而读IOPS则达到了50万，甚至更高。也就是说，现在一块基于NVMe的SSD硬盘的性能比一个企业级磁盘阵列还要好。<br>牛皮吹了这么多，<strong>那到底什么是NVMe呢</strong>？NVMe的全称是Non-Volatile Memory Express，如果翻译过来就是<strong>非易失性内存主机控制器接口规范</strong>。你可能还是一头雾水，那我们上搜索引擎搜索一下这个关键词，可能会得到如下图片。<br><img src="http://img.itworld123.com/11058170-128f6bdd8fdc4746.png" alt="图1 NVMe存储"><br><a id="more"></a><br>废话说了半天，到底什么是NVMe呢？首先它是一种接口规范，其次它是用于存储设备的接口规范。准确的说是目前最新的存储设备通信协议。<strong>这个协议就好比SAS和SATA一样，用于定义硬件接口和传输协议</strong>。</p>
+<h1 id="关于存储的几个概念"><a href="#关于存储的几个概念" class="headerlink" title="关于存储的几个概念"></a>关于存储的几个概念</h1><p>为了彻底搞清楚什么是NVMe，我们先理清楚几个关于存储的概念。<br><strong>尺寸外形</strong>：也就是设备的形状和大小，通常存储设备的尺寸外形包括如下：</p>
+<ul>
+<li>2.5寸或者3.5寸驱动器（在SFF标准中定义）</li>
+<li>M.2 和 PCI Express（PCIe）（在PCI-SIG标准中定义）</li>
+</ul>
+<p><strong>接口</strong>：也就是设备如何与计算机通信。常见的存储设备接口包括：</p>
+<ul>
+<li>SATA接口，通常用于2.5寸和3.5寸硬盘，有时候一些M.2设备也会使用</li>
+<li>PCI Express(PCIe)接口， 用于M.2和PCIe设备</li>
+<li>SAS（串行SCSI）和FC（Fibre Channel）接口，仅用于服务器领域和数据中心<br>PCIe接口要比SATA接口快的多，SATA3最大带宽是6Gb/s，而基于4X PCIe的M.2接口最大可以达到32Gb/s。</li>
+</ul>
+<p><strong>协议</strong>：定义了如何在计算机与设备之间传输数据。常见的协议包括：</p>
+<ul>
+<li>用于SATA接口的AHCI或者ATA协议，</li>
+<li>用于PCIe接口的NVMe协议</li>
+</ul>
+<p>到这里我们应该比较清晰了，<strong>NVMe是运行在某种接口上的通信协议</strong>，用于规范计算机与存储设备的数据传输。上述设备尺寸、接口和协议通常是可以组合的。下面是常见的集中组合形式。</p>
+<ul>
+<li><p>一个2.5寸SSD硬盘，基于SATA接口，通信协议是AHCI或者ATA。具体设备大概如图2所示。<br><img src="http://img.itworld123.com/11058170-2572c159b8432a52.png" alt="图2 SATA接口的SSD"></p>
+</li>
+<li><p>一个M.2的SSD， 基于PCIe接口，通信协议是NVMe。具体设备大概如图3所示。<br><img src="http://img.itworld123.com/11058170-d6f8a38c646638e0.png" alt="图3 M.2的SSD"></p>
+</li>
+<li><p>一个PCIe的SSD，基于PCIe接口，通信协议是NVMe。具体设备大概如图4所示。<br><img src="http://img.itworld123.com/11058170-d6a9f40e307e3491.png" alt="图4 PCIe的SSD"></p>
+</li>
+</ul>
+<p>这里只是给出了几个具体的例子，便于大家理解接口、设备和协议的关系。具体来说，还有其它很多种组合形式，本文不在赘述。</p>
+<h1 id="为什么NVMe会这么快"><a href="#为什么NVMe会这么快" class="headerlink" title="为什么NVMe会这么快"></a>为什么NVMe会这么快</h1><p>上面我们介绍了什么是NVMe，下面本文将介绍一下为什么NVMe如此之快（<em>注意：这里说的快是基于SSD设备的，如果是机械硬盘则不然</em>）。由于SSD本身的物理特性，其数据的访问已经非常快了，性能的瓶颈就是出在计算机与设备连接的接口和协议上面。<br>我们举一个简单的例子。比如我们有一个仓库会不断的生产出产品来，我们可以机械手将产品从仓库拿到其它地方（如图5所示）。对于SATA的SSD，类似于一个单臂的机器人，仓库生产的很快，但机器人每次只能拿一个，搬移的速度就比较慢。<br><img src="http://img.itworld123.com/11058170-ba1768a44f96e377.png" alt="图5 单臂机器人"><br>然而对于基于NVMe的SSD呢？相当于这个机器人长了数百只手，这样速度显然就比前者快的多了。<br><img src="http://img.itworld123.com/11058170-ece1e2d8117c2f23.png" alt="图6 多臂机器人"><br>NVMe协议的原理也是如此，它本质是上建立了多个计算机与存储设备的通路，这样搬运数据的速度自然就提高了。在NVMe协议中，多个通路其实就是多个队列，具体如图7所示。在SATA中计算机与存储设备只能有一个队列，即使是多CPU情况下，所有请求只能经过这样一个狭窄的道路。而NVMe协议可以最多有64K个队列，每个CPU或者核心都可以有一个队列，这样并发程度大大提升，性能也自然更高了。<br><img src="http://img.itworld123.com/11058170-8d1d64c7c5e20314.png" alt="图7 NVMe的多队列"></p>
+<p>今天只是一个入门，后面我们再详细的介绍关于NVMe的更多内容。<strong>如果觉得不错，还请大家关注本号，如果觉得太烂，还请下面留言</strong>。</p>
+<p>更及时的获取新内容，请关注微信公众号： itworld123</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/块存储/" rel="tag"># 块存储</a>
+          
+            <a href="/tags/SSD/" rel="tag"># SSD</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/25/architecture/general/2019-06-25-性能优化，我们应该知道的更多一点/" rel="next" title="性能优化，我们应该知道的更多一点">
+                <i class="fa fa-chevron-left"></i> 性能优化，我们应该知道的更多一点
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/29/linux/block/深入理解NVMe协议的原理/" rel="prev" title="深入理解NVMe协议的原理">
+                深入理解NVMe协议的原理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">47</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">46</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#关于存储的几个概念"><span class="nav-number">1.</span> <span class="nav-text">关于存储的几个概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么NVMe会这么快"><span class="nav-number">2.</span> <span class="nav-text">为什么NVMe会这么快</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

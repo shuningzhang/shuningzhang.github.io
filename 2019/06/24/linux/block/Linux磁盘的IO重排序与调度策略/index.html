@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="万芝堂是百年老字号了，主营中草药，并兼老中医出诊。虽然万芝堂有近百年的历史，但活动范围仅限北京城，即使在北京城也仅有2个分号。最近万芝堂换了新掌柜的。新掌柜新官上任三把火，不仅在北京增加了分号数量，在保定府也开了好几家分号。">
+<meta name="keywords" content="Linux,块存储,磁盘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux磁盘的IO重排序与调度策略">
+<meta property="og:url" content="http://www.itworld123.com/2019/06/24/linux/block/Linux磁盘的IO重排序与调度策略/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:description" content="万芝堂是百年老字号了，主营中草药，并兼老中医出诊。虽然万芝堂有近百年的历史，但活动范围仅限北京城，即使在北京城也仅有2个分号。最近万芝堂换了新掌柜的。新掌柜新官上任三把火，不仅在北京增加了分号数量，在保定府也开了好几家分号。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img.itworld123.com/11058170-6b84d983731028cc.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-2630a37232bc5885.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-d10e61a1547ef81b.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-8bef8b6b192c36c8.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-b0e4a72f32598650.png">
+<meta property="og:updated_time" content="2019-07-01T12:27:44.820Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux磁盘的IO重排序与调度策略">
+<meta name="twitter:description" content="万芝堂是百年老字号了，主营中草药，并兼老中医出诊。虽然万芝堂有近百年的历史，但活动范围仅限北京城，即使在北京城也仅有2个分号。最近万芝堂换了新掌柜的。新掌柜新官上任三把火，不仅在北京增加了分号数量，在保定府也开了好几家分号。">
+<meta name="twitter:image" content="http://img.itworld123.com/11058170-6b84d983731028cc.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/2019/06/24/linux/block/Linux磁盘的IO重排序与调度策略/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Linux磁盘的IO重排序与调度策略 | SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3fb960eb6310643ffc24656f6dd2f50d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-commonweal">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>公益 404</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/06/24/linux/block/Linux磁盘的IO重排序与调度策略/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Linux磁盘的IO重排序与调度策略
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-24 17:01:29" itemprop="dateCreated datePublished" datetime="2019-06-24T17:01:29+00:00">2019-06-24</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-01 12:27:44" itemprop="dateModified" datetime="2019-07-01T12:27:44+00:00">2019-07-01</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/块存储/" itemprop="url" rel="index"><span itemprop="name">块存储</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>万芝堂是百年老字号了，主营中草药，并兼老中医出诊。虽然万芝堂有近百年的历史，但活动范围仅限北京城，即使在北京城也仅有2个分号。最近万芝堂换了新掌柜的。新掌柜新官上任三把火，不仅在北京增加了分号数量，在保定府也开了好几家分号。<br><img src="http://img.itworld123.com/11058170-6b84d983731028cc.png" alt="图1 总号与分号"></p>
+<a id="more"></a>
+<p>保定府本身也比较大，分号开了5家，具体的在各大街区基本都有，繁华街区开了3家。这样也符合供求关系的规则，毕竟繁华街区人多，需要草药的人也会多一些。<br><img src="http://img.itworld123.com/11058170-2630a37232bc5885.png" alt="图2 保定府分号"></p>
+<p>分号多了，管理的难度就上来了。首先要考虑的是草药质量的问题。如果各个分号各自负责采购，药品质量很难保证质量。况且还有很多是秘方药，不可能在分号生产。思来想去，只能在总号生产，然后通过镖局分发到各个分号。由于实际情况不同，各个分号需要补充的草药类型可能是不同的。具体方法是分号提供草药的类型和数量，总号统一分发。</p>
+<p>策略确定好了，生意也就这么运行了。万芝堂就找了本地一家比较有名的镖局—会友镖局。比较草药这东西事关人命，不能不重视，找一个好点的镖局还能放心一些，免得有些小镖局掉包。</p>
+<p>很快，保定府的分号1通过飞鸽传书要求发一批保命丸。总号收到消息马上与会友镖局联系，安排发货。镖局的人刚把货送到保定分号1，还没喘口气，又来新单子了。万芝堂又要向保定府分号2发一批狗皮膏药。会友镖局的人马不停蹄的将药运到了保定府分号2。回来不久，饭还没顾上吃一口，万芝堂又要发送一箱麻沸散到保定府分号3。</p>
+<p><img src="http://img.itworld123.com/11058170-d10e61a1547ef81b.png" alt="图3 傻干活"></p>
+<p>大当家的感觉心力交瘁，浑身乏力啊。虽然钱是给够了，这么天天溜也不是个事啊。于是大当家叫上二当家和三当家一块商量一下对策。<br>三当家若有所思的说：“既然万芝堂生意这么火，那我们何不把草药先放到镖局。在镖局压两三天，如果有新的货物要送，我们就一起送过去，要是没有，那我们再送也不迟。”（<strong>注：这就是磁盘驱动中的蓄流/泄流，也就是IO不会马上发送给驱动，而是攒一批再发送</strong>）<br>其他当家的觉得此计甚好，于是大家一拍即合。<br>没过两天，万芝堂又要给保定府的分号1送一批<strong>大力丸</strong>。镖局将大力丸收下，但并没有安排马上送货。果然，第二天万芝堂有送过来一批狗皮膏药，要送到分号5。又等了2天，不见万芝堂来送货，于是会友镖局就押镖送货，将大力丸和狗皮膏药一起送到了保定府，并依次送到了分号1和分号5。<br><img src="http://img.itworld123.com/11058170-8bef8b6b192c36c8.png" alt="图4 赞起来一起"></p>
+<p>万芝堂的生意确实是好，会友镖局押镖的刚回来，万芝堂又给送过来一批货，而且这次货物非常多。上面有个清单，万芝堂交代依照清单送货就行。清单是这么写的：</p>
+<blockquote>
+<p>分号1 -&gt; 狗皮膏药一箱<br>分号4 -&gt; 大力丸一箱<br>分号2 -&gt; 健骨粉两箱<br>分号5 -&gt; 保命丸一箱<br>分号3 -&gt; 保命丸一箱</p>
+</blockquote>
+<p>会友镖局马不停蹄的将货物送到了保定府。由于长途跋涉，大家实在太累了。于是大当家的先让大家找个客栈休息，明天再挨家送货。<br>在休息的时候大当家的想：“虽然这几家都在保定府内，但保定府这么大，我要想想怎么送省力一些。”<br>大当家的继续想：“既然都已经到保定了，也不差这一时半会儿了。那我就不安清单的顺序送货，我按整个路程送货，怎么方便我就怎么来。”于是大当家的将本来应该由图5左侧的送货路径安排成了图5右侧的送货顺序。这样，整个送货的路径减少了一大半。(<strong>注：这就是磁盘IO的重排序，尽量保证路径最优，避免磁臂来回摆动的耗时</strong>)<br><img src="http://img.itworld123.com/11058170-b0e4a72f32598650.png" alt="图5 规划路径"></p>
+<p>随着生意越做越多，会友镖局的名声也打出来了。除了万芝堂，其它XX堂也都让会友镖局送货。会友镖局还是故技重施，所有货物攒到一定量之后再发。<br>有一天万芝堂的掌柜的过来了，说：“大当家的啊，你们这不靠谱啊。我这前几天发的货，怎么还没送到啊。保定府那边都发了两个飞鸽传书了。”<br>大当家的赔笑道：“不好意思啊，佟掌柜，最近货物实在太多，我也是没办法啊。”<br>经过两人的协商，最后万芝堂的货物送来后都要确定一个送到的时间，然后会友镖局必须在规定时间内送到。这样，分号再也不会出现过了半个月还没收到货的情况。（<strong>注： 这就是磁盘的Deadline调度策略，保证</strong>）<br>虽然其它XX堂也让会友镖局送货，但他们的分号本来就少，而且有些并不在保定府。比如医仁堂的分号在保定有一家，在太原有一家，而万友堂的分号则在石家庄。以医仁堂为例，他的货物每次总是放好几天，什么时候万芝堂送货的时候，会友镖局才捎带着将货物一起送过去。因为单独送医仁堂的那点货物实在是不划算。<br>由于现在货物多，押镖的人有少，实在忙不过来。会友镖局大部分货物是送往保定的，太原等其它地方的货物比较少。因此，镖局大部分时间往返北京保定之间，太原的货物总是很慢才能送到。这导致医仁堂非常不满意，于是医仁堂的掌柜的去找大当家的理论：“我们付的钱又不少，凭啥我们的货物发送的总是这么慢…..”<br>虽然吵了一架，但大当家还是一个比较好的CEO，他反思到：“顾客就是上帝，确实不应该这样。我们应该保证每一个客户的满意，不能只顾大客户啊！”<br>于是大当家的制定了一个策略，要求大家发货的时候尽量保证每个客户的货物都能尽量公平的发送出去。即使是小客户货物少，也不能不发。（<strong>注： 这就是磁盘的CFQ调度策略，它保证各个进程尽量公平</strong>）</p>
+<p>各种制度不断完善，镖局的生意也越来越好了。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/块存储/" rel="tag"># 块存储</a>
+          
+            <a href="/tags/磁盘/" rel="tag"># 磁盘</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/23/linux/base/程序员必备高级技术之函数调用栈/" rel="next" title="程序员必备高级技术之函数调用栈">
+                <i class="fa fa-chevron-left"></i> 程序员必备高级技术之函数调用栈
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/25/architecture/general/2019-06-25-性能优化，我们应该知道的更多一点/" rel="prev" title="性能优化，我们应该知道的更多一点">
+                性能优化，我们应该知道的更多一点 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">47</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">46</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

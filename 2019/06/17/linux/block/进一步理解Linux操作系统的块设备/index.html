@@ -110,7 +110,7 @@
 <meta property="og:image" content="http://img.itworld123.com/11058170-0060565f0ee2562a.png">
 <meta property="og:image" content="http://img.itworld123.com/11058170-ed49867cf6826ea5.png">
 <meta property="og:image" content="http://img.itworld123.com/11058170-23ae84400b97ac04.jpg">
-<meta property="og:updated_time" content="2019-06-17T11:17:57.645Z">
+<meta property="og:updated_time" content="2019-07-01T12:27:44.824Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="进一步理解Linux操作系统的块设备">
 <meta name="twitter:description" content="在前文《理解Linux操作系统的块设备》中我们从比较高层面（Hight Level）介绍了块设备的原理和块设备的特性。但是关于Linux操作系统块设备的实现原理可能还一知半解。本文将进一步深入的分析Linux的块设备，期望能让大家更加深入的理解块设备的实现细节。">
@@ -418,12 +418,24 @@
                 
               
 
-              <time title="创建时间：2019-06-17 19:23:56 / 修改时间：11:17:57" itemprop="dateCreated datePublished" datetime="2019-06-17T19:23:56+00:00">2019-06-17</time>
+              <time title="创建时间：2019-06-17 19:23:56" itemprop="dateCreated datePublished" datetime="2019-06-17T19:23:56+00:00">2019-06-17</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-01 12:27:44" itemprop="dateModified" datetime="2019-07-01T12:27:44+00:00">2019-07-01</time>
               
             
           </span>
@@ -483,7 +495,7 @@
 
       
         <p><img src="http://img.itworld123.com/11058170-deb13bcb17ca05e1.png" alt="图2 Linux内核的总线架构"></p>
-<p>在前文<a href="http://www.itworld123.com/2019/06/17/linux/block/理解Linux操作系统中的块设备/">《理解Linux操作系统的块设备》</a>中我们从比较高层面（Hight Level）介绍了块设备的原理和块设备的特性。但是关于Linux操作系统块设备的实现原理可能还一知半解。<strong>本文将进一步深入的分析Linux的块设备，期望能让大家更加深入的理解块设备的实现细节</strong>。</p>
+<p>在前文<a href="https://www.jianshu.com/p/10c9476e671b" target="_blank" rel="noopener">《理解Linux操作系统的块设备》</a>中我们从比较高层面（Hight Level）介绍了块设备的原理和块设备的特性。但是关于Linux操作系统块设备的实现原理可能还一知半解。<strong>本文将进一步深入的分析Linux的块设备，期望能让大家更加深入的理解块设备的实现细节</strong>。</p>
 <a id="more"></a>
 <p>其实在Linux操作系统中可以非常方便的实现一个块设备，或者说是块设备驱动。在Linux中我们熟知的RAID、多路径和Ceph的RBD等都是这样一种块设备。其特征就是在操作系统的<code>/dev</code>目录下面会创建一个文件。如图1显示的不同类型的块设备，包含普通的SCSI块设备和LVM逻辑卷块设备，本质上都是块设备，差异在于在不同的业务逻辑和名称。<br><img src="http://img.itworld123.com/11058170-694ae2b0e50ca836.png" alt="图1 不同类型的块设备"></p>
 <h1 id="块设备的实现原理"><a href="#块设备的实现原理" class="headerlink" title="块设备的实现原理"></a>块设备的实现原理</h1><p>在Linux操作系统中，<strong>块设备的实现其实十分简单，但也十分复杂</strong>。简单的是我们可以只用2个函数就可以创建一个块设备驱动程序；复杂的地方是块设备的总线和底层设备驱动的关系错综复杂，且块设备驱动种类繁多。<br>我们先看一下如何创建一个块设备，创建的方法很简单，主要是调用Linux内核的2个函数，分别是alloc_disk和add_disk。alloc_disk用于分配一个<code>gendisk</code>结构体的实例，而后者则是将该结构体实例注册到系统中。经过上述2步的操作，我们就可以在<code>/dev</code>目录下看到一个块设备。<strong>另外一个比较重要的地方是初始化gendisk结构体的请求队列，这样应用层有请求的时候会调用该队列的例程进行处理</strong>。<br><strong>关于创建块设备的详细实现代码本文并不打算进行深入介绍，需要了解的同学可以阅读《Linux设备驱动程序》这本书</strong>，目前最新的是第三版。<strong>这本书的第16章</strong>详细的介绍了一个基于内存的块设备驱动的实现细节，并且有配套源代码。所谓基于内存的块设备是指这个块设备的数据存储在内存中，而不是真正的诸如磁盘或者光盘的物理设备中。如下是本文从该书中截取的代码片段，核心是上文提到的2个函数。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setup_device</span><span class="params">(struct sbull_dev* dev, <span class="keyword">int</span> which)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">memset</span>(dev, <span class="number">0</span>, <span class="keyword">sizeof</span>(struct sbull_dev));</span><br><span class="line">	dev-&gt;size = nsectors * hardsect_size;</span><br><span class="line">	dev-&gt;data = vmalloc(dev-&gt;size);</span><br><span class="line">	<span class="keyword">if</span> (dev-&gt;data == <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		printk(KERN_NOTICE <span class="string">"vmalloc failed. \n"</span>);</span><br><span class="line">		<span class="keyword">return</span>;	</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	spin_lock_init(&amp;dev-&gt;lock);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*初始化一个队列函数，用于处理IO请求*/</span></span><br><span class="line">	dev-&gt;<span class="built_in">queue</span> = blk_init_queue(sbull_full_request, &amp;dev-&gt;lock);</span><br><span class="line">	dev-&gt;<span class="built_in">queue</span>-&gt;queuedata = dev;</span><br><span class="line">	blk_queue_logical_block_size(dev-&gt;<span class="built_in">queue</span>, hardsect_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*创建gendisk结构体，并初始化*/</span></span><br><span class="line">	dev-&gt;gd = alloc_disk(SBULL_MINORS);</span><br><span class="line">	dev-&gt;gd-&gt;major = sbull_major;</span><br><span class="line">	dev-&gt;gd-&gt;first_minor = which*SBULL_MINORS;</span><br><span class="line">	dev-&gt;gd-&gt;fops = &amp;sbull_ops;</span><br><span class="line">	dev-&gt;gd-&gt;<span class="built_in">queue</span> = dev-&gt;<span class="built_in">queue</span>;</span><br><span class="line">	dev-&gt;gd-&gt;private_data = dev;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*拼凑块设备的名称，为sbulla*/</span></span><br><span class="line">	<span class="built_in">snprintf</span>( dev-&gt;gd-&gt;disk_name, <span class="number">32</span>, <span class="string">"sbull%c"</span>, (<span class="string">'a'</span> + which));</span><br><span class="line">	set_capacity( dev-&gt;gd, nsectors*(hardsect_size/KERNEL_SECTOR_SIZE) );</span><br><span class="line">	add_disk(dev-&gt;gd);  <span class="comment">/*将块设备添加到系统内核*/</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
@@ -550,8 +562,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/06/23/linux/base/程序员必备高级技术之函数调用栈/" rel="prev" title="程序员必备高级技术之函数调用栈">
-                程序员必备高级技术之函数调用栈 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/06/18/architecture/storage/解决系统性能问题的银弹---缓存技术/" rel="prev" title="解决系统性能问题的银弹---缓存技术">
+                解决系统性能问题的银弹---缓存技术 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -623,7 +635,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">47</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -682,7 +694,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">23</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">分类</span>
                   
                 </div>
@@ -785,7 +803,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">43</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">46</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

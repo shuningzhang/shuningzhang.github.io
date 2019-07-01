@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="当我们谈到性能优化，更多的同学可能想到的是系统层面的性能优化。比如在一个Web服务程序中，通过Redis或者其它缓存来提升网站访问的速度等。这一方面是编译器为我们做了很多优化工作，另外一方面是觉得系统层面的优化效果更明显，也更高大上。实际上，除了系统层面的性能优化外，在程序代码层面的性能优化效果也是非常好的。">
+<meta name="keywords" content="架构,性能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="性能优化，我们应该知道的更多一点">
+<meta property="og:url" content="http://www.itworld123.com/2019/06/25/architecture/general/2019-06-25-性能优化，我们应该知道的更多一点/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:description" content="当我们谈到性能优化，更多的同学可能想到的是系统层面的性能优化。比如在一个Web服务程序中，通过Redis或者其它缓存来提升网站访问的速度等。这一方面是编译器为我们做了很多优化工作，另外一方面是觉得系统层面的优化效果更明显，也更高大上。实际上，除了系统层面的性能优化外，在程序代码层面的性能优化效果也是非常好的。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img.itworld123.com/117433757_1_20171127072342854.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-692423b6fc07cd9c.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-e8e60d7966e07048.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-ffeb468231abc49f.png">
+<meta property="og:updated_time" content="2019-07-01T12:27:44.804Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="性能优化，我们应该知道的更多一点">
+<meta name="twitter:description" content="当我们谈到性能优化，更多的同学可能想到的是系统层面的性能优化。比如在一个Web服务程序中，通过Redis或者其它缓存来提升网站访问的速度等。这一方面是编译器为我们做了很多优化工作，另外一方面是觉得系统层面的优化效果更明显，也更高大上。实际上，除了系统层面的性能优化外，在程序代码层面的性能优化效果也是非常好的。">
+<meta name="twitter:image" content="http://img.itworld123.com/117433757_1_20171127072342854.jpg">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/2019/06/25/architecture/general/2019-06-25-性能优化，我们应该知道的更多一点/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>性能优化，我们应该知道的更多一点 | SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3fb960eb6310643ffc24656f6dd2f50d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-commonweal">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>公益 404</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/06/25/architecture/general/2019-06-25-性能优化，我们应该知道的更多一点/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">性能优化，我们应该知道的更多一点
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-25 13:15:01" itemprop="dateCreated datePublished" datetime="2019-06-25T13:15:01+00:00">2019-06-25</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-01 12:27:44" itemprop="dateModified" datetime="2019-07-01T12:27:44+00:00">2019-07-01</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/架构/" itemprop="url" rel="index"><span itemprop="name">架构</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/架构/性能/" itemprop="url" rel="index"><span itemprop="name">性能</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>当我们谈到性能优化，更多的同学可能想到的是系统层面的性能优化</strong>。比如在一个Web服务程序中，通过Redis或者其它缓存来提升网站访问的速度等。这一方面是编译器为我们做了很多优化工作，另外一方面是觉得系统层面的优化效果更明显，也更高大上。实际上，除了系统层面的性能优化外，<strong>在程序代码层面的性能优化效果也是非常好的</strong>。</p>
+<p><img src="http://img.itworld123.com/117433757_1_20171127072342854.jpg" alt></p>
+<a id="more"></a>
+<p>废话不多说，我们以事实说话。大家看一下下面两段程序，两段程序的作用完全相同，就是将一个二维数组中的每一个元素做加1操作。大家看一下，觉得这两段的程序是否会有性能差异？<strong>实际测试结果是两者有近4倍的性能差异</strong>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 这是第一段程序</span></span><br><span class="line"> <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; <span class="number">1024</span>; i ++) </span><br><span class="line">      <span class="keyword">for</span>(j = <span class="number">0</span>; j &lt; <span class="number">1024</span>; j ++) </span><br><span class="line">             <span class="built_in">array</span>[j][i] ++; </span><br><span class="line"><span class="comment">//程序的差异在这里   ^  ^</span></span><br><span class="line"><span class="comment">//这是第二段程序</span></span><br><span class="line"> <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; <span class="number">1024</span>; i ++) </span><br><span class="line">      <span class="keyword">for</span>(j = <span class="number">0</span>; j &lt; <span class="number">1024</span>; j ++) </span><br><span class="line">             <span class="built_in">array</span>[i][j] ++;</span><br></pre></td></tr></table></figure>
+<h1 id="性能差异的原因分析"><a href="#性能差异的原因分析" class="headerlink" title="性能差异的原因分析"></a>性能差异的原因分析</h1><p><strong>大家考虑一下，为什么有如此之大的性能差异？</strong>结合代码，我们看到两段代码的差异在于对数组元素的访问顺序，前者是逐列访问，而后者是逐行访问。结合图1可能会理解的更加清楚一些。然后，我们在结合C语言中二维数据数据在内存中的排布规则（可以在上述代码中通过打印地址的方式验证一下），可以知道前者是访问连续的地址空间，而后者访问的是跳跃的地址空间。<br><img src="http://img.itworld123.com/11058170-692423b6fc07cd9c.png" alt="图1 两种访问形式"><br>以整形数组为例，也就是说，前者访问的地址依次为X，X+4，X+8等等。而后者访问的地址则依次为X，X+4096，X+8192。后者每次跳跃4KB的地址空间。<br><strong>了解了上述差异后，大家有没有想到性能差异的原因？</strong>我们知道CPU为了提升访问内存的性能，在其和内存之间增加了缓存，现代CPU缓存通常为3级缓存，分别是L1、L2和L3，其中L1和L2是CPU核独有的，而L3是同一颗CPU的多核共享的。其基本的架构如图2所示。<br><img src="http://img.itworld123.com/11058170-e8e60d7966e07048.png" alt="图2 CPU缓存架构"><br>由于缓存<strong>分布式</strong>的特点，在多个CPU之间需要保证其一致性。扯远了，总之缓存需要切割为比较小的粒度进行管理，这个小粒度的管理单元称为<strong>缓存行</strong>（可以类比页缓存中的缓存页）。由于缓存的容量远远小于内存的容量，因此缓存无法把内存中的内容都加载其中。缓存能够其作用的最主要的原因是利用的常规业务访问数据的两个特性，也就是空间局部性和时间局部性。</p>
+<blockquote>
+<p>空间局部性：对于刚被访问的数据，其相邻的数据在将来被访问的概率高。<br>   时间局部性：对于刚被访问的数据，其本身在将来被访问的概率高。</p>
+</blockquote>
+<p>了解了上述原理，我们就知道，对于上面程序程序代码，由于第二段程序依次跳跃的太远，也就是不满足空间局部性，从而导致缓存命中失败。也就是说第二段程序其实无法访问缓存中的数据，而是直接访问的内存。而内存的访问性能要远远低于缓存的访问性能，因此就出现了文章一开始的近4倍的性能差异。</p>
+<h1 id="关于程序性能的其它考虑"><a href="#关于程序性能的其它考虑" class="headerlink" title="关于程序性能的其它考虑"></a>关于程序性能的其它考虑</h1><p>我们程序的很微小的改动就有可能对性能产生非常大的影响。因此，我们在日常开发中应该处处注意代码中是否有不恰当的代码导致性能问题。下面我们在列举一个关于性能相关的程序实例，以便大家在以后的开发中参考。</p>
+<h2 id="程序结构"><a href="#程序结构" class="headerlink" title="程序结构"></a>程序结构</h2><p>不合理的程序结构对性能的影响有的时候是灾难性的。下面两个函数的性能差异在字符串很长的情况下将非常巨大。函数<code>lower1</code>在每次循环中都计算一下字符串的长度，而这种计算并不是必要的。函数<code>lower2</code>则是在循环开始之前计算字符串长度，而后通过一个恒定的变量来进行条件判断。问题的根源在于strlen函数，这个函数通过循环计算字符串的长度，如果字符串比较长，那这个函数将相当耗时。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">lower1</span><span class="params">(<span class="keyword">char</span> *s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="built_in">strlen</span>(s); i++)</span><br><span class="line">        <span class="keyword">if</span> (s[i] &gt;=<span class="string">'A'</span> &amp;&amp; s[i] &lt;= <span class="string">'Z'</span>)</span><br><span class="line">            s[i] -= (<span class="string">'A'</span> -<span class="string">'a'</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//下面这个实现性能会更好。</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">lower2</span><span class="params">(<span class="keyword">char</span> *s)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">int</span> len = <span class="built_in">strlen</span>(s);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; len; i++)</span><br><span class="line">        <span class="keyword">if</span> (s[i] &gt;=<span class="string">'A'</span> &amp;&amp; s[i] &lt;= <span class="string">'Z'</span>)</span><br><span class="line">            s[i] -= (<span class="string">'A'</span> -<span class="string">'a'</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="过程（函数）调用"><a href="#过程（函数）调用" class="headerlink" title="过程（函数）调用"></a>过程（函数）调用</h1><p>我们知道在过程调用的时候会存在压栈和出栈等操作，这些操作通常都是对内存的操作，且过程比较复杂。也就是说，函数的调用过程是比较耗时的操作，尽量减少函数调用。<br>值得庆幸的是现代的编译器可以对函数调用做很多优化工作，简单的函数调用通常可以被编译器优化调。所谓优化调是只在机器语言（汇编语言）层面已经没有高级语言的函数调用了。<br>我们通过一个具体的例子看一下，通过C语言实现一个简单的函数调用，其中函数fun_1调用函数fun_2，而函数fun_2又调用了printf。这里fun_2并没有做什么太多的工作，只是将两个参数相加后传给printf。<br><img src="http://img.itworld123.com/11058170-ffeb468231abc49f.png" alt="图3 函数调用优化"><br>如图所示，在gcc不做任何优化的情况下，反汇编的代码（图3左下角）可以看出，整个逻辑非常清晰，只是按部就班的调用函数。但是，通过-O2优化后，汇编代码变得非常简洁了（图3右下角），<strong>通过fun_1的汇编代码可以看出它根本没有调用fun_2，而是直接调用的printf函数</strong>。因此，在不影响其功能的情况下，编译器是可以优化调函数调用的。但这不是绝对的，稍微复杂的函数调用编译器可能就无能为力了，而此时就可能导致性能损耗。</p>
+<h1 id="运算符差异"><a href="#运算符差异" class="headerlink" title="运算符差异"></a>运算符差异</h1><p>不同的运算的耗时差异也是非常巨大的，比如乘法的耗时是加法的两三倍，而除法的耗时是加法的十倍以上。因此在访问频度比较高的逻辑中减少除法的使用将会明显的提升。<br>在Java的HashMap实现中，通过位运算来计算哈希的Key，而不是通过模运算。因为模运算本身是除法运算，性能要比位运算差十倍以上。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> h;</span><br><span class="line">    <span class="keyword">return</span> (key == <span class="keyword">null</span>) ? <span class="number">0</span> : (h = key.hashCode()) ^ (h &gt;&gt;&gt; <span class="number">16</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>更详细的处理逻辑请参考JDK的源代码，本文仅仅是抛个砖 。</p>
+<h1 id="引用与拷贝"><a href="#引用与拷贝" class="headerlink" title="引用与拷贝"></a>引用与拷贝</h1><p>支持类的高级语言在传递对象参数的时候涉及拷贝的过程，对象的拷贝也是比较消耗性能的操作。当然，高级语言通过一种成为引用的机制实现了对象地址的传递，这样就避免了拷贝的过程（这就是传值与传址的差异）。<br>在程序开发过程中关于性能的问题还很多，本文无法一一列举出来。但，关键的问题是掌握技术的底层实现原理，任何其它高层的内容都可以通过底层原理解释的，正所谓万变不离其宗。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/架构/" rel="tag"># 架构</a>
+          
+            <a href="/tags/性能/" rel="tag"># 性能</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/24/linux/block/Linux磁盘的IO重排序与调度策略/" rel="next" title="Linux磁盘的IO重排序与调度策略">
+                <i class="fa fa-chevron-left"></i> Linux磁盘的IO重排序与调度策略
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/26/linux/block/一篇文章讲清什么是NVMe/" rel="prev" title="一篇文章讲清什么是NVMe">
+                一篇文章讲清什么是NVMe <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">47</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">46</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#性能差异的原因分析"><span class="nav-number">1.</span> <span class="nav-text">性能差异的原因分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#关于程序性能的其它考虑"><span class="nav-number">2.</span> <span class="nav-text">关于程序性能的其它考虑</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#程序结构"><span class="nav-number">2.1.</span> <span class="nav-text">程序结构</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#过程（函数）调用"><span class="nav-number">3.</span> <span class="nav-text">过程（函数）调用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#运算符差异"><span class="nav-number">4.</span> <span class="nav-text">运算符差异</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#引用与拷贝"><span class="nav-number">5.</span> <span class="nav-text">引用与拷贝</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前面两篇文章我们对NVMe的原理和涉及的主要概念进行了介绍，今天我们将介绍一下NVMe的Linux驱动是如何实现的。首先NVMe本身是一个块设备，因此NVMe的驱动也是遵循块设备的驱动架构。本文通过两部分介绍NVMe的驱动程序，一部分是操作系统如何创建NVMe块设备，另外一部分是分析一下NVMe的主要流程，包括读写流程和管理流程等。">
+<meta name="keywords" content="Linux,块存储,磁盘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NVMe的Linux内核驱动分析">
+<meta property="og:url" content="http://www.itworld123.com/2019/07/01/linux/block/NVMe的Linux内核驱动分析/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:description" content="前面两篇文章我们对NVMe的原理和涉及的主要概念进行了介绍，今天我们将介绍一下NVMe的Linux驱动是如何实现的。首先NVMe本身是一个块设备，因此NVMe的驱动也是遵循块设备的驱动架构。本文通过两部分介绍NVMe的驱动程序，一部分是操作系统如何创建NVMe块设备，另外一部分是分析一下NVMe的主要流程，包括读写流程和管理流程等。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img.itworld123.com/11058170-5f36f8070a15ef5e.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-5f36f8070a15ef5e.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-a0fc11bf1f2fa95c.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-6851f3e7f6fbe2e9.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-4e0d49cb22be3505.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-a060fa61a2caca58.png">
+<meta property="og:updated_time" content="2019-07-01T12:27:44.820Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="NVMe的Linux内核驱动分析">
+<meta name="twitter:description" content="前面两篇文章我们对NVMe的原理和涉及的主要概念进行了介绍，今天我们将介绍一下NVMe的Linux驱动是如何实现的。首先NVMe本身是一个块设备，因此NVMe的驱动也是遵循块设备的驱动架构。本文通过两部分介绍NVMe的驱动程序，一部分是操作系统如何创建NVMe块设备，另外一部分是分析一下NVMe的主要流程，包括读写流程和管理流程等。">
+<meta name="twitter:image" content="http://img.itworld123.com/11058170-5f36f8070a15ef5e.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/2019/07/01/linux/block/NVMe的Linux内核驱动分析/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>NVMe的Linux内核驱动分析 | SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3fb960eb6310643ffc24656f6dd2f50d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-commonweal">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>公益 404</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/07/01/linux/block/NVMe的Linux内核驱动分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">NVMe的Linux内核驱动分析
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-01 20:20:29 / 修改时间：12:27:44" itemprop="dateCreated datePublished" datetime="2019-07-01T20:20:29+00:00">2019-07-01</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/块存储/" itemprop="url" rel="index"><span itemprop="name">块存储</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="http://img.itworld123.com/11058170-5f36f8070a15ef5e.png" alt><br>前面两篇文章我们对NVMe的原理和涉及的主要概念进行了介绍，<strong>今天我们将介绍一下NVMe的Linux驱动是如何实现的</strong>。首先NVMe本身是一个块设备，因此NVMe的驱动也是遵循块设备的驱动架构。本文通过两部分介绍NVMe的驱动程序，一部分是操作系统如何创建NVMe块设备，另外一部分是分析一下NVMe的主要流程，包括读写流程和管理流程等。<br><a id="more"></a></p>
+<blockquote>
+<p><strong>两点说明</strong>: </p>
+<ul>
+<li>本文基于Linux 4.1.12 版本的内核进行介绍，其它版本的内核代码可能略有不同，但不影响理解。</li>
+<li>在阅读本文之前，如果能够阅读一下本号之前关于块设备和SCSI的文章，对理解本文将很有帮助。</li>
+</ul>
+</blockquote>
+<h1 id="创建NVMe块设备"><a href="#创建NVMe块设备" class="headerlink" title="创建NVMe块设备"></a>创建NVMe块设备</h1><p>对于Linux的块设备来说，其主要的是通过<code>device_add_disk</code>或者<code>add_disk</code>函数（后者是对前者的简单包装）来向操作系统添加一个设备实例。具体原理我们在之前的文章中已经介绍过，本文不再啰嗦了，想了解的同学请自行翻阅一下历史文章。其基本原理就是通过调用该函数，就会创建在/dev目录下看到的类似sdX的块设备。<br>NVMe本身也是块设备，自然也不会跳出这个大框架。<strong>首先从硬件层面上，我们知道任何设备必须通过某个总线与CPU向连接，NVMe则正是通过PCIe总线与CPU相连</strong>。<br><img src="http://img.itworld123.com/11058170-5f36f8070a15ef5e.png" alt="图1 Linux内核的总线架构"><br>当然，目前NVMe除了可以通过PCIe总线与CPU相连外，还可以通过其它通道连接，比如FC或者IB。后者则是一种将NVMe设备从计算节点独立出来的方式，也就是此时NVMe就不再是一个卡设备，而是一个独立机箱的设备。无论何种方式相连接，其本质是一样等。<br><strong>然后是操作系统软件层面的内容</strong>。硬件的连通性是基础，当硬件已经连通后，就可以在Linux内核层面发现设备，并进行初始化了。软件层面的初始化有两种情况，一种是计算机启动的时候，操作系统会扫描总线上的设备，并完成初始化；另外一种情况是设备在系统启动后连接的，此时需要手动触发扫描的过程。<br>无论是系统启动也好，还是手动触发扫描也好，NVMe发现设备的核心流程是一样的。<br><img src="http://img.itworld123.com/11058170-a0fc11bf1f2fa95c.png" alt="图2 设备初始化主流程"></p>
+<p>与其它块设备类似，NVMe设备初始化完成后会在<code>/dev</code>目录下出现一个文件。NVMe设备会出现一个形如nvmeXnY的设备文件。如图3所示，红色方框中的为一个NVMe块设备。<br><img src="http://img.itworld123.com/11058170-6851f3e7f6fbe2e9.png" alt="图3 Linux中的NVMe块设备"><br><strong>核心实现分析</strong><br>上面我们简要的介绍了初始化的主流程。在上面初始化流程中需要重点关注的是<code>nvme_alloc_ns</code>函数的流程。该函数完成了块设备创建、基本信息填充和块设备注册到内核等工作。如图4是该函数的部分代码片段。这部分片段完成了函数指针的初始化、命令队列初始化和设备名称的初始化等工作。具体关于<code>nvme_alloc_ns</code>函数源代码的逻辑请自行阅读代码，本文不再赘述。<br><img src="http://img.itworld123.com/11058170-4e0d49cb22be3505.png" alt="图4 代码初始化"><br><strong>在整个初始化流程中比较关键的是</strong>对请求队列（request_queue）中请求处理函数指针（make_request_fn）的初始化及多队列函数集（mq_ops）的初始化。因为，这里的函数正是NVMe区别于SCSI等类型设备数据处理流程的地方。</p>
+<h1 id="NVMe设备的IO流程"><a href="#NVMe设备的IO流程" class="headerlink" title="NVMe设备的IO流程"></a>NVMe设备的IO流程</h1><p>为了便于理解NVMe的处理流程，我们给出了传统SCSI及NVMe数据处理的对比流程。如图5所示，整个流程是从通用块层的接口（submit_bio）开始的，这个函数大家都非常清楚了。<br><img src="http://img.itworld123.com/11058170-a060fa61a2caca58.png" alt="图5 NVMe数据流程"><br>对于NVMe设备来说，在初始化的时候初始化函数指针make_request_fn为nvme_queue_rq，该函数就是NVMe驱动程序的请求处理接口。该函数最终会将请求写入NVMe中的SQ队列当中，并通知控制器处理请求。</p>
+<p>相对于SCSI设备来说，NVMe设备的驱动还是非常简单的。关于该部分的内容本文就介绍到这里，关于更多细节，还请大家自行阅读代码。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/块存储/" rel="tag"># 块存储</a>
+          
+            <a href="/tags/磁盘/" rel="tag"># 磁盘</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/29/linux/block/深入理解NVMe协议的原理/" rel="next" title="深入理解NVMe协议的原理">
+                <i class="fa fa-chevron-left"></i> 深入理解NVMe协议的原理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">47</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">46</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#创建NVMe块设备"><span class="nav-number">1.</span> <span class="nav-text">创建NVMe块设备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NVMe设备的IO流程"><span class="nav-number">2.</span> <span class="nav-text">NVMe设备的IO流程</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

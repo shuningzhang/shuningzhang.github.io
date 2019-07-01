@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="任何新技术的出现都是为了解决当前情况存在的问题。NVMe的出现也是为了解决当前存在的问题。这个问题就是日益快速增长的存储介质性能与传输通道性能太差之间的矛盾。基于SSD的存储设备性能都要上天了，但SAS和SATA接口的性能却没有本质的提升。目前基于SCSI协议的SAS和SATA只能是单个队列而且每个队列的深度也比较低，分别是254和32的队列深度。而NVMe协议设计之初就考虑了该问题，它的最大队列">
+<meta name="keywords" content="Linux,块存储,磁盘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解NVMe协议的原理">
+<meta property="og:url" content="http://www.itworld123.com/2019/06/29/linux/block/深入理解NVMe协议的原理/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:description" content="任何新技术的出现都是为了解决当前情况存在的问题。NVMe的出现也是为了解决当前存在的问题。这个问题就是日益快速增长的存储介质性能与传输通道性能太差之间的矛盾。基于SSD的存储设备性能都要上天了，但SAS和SATA接口的性能却没有本质的提升。目前基于SCSI协议的SAS和SATA只能是单个队列而且每个队列的深度也比较低，分别是254和32的队列深度。而NVMe协议设计之初就考虑了该问题，它的最大队列">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img.itworld123.com/11058170-6874f6794da71851.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-7d2a80cc03225089.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-585585d1b6205df0.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-784e1e3bf06d2f45.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-5b26522b4d1e4e27.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-05be5df039d17e6e.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-11da930d5a074ab9.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-176e011197aa6654.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-a823b370e76a2381.png">
+<meta property="og:updated_time" content="2019-07-01T12:27:44.820Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入理解NVMe协议的原理">
+<meta name="twitter:description" content="任何新技术的出现都是为了解决当前情况存在的问题。NVMe的出现也是为了解决当前存在的问题。这个问题就是日益快速增长的存储介质性能与传输通道性能太差之间的矛盾。基于SSD的存储设备性能都要上天了，但SAS和SATA接口的性能却没有本质的提升。目前基于SCSI协议的SAS和SATA只能是单个队列而且每个队列的深度也比较低，分别是254和32的队列深度。而NVMe协议设计之初就考虑了该问题，它的最大队列">
+<meta name="twitter:image" content="http://img.itworld123.com/11058170-6874f6794da71851.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/2019/06/29/linux/block/深入理解NVMe协议的原理/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>深入理解NVMe协议的原理 | SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3fb960eb6310643ffc24656f6dd2f50d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-commonweal">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>公益 404</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/06/29/linux/block/深入理解NVMe协议的原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">深入理解NVMe协议的原理
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-29 16:02:25" itemprop="dateCreated datePublished" datetime="2019-06-29T16:02:25+00:00">2019-06-29</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-01 12:27:44" itemprop="dateModified" datetime="2019-07-01T12:27:44+00:00">2019-07-01</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/块存储/" itemprop="url" rel="index"><span itemprop="name">块存储</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>任何新技术的出现都是为了解决当前情况存在的问题</strong>。NVMe的出现也是为了解决当前存在的问题。这个问题就是日益快速增长的存储介质性能与传输通道性能太差之间的矛盾。基于SSD的存储设备性能都要上天了，但SAS和SATA接口的性能却没有本质的提升。<br>目前基于SCSI协议的SAS和SATA<strong>只能是单个队列</strong>而且每个队列的深度也比较低，分别是254和32的队列深度。而NVMe协议设计之初就考虑了该问题，它的最大队列数量可以是64K（65535个命令队列和1个管理队列），而每个队列的深度可以高达64K。<strong>与SCSI协议相比，就好比一个乡村的羊肠小路和一个双向八车道的高速公路的差别</strong>。<br><img src="http://img.itworld123.com/11058170-6874f6794da71851.png" alt="图1 美丽的乡村下路和京港澳高速"><br><a id="more"></a></p>
+<h1 id="NVMe基本原理"><a href="#NVMe基本原理" class="headerlink" title="NVMe基本原理"></a>NVMe基本原理</h1><p>为了便于理解主机和NVMe设备的关系，我们这里简化NVMe设备的内部结构。如图2所示为NVMe白皮书中的配图，这里主机称为Host，而NVMe设备称为Controller（控制器）。主机和控制器之间通过<strong>共享内存的队列</strong>实现交互。<br><img src="http://img.itworld123.com/11058170-7d2a80cc03225089.png" alt="图2 NVMe多队列示意图"><br>NVMe的队列分为2种，其中一种是用于管理的队列，称为Admin Queue（管理队列），仅有一个，另外一种是命令队列（Command Queue），最多可以有65535个。其中命令队列的数量和模式都是通过管理队列来设置的。其中每一个队列实际上是一个队列对，也就是包括两个队列，分别是提交队列（Submission Queue）和完成队列（Completion Queue）。<strong>提交队列</strong>用于主机端向NVMe设备发送NVMe命令，而<strong>完成队列</strong>则用于NVMe设备向主机反馈命令执行情况。实际上NVMe还有另外一种模式，就是多个提交队列共享同一个完成队列的情况，本文暂时不做介绍。</p>
+<h1 id="NVMe队列及命令的处理流程"><a href="#NVMe队列及命令的处理流程" class="headerlink" title="NVMe队列及命令的处理流程"></a>NVMe队列及命令的处理流程</h1><p>上文我们知道NVMe是通过队列传递控制命令和命令等内容的，那么这里的队列实体到底是什么呢？其实这里提交队列和完成队列就是内存的一个区域。<strong>在数据结构原理上这里的队列其实是一个环形缓冲区</strong>，如图3所示。<br><img src="http://img.itworld123.com/11058170-585585d1b6205df0.png" alt="图3 环形缓冲区"><br><strong>NVMe通过一种门铃机制(Doorbell)来告知控制器命令队列是否有新数请求/命令</strong>。也就是说每个队列都有一个门铃指针。对于发送队列来说，这个指针表示的是发送队列的尾指针。主机端将数据写入到发送队列后，更新映射到位于设备寄存器空间中的门铃的尾指针。此时，在控制器端就知道有新的请求/命令到来，接下来就可以进行对其进行处理。<br>当控制器完成一个NVMe请求时，通过完成队列来把完成的结果告知主机端。与发送队列不同，完成队列是通过中断机制（可以是INTx，MSI或MSIx）告诉主机端。如图4是一个命令的完整处理流程。<br><img src="http://img.itworld123.com/11058170-784e1e3bf06d2f45.png" alt="图4 命令处理完整流程"></p>
+<h1 id="NVMe的命令格式"><a href="#NVMe的命令格式" class="headerlink" title="NVMe的命令格式"></a>NVMe的命令格式</h1><p>前面我们介绍了命令的发送和处理流程，<strong>接下来我们看看NVMe的命令长什么样</strong>。如图5是NMVe命令的具体格式，如果大家了解TCP/IP协议或者SCSI协议，那么理解本图将相当容易。在图4中每一行为8个字节，命令大小总共为64字节。<br><img src="http://img.itworld123.com/11058170-5b26522b4d1e4e27.png" alt="图5 NVMe的命令格式"><br>在这个命令格式中有几个字段本身是比较复杂的，限于篇幅，且不打算让大家看完本文后头疼，本文不打算介绍所有细节。本文简单的介绍一下该命令格式的几个关键字段。其中Command Identifier标识一个具体的命令。Namespace Identifier则表示命令发送到那个命名空间。Data Pointer 1 和Data Pointer 2则用于标识数据的具体位置。</p>
+<blockquote>
+<p>这里有两点需要说明：</p>
+<ul>
+<li>NVMe的一个控制器下面可以有多个命名空间（Namespace），通过Namespace ID来标识的。</li>
+<li>命令与数据是分离的，并不像TCP那样数据在命令后面。</li>
+</ul>
+</blockquote>
+<p>我们这里重点介绍一下<code>Command Identifier</code>，该字段占用4个字节的空间。虽然仅有4个字节，但有分为3大部分，6小部分，具体如图6所示。<br><img src="http://img.itworld123.com/11058170-05be5df039d17e6e.png" alt="图6 命令标识格式"><br>我们以从低位到高位的顺序分别介绍一下各个字段的含义：</p>
+<ul>
+<li>OPC： 全称为Opcode，也就是被执行命令的操作码。具体来说就是想让控制器干什么，比如读数据、写数据或者刷写等。<br><img src="http://img.itworld123.com/11058170-11da930d5a074ab9.png" alt="图7 OPC定义"></li>
+<li>FUSE： 全称为Fused Operation， 用于标识该命令是普通命令还是复合命令。如图8是白皮书对该字段的说明。<br><img src="http://img.itworld123.com/11058170-176e011197aa6654.png" alt="图8 FUSE的定义"></li>
+<li>PSDT： 全称为PRP or SGL for Data Transfer，这个用于说明存储数据的内存的组织形式。<h1 id="NVMe的性能"><a href="#NVMe的性能" class="headerlink" title="NVMe的性能"></a>NVMe的性能</h1>最后我们看一下NVMe与SAS和SATA存储设备的性能对比。为了避免广告嫌疑，本文就布局图说明设备的厂商和类型了。<br><img src="http://img.itworld123.com/11058170-a823b370e76a2381.png" alt="图9 性能对比"><br>通过上图可以清楚的看到SAS和SATA设备与NVMe设备的性能差异，特别是对于读操作，NVMe有绝对的性能优势。</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/块存储/" rel="tag"># 块存储</a>
+          
+            <a href="/tags/磁盘/" rel="tag"># 磁盘</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/26/linux/block/一篇文章讲清什么是NVMe/" rel="next" title="一篇文章讲清什么是NVMe">
+                <i class="fa fa-chevron-left"></i> 一篇文章讲清什么是NVMe
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/01/linux/block/NVMe的Linux内核驱动分析/" rel="prev" title="NVMe的Linux内核驱动分析">
+                NVMe的Linux内核驱动分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">47</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">46</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#NVMe基本原理"><span class="nav-number">1.</span> <span class="nav-text">NVMe基本原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NVMe队列及命令的处理流程"><span class="nav-number">2.</span> <span class="nav-text">NVMe队列及命令的处理流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NVMe的命令格式"><span class="nav-number">3.</span> <span class="nav-text">NVMe的命令格式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NVMe的性能"><span class="nav-number">4.</span> <span class="nav-text">NVMe的性能</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

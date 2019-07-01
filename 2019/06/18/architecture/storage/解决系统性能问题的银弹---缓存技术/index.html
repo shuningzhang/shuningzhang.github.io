@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#999">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/itworld_logo_32.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#999">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="仔细观察一下我们现有的系统，小到一颗CPU，达到一个在线交易系统。任何性能问题都可以通过一种方式有效的解决，这种方式就是缓存。不错，缓存几乎可以成为解决性能问题的银弹，百发百中。缓存的主要目的是降低数据访问延时，实现手段多种多样，下面对不同种类的缓存进行介绍。">
+<meta name="keywords" content="架构,缓存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="解决系统性能问题的银弹---缓存技术">
+<meta property="og:url" content="http://www.itworld123.com/2019/06/18/architecture/storage/解决系统性能问题的银弹---缓存技术/index.html">
+<meta property="og:site_name" content="SunnyZhang的IT世界">
+<meta property="og:description" content="仔细观察一下我们现有的系统，小到一颗CPU，达到一个在线交易系统。任何性能问题都可以通过一种方式有效的解决，这种方式就是缓存。不错，缓存几乎可以成为解决性能问题的银弹，百发百中。缓存的主要目的是降低数据访问延时，实现手段多种多样，下面对不同种类的缓存进行介绍。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img.itworld123.com/11058170-79da291336c92a12.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-c011764f06e548f9.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-579f1338ae12fe67.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-2954915761de1cf5.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-bf1ee702f156af49.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-9b397c150cf5b4f9.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-dc480d439bede278.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-79da291336c92a12.png">
+<meta property="og:image" content="http://img.itworld123.com/11058170-492ce18616d5cd49.png">
+<meta property="og:updated_time" content="2019-07-01T12:27:44.804Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="解决系统性能问题的银弹---缓存技术">
+<meta name="twitter:description" content="仔细观察一下我们现有的系统，小到一颗CPU，达到一个在线交易系统。任何性能问题都可以通过一种方式有效的解决，这种方式就是缓存。不错，缓存几乎可以成为解决性能问题的银弹，百发百中。缓存的主要目的是降低数据访问延时，实现手段多种多样，下面对不同种类的缓存进行介绍。">
+<meta name="twitter:image" content="http://img.itworld123.com/11058170-79da291336c92a12.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.itworld123.com/2019/06/18/architecture/storage/解决系统性能问题的银弹---缓存技术/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>解决系统性能问题的银弹---缓存技术 | SunnyZhang的IT世界</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?3fb960eb6310643ffc24656f6dd2f50d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SunnyZhang的IT世界</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-commonweal">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>公益 404</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/06/18/architecture/storage/解决系统性能问题的银弹---缓存技术/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sunny Zhang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/itworld_logo_300.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SunnyZhang的IT世界">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">解决系统性能问题的银弹---缓存技术
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-18 09:56:33" itemprop="dateCreated datePublished" datetime="2019-06-18T09:56:33+00:00">2019-06-18</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-01 12:27:44" itemprop="dateModified" datetime="2019-07-01T12:27:44+00:00">2019-07-01</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/架构/" itemprop="url" rel="index"><span itemprop="name">架构</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/架构/存储/" itemprop="url" rel="index"><span itemprop="name">存储</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="http://img.itworld123.com/11058170-79da291336c92a12.png" alt><br>仔细观察一下我们现有的系统，小到一颗CPU，达到一个在线交易系统。任何性能问题都可以通过一种方式有效的解决，这种方式就是缓存。不错，缓存几乎可以成为解决性能问题的银弹，百发百中。缓存的主要目的是降低数据访问延时，实现手段多种多样，下面对不同种类的缓存进行介绍。<br><a id="more"></a></p>
+<h1 id="CPU的缓存"><a href="#CPU的缓存" class="headerlink" title="CPU的缓存"></a>CPU的缓存</h1><p>能想到的最小粒度的缓存恐怕就是CPU的缓存了。CPU不但有缓存，而且将缓存分成了多种级别，如图1所示，分别是L1、L2和L3 3级缓存。其中L1和L2是一个核心独享的缓存，而L3是同一颗CPU内的多个核心共享的。图1架构是目前CPU中最常见的架构，而CPU关于缓存的架构细节比这个还要复杂。多数CPU是将缓存分为指令缓存和数据缓存2中类型的缓存，有些还有一种称为TLB（translation lookaside buffer)的缓存，用于实现虚拟内存到物理内存的快速转换。<br><img src="http://img.itworld123.com/11058170-c011764f06e548f9.png" alt="图1 CPU缓存架构"><br>缓存并非一直存在于CPU之中，以Intel的CPU为例，其在1992年才在386 CPU中引入L1 Cache。而L3Cache的引入则到2008年才在Core i3中引入。如图2是不同存储类型访问时延的差异，以寄存器访问1单位，那么内存的访问在100单位左右。也就是说，内存的访问延时是寄存器的100倍。<br><img src="http://img.itworld123.com/11058170-579f1338ae12fe67.png" alt="图2 不同存储访问性能对比"><br>基于上述原因，在新一代的CPU设计当中增加了缓存模块，其目的就是降低访问内存数据的时延。使用Cache提升性能的原理在于数据访问的局部性特点，分别是区域局部性和时间局部性。</p>
+<ul>
+<li>Spatial Locality：对于刚被访问的数据，其相邻的数据在将来被访问的概率高。</li>
+<li>Temporal Locality：对于刚被访问的数据，其本身在将来被访问的概率高。<h1 id="操作系统缓存"><a href="#操作系统缓存" class="headerlink" title="操作系统缓存"></a>操作系统缓存</h1><strong>在操作系统层面很多地方都用到了缓存。而操作系统缓存的原理与CPU缓存基本一致，也就2个局部特性</strong>。在操作系统中最著名的缓存恐怕就是文件系统的页缓存了吧。同样参考一下图2，可以看到<strong>访问磁盘的时延是内存时延的10万倍</strong>，因此Linux操作系统中所有文件系统都采用缓存来提升其读写性能。<br><strong>除了上面内存访问性能与磁盘访问性能的差异因素外，另外一个因素是机械磁盘随机访问与顺序访问的性能差异</strong>。以企业级SATA磁盘为例，随机写的带宽不到1MB/s，而顺序写可以轻松的达到100MB/s，差异多大100倍。产生如此大差异的原因主要是机械磁盘读写数据需要寻址，寻址所消耗的时间占整个请求时间的比例很大。<br>鉴于上述2个因素的考量，大多数文件系统都实现了基于内存的缓存。这样，用户对于文件系统的访问性能得到了大幅的提升。缓存的主要从两方面提升访问文件系统的性能，一方面是降低对磁盘的直接访问，另外一个方面是将对磁盘的随机访问尽量转换为顺序访问。<br>对于第一个方面，文件系统数据写入缓存后即认为数据写入成功，向上层返回结果。由于访问内存的性能是访问磁盘性能的10万倍。因此，性能自然可以得到极大的提升。如图3所示的上半部分逻辑，写请求依次将数据写入缓存中。对于读请求也有类似的处理，文件系统中称为<strong>预读</strong>，也就是将数据提前读取到缓存，从而降低访问磁盘的频度。<br><img src="http://img.itworld123.com/11058170-2954915761de1cf5.png" alt="图3 文件系统页缓存"><br>对于第二个方面，由于缓存的存在，当从缓存向磁盘刷写数据的时候以数据的LBA进行排序。这样能够降低机械磁盘寻道的时间消耗比例，进而提升系统整体的性能。<h1 id="Web前端的缓存"><a href="#Web前端的缓存" class="headerlink" title="Web前端的缓存"></a>Web前端的缓存</h1><strong>在大系统层面我们以Web应用为例介绍从前端到后端的缓存技术</strong>。这主要是因为在Web开发领域缓存的应用最为广泛，非常方便我们了解问题。缓存的技术领域很广泛，技术的难度也很深，本文无法面面俱到，只是抛砖引玉。<br>熟悉前端开发的同学都清楚，一个网站除了动态的内容外，还有很多图片、JS脚本和CSS样表等内容。而图片、JS脚本和CSS等内容一方面量比较大，另外一方面很少变化，除非网站升级。鉴于上述原因，我们是否可以将这些内容缓存到用户的本地磁盘，这样当用户再次访问网站是就可以直接从本地磁盘加载这些内容，而不需要从经过浩瀚的网络。<br><img src="http://img.itworld123.com/11058170-bf1ee702f156af49.png" alt="图4 浏览器页面请求"><br>实质上浏览器已经具备该功能，准确的说不是浏览器，而是HTTP协议。如图我们打开调试工具，可以看到请求网页的很多内容并不会从服务器请求，而是从本地磁盘或者内存获取。如图是请求某个网站页面时部分内容的情况。可以看到很大一部分并非从服务器获取。<br><img src="http://img.itworld123.com/11058170-9b397c150cf5b4f9.png" alt="图5 Web浏览器缓存处理流程"><br>从本地获取有2个非常明显的好处，一个是页面的响应时间很快，另外一个是Web服务器的压力得到有很大的降低。<br>在HTTP中是通过其响应消息头来确定是否使用缓存中的内容的，这个消息头就是Cache-control，当然还要其它一些字段的配合。整个缓存处理的流程还是比较复杂的，需要根据不同的字段作出判断，以便确定从哪里获取内容。如图是整个浏览器的处理流程。<br>图3是通过浏览器的调试工具截获的某东主页的一个图片的响应头内容，从图中可以看出里面包含了缓存控制相关的内容。<br><img src="http://img.itworld123.com/11058170-dc480d439bede278.png" alt="图6 Web缓存的HTTP协议"><br>浏览器缓存的内容博大精深，很难在本篇文章中解释完全。如果大家想深入的了解这方面的内容，本号推荐大家看看《HTTP权威指南》，理解解释的非常详细。<h1 id="访问链路层面"><a href="#访问链路层面" class="headerlink" title="访问链路层面"></a>访问链路层面</h1>在Web领域一个请求的链路可能会非常长，比如我们访问一个美国的网站，整个通信链路会跨越整个太平洋，距离近2万公里。即使是阳光也要跑几十毫秒才能完成这段里程，而网络需要经过各种中继设备，耗时将近200ms。<strong>试想，一个网页通常有上百个元素组成（例如图片，js脚本等），这样在中国打开一个美国的网站将消耗多少时间？</strong><br><strong>解决上述问题最为有效的技术就是CDN（Content Delivery Network，内容分发网络）技术</strong>，该技术通过分部在离最终用户比较近的边缘服务器提供更快的服务。以上文网站为例，当用户从中国访问美国的网站时，会先从国内的CDN节点获取内容，如果没有才会从美国的源服务器获取内容。因为大部分内容都可以从国内获取，免去了跨越大洋造成的网络延时。<br><img src="http://img.itworld123.com/11058170-79da291336c92a12.png" alt="图7 CDN示意图"><br>图7是一个CDN的示意图，其中ORIGINAL SERVER就是源服务器，而EDGE SERVER就是边缘服务器。从图中可以看出，终端用户的访问路径。<h1 id="Web后端的缓存"><a href="#Web后端的缓存" class="headerlink" title="Web后端的缓存"></a>Web后端的缓存</h1>对于Web服务来说，通常通过关系型数据来存储数据，而数据库的数据通常存储在磁盘中。在高负载场景下数据库往往会成为性能瓶颈。因此，为了提高整个服务的承载能力，往往在业务服务器和数据库之间添加一个缓存服务。这个缓存服务的原理其实与上述的CPU缓存或者文件系统缓存有异曲同工之妙。<br>由于对于一个Web服务来说，80%以上的请求都是读请求，Web缓存的设计也正是基于这样一个事实。这些数据完全可以缓存到内存中，从而减少数据库访问的负载。由于缓存承载了绝大多数的读请求，因此整个数据库的负载也得到很大的降低。<br><img src="http://img.itworld123.com/11058170-492ce18616d5cd49.png" alt="图8 Web服务缓存"><br>如图8是使用Redis缓存的Web服务架构，本文只是一个简化的架构，实际架构要复杂的多（需要考虑可靠性和承载能力等）。在本架构中业务服务器会根据请求类型优先访问缓存，并根据策略更新缓存内容。目前使用最多的缓存应该是Redis缓存，大家可以深入了解一下。<br>本文从微观到宏观，从不同的层面介绍了缓存在提升系统性能方面的应用。当然，缓存的应用领域比本文涉及的还要多得多。这里只是一个引子，希望大家能够得到一些启发，为自己系统的性能优化提供一些思路。<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1></li>
+</ul>
+<ol>
+<li><a href="http://wsfdl.com/linux/2016/06/11/%E7%90%86%E8%A7%A3CPU%E7%9A%84cache.html" target="_blank" rel="noopener">理解 CPU Cache</a></li>
+<li><a href="https://en.wikipedia.org/wiki/CPU_cache" target="_blank" rel="noopener">维基百科 CPU Cache</a></li>
+<li><a href="https://www.hardwaresecrets.com/how-the-cache-memory-works/3/" target="_blank" rel="noopener">How The Cache Memory Works</a></li>
+<li><a href="https://juejin.im/post/5b9346dcf265da0aac6fbe57" target="_blank" rel="noopener">前端优化：浏览器缓存技术介绍</a></li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/架构/" rel="tag"># 架构</a>
+          
+            <a href="/tags/缓存/" rel="tag"># 缓存</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/17/linux/block/进一步理解Linux操作系统的块设备/" rel="next" title="进一步理解Linux操作系统的块设备">
+                <i class="fa fa-chevron-left"></i> 进一步理解Linux操作系统的块设备
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/23/linux/base/程序员必备高级技术之函数调用栈/" rel="prev" title="程序员必备高级技术之函数调用栈">
+                程序员必备高级技术之函数调用栈 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/itworld_logo_300.png" alt="Sunny Zhang">
+            
+              <p class="site-author-name" itemprop="name">Sunny Zhang</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">47</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">46</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CPU的缓存"><span class="nav-number">1.</span> <span class="nav-text">CPU的缓存</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#操作系统缓存"><span class="nav-number">2.</span> <span class="nav-text">操作系统缓存</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Web前端的缓存"><span class="nav-number">3.</span> <span class="nav-text">Web前端的缓存</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#访问链路层面"><span class="nav-number">4.</span> <span class="nav-text">访问链路层面</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Web后端的缓存"><span class="nav-number">5.</span> <span class="nav-text">Web后端的缓存</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">  <a href="http://www.beian.miit.gov.cn" rel="noopener" target="_blank">京ICP备16046913号-1 </a>&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sunny Zhang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
