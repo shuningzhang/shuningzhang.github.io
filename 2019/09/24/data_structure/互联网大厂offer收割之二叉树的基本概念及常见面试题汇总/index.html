@@ -96,25 +96,26 @@
 
 
 
-  <meta name="description" content="说起操作系统，大家都觉得是一个庞大的工程，超级复杂，可望而不可即。现在我们有一个大胆的想法，一个人能不能从第一行代码码起，开发一个五脏俱全的操作系统呢？">
-<meta name="keywords" content="图书,计算机,操作系统">
+  <meta name="description" content="更多面试题请关注头条号、微信号： itworld123  任何程序是由算法和数据结构两部分组成的。其中数据结构是用来存储数据的，在程序逻辑上涉及数据的存储和检索两方面。其中线性数据结构是常用的数据结构，比如我们存储一个班级中学生信息或者成绩列表等等，通常使用的是线性数据结构。这种线性数据结构包括数组和链表等。我们知道数组是一个连续的地址空间，链表是一个非连续的地址空间。两者的应用场景有着比较">
+<meta name="keywords" content="数据结构,二叉树">
 <meta property="og:type" content="article">
-<meta property="og:title" content="操作系统没那么难，你也能从零开发一个五脏俱全的操作系统">
-<meta property="og:url" content="http://www.itworld123.com/2019/05/23/books/操作系统没那么难，你也能从零开发一个五脏俱全的操作系统/index.html">
+<meta property="og:title" content="互联网大厂offer收割之数组及相关面试题解决方法">
+<meta property="og:url" content="http://www.itworld123.com/2019/09/24/data_structure/互联网大厂offer收割之二叉树的基本概念及常见面试题汇总/index.html">
 <meta property="og:site_name" content="SunnyZhang的IT世界">
-<meta property="og:description" content="说起操作系统，大家都觉得是一个庞大的工程，超级复杂，可望而不可即。现在我们有一个大胆的想法，一个人能不能从第一行代码码起，开发一个五脏俱全的操作系统呢？">
+<meta property="og:description" content="更多面试题请关注头条号、微信号： itworld123  任何程序是由算法和数据结构两部分组成的。其中数据结构是用来存储数据的，在程序逻辑上涉及数据的存储和检索两方面。其中线性数据结构是常用的数据结构，比如我们存储一个班级中学生信息或者成绩列表等等，通常使用的是线性数据结构。这种线性数据结构包括数组和链表等。我们知道数组是一个连续的地址空间，链表是一个非连续的地址空间。两者的应用场景有着比较">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://img.itworld123.com/117433757_1_20171127072342854.jpg">
-<meta property="og:image" content="http://img.itworld123.com/11058170-1c3c79ecac4c1205.png">
-<meta property="og:image" content="http://img.itworld123.com/11058170-18afddf8f503423a.png">
-<meta property="og:image" content="http://img.itworld123.com/11058170-44bebd02890c0019.png">
-<meta property="og:image" content="http://img.itworld123.com/11058170-f2636138de87eb51.png">
-<meta property="og:image" content="http://img.itworld123.com/11058170-5ad65ee38e59eaac.png">
-<meta property="og:updated_time" content="2019-06-05T12:16:07.429Z">
+<meta property="og:image" content="http://img.itworld123.com/11058170-9b5e6ce346ef3828.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-f4e5cf80330e1509.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-9b5e6ce346ef3828.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-dfd06eef1237074d.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-6ec9b55398f32b9a.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-d715ec4df2cf0508.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-2fe59848524849cc.jpg">
+<meta property="og:updated_time" content="2019-11-26T11:38:45.399Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="操作系统没那么难，你也能从零开发一个五脏俱全的操作系统">
-<meta name="twitter:description" content="说起操作系统，大家都觉得是一个庞大的工程，超级复杂，可望而不可即。现在我们有一个大胆的想法，一个人能不能从第一行代码码起，开发一个五脏俱全的操作系统呢？">
-<meta name="twitter:image" content="http://img.itworld123.com/117433757_1_20171127072342854.jpg">
+<meta name="twitter:title" content="互联网大厂offer收割之数组及相关面试题解决方法">
+<meta name="twitter:description" content="更多面试题请关注头条号、微信号： itworld123  任何程序是由算法和数据结构两部分组成的。其中数据结构是用来存储数据的，在程序逻辑上涉及数据的存储和检索两方面。其中线性数据结构是常用的数据结构，比如我们存储一个班级中学生信息或者成绩列表等等，通常使用的是线性数据结构。这种线性数据结构包括数组和链表等。我们知道数组是一个连续的地址空间，链表是一个非连续的地址空间。两者的应用场景有着比较">
+<meta name="twitter:image" content="http://img.itworld123.com/11058170-9b5e6ce346ef3828.jpg">
 
 
 
@@ -122,7 +123,7 @@
 
   
   
-  <link rel="canonical" href="http://www.itworld123.com/2019/05/23/books/操作系统没那么难，你也能从零开发一个五脏俱全的操作系统/">
+  <link rel="canonical" href="http://www.itworld123.com/2019/09/24/data_structure/互联网大厂offer收割之二叉树的基本概念及常见面试题汇总/">
 
 
 
@@ -132,7 +133,7 @@
   };
 </script>
 
-  <title>操作系统没那么难，你也能从零开发一个五脏俱全的操作系统 | SunnyZhang的IT世界</title>
+  <title>互联网大厂offer收割之数组及相关面试题解决方法 | SunnyZhang的IT世界</title>
   
 
 
@@ -375,7 +376,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/23/books/操作系统没那么难，你也能从零开发一个五脏俱全的操作系统/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/09/24/data_structure/互联网大厂offer收割之二叉树的基本概念及常见面试题汇总/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -392,7 +393,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">操作系统没那么难，你也能从零开发一个五脏俱全的操作系统
+          <h1 class="post-title" itemprop="name headline">互联网大厂offer收割之数组及相关面试题解决方法
 
               
             
@@ -418,7 +419,7 @@
                 
               
 
-              <time title="创建时间：2019-05-23 18:16:21" itemprop="dateCreated datePublished" datetime="2019-05-23T18:16:21+00:00">2019-05-23</time>
+              <time title="创建时间：2019-09-24 09:31:15" itemprop="dateCreated datePublished" datetime="2019-09-24T09:31:15+00:00">2019-09-24</time>
             
 
             
@@ -435,36 +436,11 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-05 12:16:07" itemprop="dateModified" datetime="2019-06-05T12:16:07+00:00">2019-06-05</time>
+                <time title="修改时间：2019-11-26 11:38:45" itemprop="dateModified" datetime="2019-11-26T11:38:45+00:00">2019-11-26</time>
               
             
           </span>
 
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/图书/" itemprop="url" rel="index"><span itemprop="name">图书</span></a></span>
-
-                
-                
-                  ，
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/图书/计算机/" itemprop="url" rel="index"><span itemprop="name">计算机</span></a></span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -494,14 +470,43 @@
       
 
       
-        <p><img src="http://img.itworld123.com/117433757_1_20171127072342854.jpg" alt><br>说起操作系统，大家都觉得是一个庞大的工程，超级复杂，可望而不可即。现在我们有一个大胆的想法，一个人能不能从第一行代码码起，开发一个五脏俱全的操作系统呢？<br><a id="more"></a><br>答案是肯定的，而且这个操作系统具体商用操作系统的所有主要功能（当然达不到商业操作系统的全部功能了）。<br>我们知道商业操作系统或者开源的Linux操作系统多的千万行甚至亿行代码，规模之大，让人无法想象。微软Windows开发团队多达几千人，而Linux内核参与的开发人员也在千级别。我们当然不是要开发一个这么大规模的操作系统，我们的<strong>目标是开发一个具备多进程及调度、内存管理、文件系统和中断管理等功能的操作系统</strong>。这个已经具备操作系统的核心功能了。<br>其实有很多种方法可以完成上述任务，而且这些方法是实操类的，只要按照操作，就可以开发出一个微型操作系统。另外需要说明的一点是，这些方法与Linux内核讲解类的是不同的。后者只能让你理解Linux内核的实现，而本文介绍的方法则可以让你从头开发一个文件系统。下面我们在这一一道来。</p>
-<h1 id="操作系统-真象还原"><a href="#操作系统-真象还原" class="headerlink" title="操作系统-真象还原"></a>操作系统-真象还原</h1><p>这本书的名字很贴切，操作系统真的是一头大象，如果不能看到全貌，就会有盲人摸象的感觉。本书以此名为切入点，带领我们从不同的角度理解操作系统的每个方面，每个细节。<br><img src="http://img.itworld123.com/11058170-1c3c79ecac4c1205.png" alt="图1图书封面 "><br>本书开发的每一部分都可以在bochs虚拟机上面运行。从最简单的十几行代码开始，一直到几千行代码的完整操作系统，每个实例都可以编译运行在bochs虚拟机。最终，本书实现了一个简单但完整的操作系统，实现的内容包括：MBR，loader，内存管理，中断管理，文件管理，系统调用，多进程切换（内核以及用户态）等内容。<br>客观的说，本书完全从实践出发，基本上可以说是手把手，把代码一行行列出来，讲解得清清楚楚。本书另外一个特点是本书配套所有代码都可以找到，因此我们可以安装作者的思路进行编译和练习。</p>
-<h1 id="Xv6操作系统"><a href="#Xv6操作系统" class="headerlink" title="Xv6操作系统"></a>Xv6操作系统</h1><p>Xv6是由麻省理工学院(MIT)为操作系统工程的课程开发的一个教学目的的操作系统。Xv6是在x86处理器上用ANSI标准C重新实现的Unix第六版(Unix V6，通常直接被称为V6)。该操作系统不仅仅有源代码，而且有配套的电子书和教学视频。如下是电子书的目录，具体内容电子书可以私信本号获得。<br><img src="http://img.itworld123.com/11058170-18afddf8f503423a.png" alt="图2 Xv6内容目录"></p>
-<h1 id="30天自制操作系统"><a href="#30天自制操作系统" class="headerlink" title="30天自制操作系统"></a>30天自制操作系统</h1><p>本书是日本作者<strong>川合秀实</strong>的大作，该书最大的特点不仅仅开发一个操作系统，而且还有图形界面。日本人的认真和严谨想必大家都听说过。读过该书以后，你真的会体会到日本人做事的严谨。本书同样有配套的源代码，读者可以一边读书，一边实践。按作者的话，30天真的可以开发出一个图形化的操作系统。<br><img src="http://img.itworld123.com/11058170-44bebd02890c0019.png" alt="图3 30天自制操作系统"><br>下面本书中的一个具体的实例，可以看到一个非常初级的窗体。<br><img src="http://img.itworld123.com/11058170-f2636138de87eb51.png" alt="图4 图形界面操作系统"></p>
-<h1 id="清华大学操作系统课程"><a href="#清华大学操作系统课程" class="headerlink" title="清华大学操作系统课程"></a>清华大学操作系统课程</h1><p>这个是学习操作系统的压箱底宝物。清华大学陈渝教授有一套操作系统的课程，并且开发了一个类似Xv6的操作系统（uCore），源代码可以在github下载。这个操作系统的配套资料非常全，不仅仅有源代码和配套的电子书，而且<strong>有免费的视频教程</strong>。<br><img src="http://img.itworld123.com/11058170-5ad65ee38e59eaac.png" alt="图4 操作系统实验指导"></p>
+        <p><img src="http://img.itworld123.com/11058170-9b5e6ce346ef3828.jpg" alt="image"></p>
 <blockquote>
-<p>私信本号可以获得上述内容的部分电子书和源代码链接等信息。<br>关注微信公众号： <strong>itworld123</strong><br>然后私信内容： <strong>操作系统</strong></p>
+<p> 更多面试题请关注头条号、微信号： itworld123</p>
 </blockquote>
+<p><strong>任何程序是由算法和数据结构两部分组成的</strong>。其中数据结构是用来存储数据的，在程序逻辑上涉及数据的存储和检索两方面。其中线性数据结构是常用的数据结构，比如我们存储一个班级中学生信息或者成绩列表等等，通常使用的是线性数据结构。这种线性数据结构包括数组和链表等。我们知道数组是一个连续的地址空间，链表是一个非连续的地址空间。两者的应用场景有着比较明显的差别。</p>
+<p>数组非常适合使用在元素数量已知的场景，对于有序数组中数据的检索（查找）效率是非常高的。但是对于数组来说，除了元素最大数量固定外，新元素的插入效率也是非常差的。为了保证数组的有序性，如果在数组中间插入一个新元素，那么其后的所有元素都要往后移动。</p>
+<p><img src="http://img.itworld123.com/11058170-f4e5cf80330e1509.jpg" alt="image"></p>
+<p>链表可以解决数组上述两个问题，但链表的检索效率却是非常差。如果我们想查找一个元素，必须从头挨个查找，直到找到目的元素。</p>
+<p><strong>为了解决上述插入和检索（查询）的问题，计算机科学家发明了很多新的数据结构</strong>，比如哈希表。哈希表是数组与链表的结合体，它既有数组查找快速的特点，又有链表元素插入快速的特点。</p>
+<p>其实废话说了半天，我们今天不介绍数组、链表，也不介绍哈希表，而是介绍一下二叉树。<strong>其实二叉树解决的问题与哈希表相同，就是如何实现元素的快速插入和查询（含删除等）。</strong></p>
+<h1 id="1-二叉树（Binary-Tree-的定义"><a href="#1-二叉树（Binary-Tree-的定义" class="headerlink" title="1. 二叉树（Binary Tree)的定义"></a><strong>1. 二叉树（Binary Tree)的定义</strong></h1><p><strong>1.1 什么是二叉树（Binary Tree)</strong></p>
+<p><strong>每个结点至多拥有两棵子树的树结构</strong>(即二叉树中不存在度大于2的结点)。并且，二叉树的子树<strong>有左右之分</strong>，其次序不能任意颠倒。<br>上面概念中提到了“度”的概念，“度”其实就是某个节点<strong>子节点</strong>的数量。如果某个节点的子节点数量为1，则该节点的度为1，如果有8个子节点，则度为8，以此类推。</p>
+<p><strong>1.2 二叉树的术语</strong></p>
+<p>除了二叉树的定义外，还有许多相关的术语。单纯介绍术语可能不容易理解，这里给出一幅图进行说明。</p>
+<p><img src="http://img.itworld123.com/11058170-9b5e6ce346ef3828.jpg" alt="image"></p>
+<p>下面是对二叉树中主要术语的解释：</p>
+<p><strong>结点的度（Degree）</strong>：结点的子树个数；<br><strong>树的度</strong>：树的所有结点中最大的度数；<br><strong>叶结点（Leaf）</strong>：度为0的结点；<br><strong>父结点（Parent）</strong>：有子树的结点是其子树的根节点的父结点；<br><strong>子结点/孩子结点（Child）</strong>：若A结点是B结点的父结点，则称B结点是A结点的子结点；<br><strong>兄弟结点（Sibling）</strong>：具有同一个父结点的各结点彼此是兄弟结点；<br><strong>路径和路径长度</strong>：从结点n1到nk的路径为一个结点序列n1，n2，…，nk。ni是ni+1的父结点。路径所包含边的个数为路径的长度；<br><strong>祖先结点（Ancestor）</strong>：沿树根到某一结点路径上的所有结点都是这个结点的祖先结点；<br><strong>子孙结点（Descendant）</strong>：某一结点的子树中的所有结点是这个结点的子孙；<br><strong>结点的层次（Level）</strong>：规定根结点在1层，其他任一结点的层数是其父结点的层数加1；<br><strong>树的深度（Depth）</strong>：树中所有结点中的最大层次是这棵树的深度；</p>
+<p><strong>1.3 二叉树的性质</strong></p>
+<p>我们设定二叉树的<strong>根节点为为第1层</strong>，则二叉树有如下性质。这些性质可以通过数学方式进行证明，但本文暂时不做证明，大家了解即可，对于理解后续概念有一些帮助：</p>
+<p>性质1：二叉树第i层上最多有 2^（i-1） 个结点(i≥1)；<br>性质2：深度（高度）为k的二叉树至多有2^(k)-1个结点(k≥1，深度k也就是树的最大层级)；<br>性质3：包含n个结点的二叉树的深度（高度）至少为log2 (n+1)；<br>性质4：在任意一棵二叉树中，如果其叶子结点(度为0)数为m, 度为2的结点数为n, 则m = n + 1。</p>
+<p><strong>1.4 二叉树的数据存储</strong></p>
+<p>二叉树在C语言中可以通过结构体表示，其定义的方式可以是如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bitree_node</span> &#123;</span></span><br><span class="line"> <span class="keyword">int</span> b_data; <span class="comment">//数据域，指向具体的数据</span></span><br><span class="line"> <span class="class"><span class="keyword">struct</span> <span class="title">bitree_node</span> *<span class="title">left</span>;</span> <span class="comment">//指向左子节点</span></span><br><span class="line"> <span class="class"><span class="keyword">struct</span> <span class="title">bitree_node</span> *<span class="title">right</span>;</span> <span class="comment">//指向右子节点</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>在这个实例中，为了简单，我们假设其存储的数据类型为整型数，当然最好的方式是void指针的形式。这样，二叉树就是一个通用的数据结构，可以存储任何类型的数据。</p>
+<p><img src="http://img.itworld123.com/11058170-dfd06eef1237074d.jpg" alt="image"></p>
+<h1 id="2-二叉树的特例"><a href="#2-二叉树的特例" class="headerlink" title="2. 二叉树的特例"></a><strong>2. 二叉树的特例</strong></h1><p>根据二叉树存储数据组织结构的差异，二叉树有很多特例。比如有些二叉树所有节点只有左子节点，或者非叶子节点的每个二叉树的节点都有2个子节点等等。下面我们分别进行介绍。</p>
+<p><strong>2.1 斜二叉树</strong></p>
+<p>只有左子节点或只有右子节点的二叉树称为斜二叉树。</p>
+<p><img src="http://img.itworld123.com/11058170-6ec9b55398f32b9a.jpg" alt="image"></p>
+<p><strong>2.2 完美二叉树</strong></p>
+<p>一个深度为k(&gt;=-1)且有2^(k+1) - 1个结点的二叉树称为完美二叉树。完美二叉树也就是满二叉树，也就是所有非叶子节点都有2个叶子节点，并且每一次都是满的。如图所示：<br><img src="http://img.itworld123.com/11058170-d715ec4df2cf0508.jpg" alt="image"></p>
+<p><strong>2.3 完全二叉树(Complete)</strong></p>
+<p>完全二叉树从根结点到倒数第二层满足完美二叉树，最后一层可以不完全填充，其叶子结点都靠左对齐。</p>
+<p>下图就不是一棵完全(Complete)二叉树</p>
+<p><img src="http://img.itworld123.com/11058170-2fe59848524849cc.jpg" alt="image"></p>
+<h1 id="3-二叉树相关的算法（面试题）"><a href="#3-二叉树相关的算法（面试题）" class="headerlink" title="3. 二叉树相关的算法（面试题）"></a><strong>3. 二叉树相关的算法（面试题）</strong></h1><p>在面试和笔试的过程中，二叉树的题目是非常多的。除了常见的关于二叉树遍历的题目外，还有其它一些延伸的题目。<strong>本文今天先将二叉树相关的题目罗列到这里，后续会给出每个题目的解题思路和代码示例。</strong></p>
+<p>需要重点说明的一点是二叉树相关的面试题主要使用的是二叉树的特性，比如二叉树每个子树又是一个二叉树。这个特性非常适用于函数递归实现算法。因此，<strong>万变不离其宗，核心问题是将二叉树本身的特性弄熟</strong>，这样才能游刃有余的解决相关问题。</p>
+<p><strong>3.1 二叉树的前序遍历</strong><br><strong>3.2 二叉树的中序遍历</strong><br><strong>3.3 二叉树的后序遍历</strong><br><strong>3.4 二叉树层序遍历</strong><br><strong>3.5 求二叉树的高度</strong><br><strong>3.6 求二叉树节点个数</strong><br><strong>3.7 求二叉树第k层的节点个数</strong><br><strong>3.8 求二叉树中叶子节点的个数</strong><br><strong>3.9 判断两棵二叉树是否相同的树</strong><br><strong>3.10 判断二叉树是不是平衡二叉树</strong><br><strong>3.11 求二叉树的镜像</strong><br><strong>3. 12 判断两个二叉树是否互相镜像</strong><br><strong>3.13 求二叉树中两个节点的最低公共祖先节点</strong><br><strong>3.14 判断是否为二分查找树BST</strong><br><strong>3.15 二叉搜索树中第K小的元素</strong><br><strong>3.16 填充每个节点的下一个右侧节点指针(完美二叉树)</strong><br><strong>3.17 填充每个节点的下一个右侧节点指针（普通二叉树）</strong><br><strong>3.18 表达式转二叉树</strong><br><strong>3.19 表达式求值</strong></p>
 
       
     </div>
@@ -525,11 +530,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/图书/" rel="tag"># 图书</a>
+            <a href="/tags/数据结构/" rel="tag"># 数据结构</a>
           
-            <a href="/tags/计算机/" rel="tag"># 计算机</a>
-          
-            <a href="/tags/操作系统/" rel="tag"># 操作系统</a>
+            <a href="/tags/二叉树/" rel="tag"># 二叉树</a>
           
         </div>
       
@@ -542,8 +545,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/05/23/books/C语言开发必读书目推荐，从小工到专家必备/" rel="next" title="C语言开发必读书目推荐，从小工到专家必备">
-                <i class="fa fa-chevron-left"></i> C语言开发必读书目推荐，从小工到专家必备
+              <a href="/2019/09/24/data_structure/互联网大厂offer收割之数组及相关面试题解决方法/" rel="next" title="互联网大厂offer收割之数组及相关面试题解决方法">
+                <i class="fa fa-chevron-left"></i> 互联网大厂offer收割之数组及相关面试题解决方法
               </a>
             
           </div>
@@ -551,10 +554,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/05/23/storage/ceph/Ceph块存储客户端架构及流程简析/" rel="prev" title="Ceph块存储客户端架构及流程简析">
-                Ceph块存储客户端架构及流程简析 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -841,7 +840,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#操作系统-真象还原"><span class="nav-number">1.</span> <span class="nav-text">操作系统-真象还原</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Xv6操作系统"><span class="nav-number">2.</span> <span class="nav-text">Xv6操作系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#30天自制操作系统"><span class="nav-number">3.</span> <span class="nav-text">30天自制操作系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#清华大学操作系统课程"><span class="nav-number">4.</span> <span class="nav-text">清华大学操作系统课程</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-二叉树（Binary-Tree-的定义"><span class="nav-number">1.</span> <span class="nav-text">1. 二叉树（Binary Tree)的定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-二叉树的特例"><span class="nav-number">2.</span> <span class="nav-text">2. 二叉树的特例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-二叉树相关的算法（面试题）"><span class="nav-number">3.</span> <span class="nav-text">3. 二叉树相关的算法（面试题）</span></a></li></ol></div>
             
 
           </div>
