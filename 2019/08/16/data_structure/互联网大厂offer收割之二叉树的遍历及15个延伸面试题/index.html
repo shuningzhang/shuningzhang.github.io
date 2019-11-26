@@ -96,27 +96,31 @@
 
 
 
-  <meta name="description" content="读数据流程关于如何从用户态到Ext2文件系统公共部分（VFS）的流程本文不再详细介绍，这一部分与写流程基本一致，具体可以参考文末的相关文章介绍。如图是从用户态到Ext2文件系统的函数调用图，从图上可以看到对于Ext2文件系统在读数据流程中调用了大量VFS的函数，这主要原因是Ext2是Linux的原生文件系统，其实耦合还是比较大的。我们仔细观察一下，实际起作用的函数是Ext2文件系统的ext2_fi">
-<meta name="keywords" content="Linux,Ext2">
+  <meta name="description" content="更多面试题请关注头条号、微信号： itworld123  二叉树通常是用来在内存中存储大量数据的，而数据存储的目的自然是为了后面的查询。对于普通二叉树来说，查询其实就是逐个遍历二叉树中元素的过程，这也就是二叉树的遍历。">
+<meta name="keywords" content="数据结构,二叉树">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Ext2文件系统彻底分析 | 读数据流程">
-<meta property="og:url" content="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_read_base/index.html">
+<meta property="og:title" content="互联网大厂offer收割之二叉树的遍历及15个延伸面试题">
+<meta property="og:url" content="http://www.itworld123.com/2019/08/16/data_structure/互联网大厂offer收割之二叉树的遍历及15个延伸面试题/index.html">
 <meta property="og:site_name" content="SunnyZhang的IT世界">
-<meta property="og:description" content="读数据流程关于如何从用户态到Ext2文件系统公共部分（VFS）的流程本文不再详细介绍，这一部分与写流程基本一致，具体可以参考文末的相关文章介绍。如图是从用户态到Ext2文件系统的函数调用图，从图上可以看到对于Ext2文件系统在读数据流程中调用了大量VFS的函数，这主要原因是Ext2是Linux的原生文件系统，其实耦合还是比较大的。我们仔细观察一下，实际起作用的函数是Ext2文件系统的ext2_fi">
+<meta property="og:description" content="更多面试题请关注头条号、微信号： itworld123  二叉树通常是用来在内存中存储大量数据的，而数据存储的目的自然是为了后面的查询。对于普通二叉树来说，查询其实就是逐个遍历二叉树中元素的过程，这也就是二叉树的遍历。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg">
-<meta property="og:image" content="http://img.itworld123.com/11058170-50cf9176885a38d9.png">
-<meta property="og:image" content="http://img.itworld123.com/11058170-60153183383057b5.png">
-<meta property="og:image" content="http://img.itworld123.com/11058170-05d20ddc2e57b298.png">
-<meta property="og:image" content="http://img.itworld123.com/11058170-1fdc0d6f65fdffd1.png">
-<meta property="og:image" content="http://img.itworld123.com/11058170-c44efcf5e97ef057.png">
-<meta property="og:image" content="http://img.itworld123.com/11058170-dd30b5ac06972787.png">
-<meta property="og:image" content="http://img.itworld123.com/11058170-ce88c83a26626c5c.png">
-<meta property="og:updated_time" content="2019-06-07T05:12:32.463Z">
+<meta property="og:image" content="http://img.itworld123.com/11058170-9b5e6ce346ef3828.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-1981c3f1c741c080.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-4eb01370528ef710.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-24a0f62adbc16797.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-8cfc7cc7fd007f3f.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-390438b36eb6c5cf.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-94af91d38e0cf668.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-f743ae9d5da99cd5.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-662af6571dfe5a20.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-24763737730ee466.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-a091454a52d6ab00.jpg">
+<meta property="og:image" content="http://img.itworld123.com/11058170-7af85f9bd3b06b9e.jpg">
+<meta property="og:updated_time" content="2019-11-26T11:50:20.914Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Ext2文件系统彻底分析 | 读数据流程">
-<meta name="twitter:description" content="读数据流程关于如何从用户态到Ext2文件系统公共部分（VFS）的流程本文不再详细介绍，这一部分与写流程基本一致，具体可以参考文末的相关文章介绍。如图是从用户态到Ext2文件系统的函数调用图，从图上可以看到对于Ext2文件系统在读数据流程中调用了大量VFS的函数，这主要原因是Ext2是Linux的原生文件系统，其实耦合还是比较大的。我们仔细观察一下，实际起作用的函数是Ext2文件系统的ext2_fi">
-<meta name="twitter:image" content="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg">
+<meta name="twitter:title" content="互联网大厂offer收割之二叉树的遍历及15个延伸面试题">
+<meta name="twitter:description" content="更多面试题请关注头条号、微信号： itworld123  二叉树通常是用来在内存中存储大量数据的，而数据存储的目的自然是为了后面的查询。对于普通二叉树来说，查询其实就是逐个遍历二叉树中元素的过程，这也就是二叉树的遍历。">
+<meta name="twitter:image" content="http://img.itworld123.com/11058170-9b5e6ce346ef3828.jpg">
 
 
 
@@ -124,7 +128,7 @@
 
   
   
-  <link rel="canonical" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_read_base/">
+  <link rel="canonical" href="http://www.itworld123.com/2019/08/16/data_structure/互联网大厂offer收割之二叉树的遍历及15个延伸面试题/">
 
 
 
@@ -134,7 +138,7 @@
   };
 </script>
 
-  <title>Ext2文件系统彻底分析 | 读数据流程 | SunnyZhang的IT世界</title>
+  <title>互联网大厂offer收割之二叉树的遍历及15个延伸面试题 | SunnyZhang的IT世界</title>
   
 
 
@@ -377,7 +381,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_read_base/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/08/16/data_structure/互联网大厂offer收割之二叉树的遍历及15个延伸面试题/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -394,7 +398,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Ext2文件系统彻底分析 | 读数据流程
+          <h1 class="post-title" itemprop="name headline">互联网大厂offer收割之二叉树的遍历及15个延伸面试题
 
               
             
@@ -420,7 +424,7 @@
                 
               
 
-              <time title="创建时间：2019-05-01 11:57:02" itemprop="dateCreated datePublished" datetime="2019-05-01T11:57:02+00:00">2019-05-01</time>
+              <time title="创建时间：2019-08-16 13:37:15" itemprop="dateCreated datePublished" datetime="2019-08-16T13:37:15+00:00">2019-08-16</time>
             
 
             
@@ -437,36 +441,11 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-06-07 05:12:32" itemprop="dateModified" datetime="2019-06-07T05:12:32+00:00">2019-06-07</time>
+                <time title="修改时间：2019-11-26 11:50:20" itemprop="dateModified" datetime="2019-11-26T11:50:20+00:00">2019-11-26</time>
               
             
           </span>
 
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/文件系统/" itemprop="url" rel="index"><span itemprop="name">文件系统</span></a></span>
-
-                
-                
-                  ，
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/文件系统/Ext2/" itemprop="url" rel="index"><span itemprop="name">Ext2</span></a></span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -496,26 +475,52 @@
       
 
       
-        <p><img src="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg" alt><br>读数据流程关于如何从用户态到Ext2文件系统公共部分（VFS）的流程本文不再详细介绍，这一部分与写流程基本一致，具体可以参考文末的相关文章介绍。如图是从用户态到Ext2文件系统的函数调用图，从图上可以看到对于Ext2文件系统在读数据流程中调用了大量VFS的函数，这主要原因是Ext2是Linux的原生文件系统，其实耦合还是比较大的。我们仔细观察一下，实际起作用的函数是Ext2文件系统的ext2_file_read_iter函数。<br><a id="more"></a></p>
-<p><img src="http://img.itworld123.com/11058170-50cf9176885a38d9.png" alt="图1 读数据整体流程"></p>
-<p>像写数据一样，读数据也分为Direct读和缓存读两种形式，Direct读是从磁盘直接读取数据，而缓存读则需要先将磁盘数据读到页缓存，然后在将数据拷贝到用户的缓冲区。本文照例只介绍缓存读的场景，对于Direct读请自行阅读代码理解。</p>
-<p>对于缓存读的流程，概括起来分为两个主要步骤，<strong>一个是查找页缓存（如果没有则分配新的），第二步是根据页缓存的状态从磁盘读取数据并填充页缓存（如果页缓存数据最新则不需要从磁盘读取数据）</strong>。</p>
-<h2 id="缓存命中"><a href="#缓存命中" class="headerlink" title="缓存命中"></a>缓存命中</h2><p>其实上图是一个比较复杂的函数调用关系图，这里处理了缓存没有命中的情况下的读数据的流程。如果缓存命中，整个读数据的流程将非常简单，我们可以简化为图2所示。可以看出此时在VFS的函数do_generic_file_read中即可完成整个数据的读取过程。</p>
-<p><img src="http://img.itworld123.com/11058170-60153183383057b5.png" alt="图2 读数据缓存命中"></p>
-<p>在VFS函数do_generic_file_read中的主要流程如图3所示。这里假设缓存中存储的数据是最新的，也即页缓存的数据新于磁盘的数据。这样整个读取过程可以分为两步，首先通过find_get_page获取缓存页；然后判断页缓存的标记满足条件后直接调用copy_page_to_iter将页缓存的内容拷贝到用户态的缓冲区。当然实际还有其它一些情况的存在，比如虽然页缓存存在但不是最新，则需要从磁盘读取数据。或者页缓存存在，但正在进行预读操作，则需要等待预读完成等。</p>
-<p><img src="http://img.itworld123.com/11058170-05d20ddc2e57b298.png" alt="图3 读数据缓存命中"></p>
-<p>总之来说，缓存命中的常见还是比较简单的，下面我们介绍一下缓存不命中的场景。</p>
-<h2 id="非缓存命中"><a href="#非缓存命中" class="headerlink" title="非缓存命中"></a>非缓存命中</h2><p>如果没有缓存命中，此时就需要做两件事情，一个是分配页缓存并建立与磁盘位置映射，另一个是向磁盘提交读取数据的请求，完成数据的读取。为了提高读取数据的效率，这里其实实现了一个称为“预读”的功能，所谓预读就是提前从磁盘读取比较多的数据，为下次读数据做准备。这个特性对顺序读非常有效，可以明显的减少磁盘请求的数量，从而提升读数据的性能。</p>
-<p><img src="http://img.itworld123.com/11058170-1fdc0d6f65fdffd1.png" alt="图4 读数据缓存命中"></p>
-<p>预读的基本规则主要包含两个，一个是在读请求中读到缺失页面(missing page)，进行同步预读；另一个是读到预读页面(PG_readahead page)，则进行异步预读。如图4是预读的基本示意图，tx代表请求时间序列。<br>1） t0触发同步预读，也就是文件系统除了读取请求的数据外，还会额外读取一部分数据；<br>2） t1时由于读到的缓存页有预读标记，因此会触发异步预读；<br>3） t2时由于缓存已经存在，因此直接从缓存读取后返回；<br>以此类推，当再次碰到有预读标记的页时进行异步预读。另外，这里面有个概念叫“预读窗口”，预读窗口是指一次从磁盘预读数据的多少。预读窗口是滑动的，也就是大小会根据命中情况进行变化，如果命中则会变大，这样可以有效的提高读取的效率。如下是用于滑动窗口的数据结构。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">file_ra_state</span> &#123;</span></span><br><span class="line">	<span class="keyword">pgoff_t</span> start;			<span class="comment">/* where readahead started */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> size;		<span class="comment">/* # of readahead pages */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> async_size;	<span class="comment">/* do asynchronous readahead when</span></span><br><span class="line"><span class="comment">					   there are only # of pages ahead */</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> ra_pages;		<span class="comment">/* Maximum readahead window */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> mmap_miss;		<span class="comment">/* Cache miss stat for mmap accesses */</span></span><br><span class="line">	<span class="keyword">loff_t</span> prev_pos;		<span class="comment">/* Cache last read() position */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
-<p>理解了上述概念之后，我们分析一下整个读操作的流程。由图1，同步预读和异步预读的起始逻辑在函数do_generic_file_read中。其中find_get_page用于查找是否有缓存并返回找到的缓存页。如果没有找到缓存页则运行红色方框的流程，进行同步预读。如果找到缓存页，并且该缓存页有预读标记则运行绿色方框的流程，进行异步预读。</p>
-<p><img src="http://img.itworld123.com/11058170-c44efcf5e97ef057.png" alt="图5 读数据缓存基本逻辑"></p>
-<p>对比一下同步预读和异步预读的主要调用流程，可以看出最终都会调用到<strong>do_page_cache_readahead函数。实现逻辑的差异主要在ondemand_readahead函数中。基本差异是对滑动窗口的计算，对于同步预读由于要考虑随机读的情况，避免读过多的内容；而对于异步预读则根据达到预读标记则调整一个比较大的滑动窗口。<br>`page_cache_sync_readahead-&gt;ondemand_readahead-&gt;</strong>do_page_cache_readahead<code></code>page_cache_async_readahead-&gt;ondemand_readahead-&gt;__do_page_cache_readahead`</p>
-<p>数据读取操作的最终实现在__do_page_cache_readahead函数中，这里面主要完成两个功能，一个是分配页缓存(page_cache_alloc_readahead)，另一个是提交读请求到块设备层(read_pages)。</p>
-<p><img src="http://img.itworld123.com/11058170-dd30b5ac06972787.png" alt="图6 读数据缓存基本逻辑"></p>
-<p>上图中的函数指针具体实现是Ext2文件系统ext2_readpages函数，该函数的调用流程大致如图7所示。该函数主要实现缓存页的映射和从磁盘读取数据的操作。磁盘读取调用的块设备层的submit_bio函数。</p>
-<p><img src="http://img.itworld123.com/11058170-ce88c83a26626c5c.png" alt="图7 读数据缓存基本逻辑"></p>
-<p>至此，将磁盘上的数据读取到了页缓存中，其后的流程与缓存命中场景一致，也即拷贝页缓存的内容到用户态缓冲区等。</p>
+        <p><img src="http://img.itworld123.com/11058170-9b5e6ce346ef3828.jpg" alt="image"></p>
+<blockquote>
+<p> 更多面试题请关注头条号、微信号： itworld123</p>
+</blockquote>
+<p>二叉树通常是用来在内存中存储大量数据的，而数据存储的目的自然是为了后面的查询。对于普通二叉树来说，<strong>查询其实就是逐个遍历二叉树中元素的过程，这也就是二叉树的遍历</strong>。<br><a id="more"></a></p>
+<p>理解二叉树的结构对理解如何遍历二叉树有非常好的帮助，下面我们先看一下二叉树长什么样。如图1所示，每个二叉树都有一个树根，而每个节点最多有两个子节点（可以有一个或者没有）。如果某个节点没有子节点，那么这个节点称为<strong>叶子节点</strong>。</p>
+<p><img src="http://img.itworld123.com/11058170-1981c3f1c741c080.jpg" alt="image"></p>
+<p><strong>二叉树最大的特点是每个节点的子节点及其下的内容又是一个二叉树</strong>。如图1所示，<strong>根节点1</strong>的左右子节点其实又分别是两个二叉树。正是二叉树的这个特点，因此二叉树特别适合通过函数递归调用的方式实现遍历。</p>
+<h1 id="二叉树的遍历"><a href="#二叉树的遍历" class="headerlink" title="二叉树的遍历"></a>二叉树的遍历</h1><p>根据对二叉树中节点访问顺序的不同，可以将二叉树的遍历分为前序遍历、中序遍历、后序遍历和层序遍历。遍历的顺序是以当前节点为参考的，<strong>前序遍历</strong>就是先遍历当前节点，然后遍历左右子节点。<strong>中序遍历</strong>是先遍历左子节点，然后遍历当前节点，再然后遍历右子节点（当然左右子节点的遍历可以反过来）。<strong>后序遍历</strong>则是先遍历左右子节点，然后遍历当前节点。</p>
+<p><img src="http://img.itworld123.com/11058170-4eb01370528ef710.jpg" alt="图2 二叉树的遍历"></p>
+<p>以中序遍历为例，下面是C语言的实现代码。</p>
+<p><img src="http://img.itworld123.com/11058170-24a0f62adbc16797.jpg" alt="图3 中序遍历实现"></p>
+<p>关于二叉树遍历比较简单，这些内容都是之前学过的，因此本文就不再赘述了。下面我们重点介绍在基础遍历算法上延伸的相关面试题。</p>
+<h1 id="遍历相关面试题精解"><a href="#遍历相关面试题精解" class="headerlink" title="遍历相关面试题精解"></a>遍历相关面试题精解</h1><p><strong>1. 计算二叉树的左叶子之和</strong></p>
+<p><strong>计算给定二叉树的所有左叶子之和</strong>。这里认清目标对象，有两点需要注意：<strong>一点是目标对象是叶子节点，另外一点是左叶子节点</strong>。分析之后，我们知道本题其实是对二叉树进行遍历，并找到所有左叶子，并将左叶子的值进行累加。假设我们给出的题目函数原型如下所示，输入是一个二叉树，输出是一个整数。</p>
+<p><img src="http://img.itworld123.com/11058170-8cfc7cc7fd007f3f.jpg" alt></p>
+<p>为了便于理解，我们举例说明一下。如图3所示的二叉树，在这个二叉树中，有两个左叶子，分别是 9 和 13，所以返回 22。</p>
+<p><img src="http://img.itworld123.com/11058170-390438b36eb6c5cf.jpg" alt="图4 二叉树实例"></p>
+<p>二叉树并非都是完美的，比如下面这个二叉树（图4）。某些节点的子节点可能并不存在，此时需要在代码逻辑中加以注意。</p>
+<p><img src="http://img.itworld123.com/11058170-94af91d38e0cf668.jpg" alt="image"></p>
+<p>经过上述分析，我们给出下面代码实现。</p>
+<p><img src="http://img.itworld123.com/11058170-f743ae9d5da99cd5.jpg" alt="图6 题目代码实现"></p>
+<p>本题并不复杂，是二叉树遍历中最简单的面试题了，其核心是要注意对返回条件的判断。上述算法实现中通过一个具有传址参数的辅助函数实现了累加和，其实也可以不用这个参数，大家可以考虑一下如何解决。</p>
+<p><strong>2. 二叉树的最大深度</strong></p>
+<p>给定一个二叉树，找出其最大深度。首先需要搞清楚最大深度的定义。所谓二叉树的最大深度，是根节点到最远叶子节点的最长路径上的节点数量。</p>
+<p>我们将上例中的二叉树拿过来作为例子，如图6所示。可以看到该二叉树的最大深度是4，也就是10-&gt;8-&gt;11-&gt;9或者10-&gt;3-&gt;13-&gt;19。</p>
+<p><img src="http://img.itworld123.com/11058170-662af6571dfe5a20.jpg" alt="图6 二叉树实例"></p>
+<p>那么具体应该怎么计算二叉树的最大深度呢？试想，如果我们以根节点为参考，不考虑左右子树长什么样。<strong>那么整棵树的最大深度就是左右子树的最大深度中的大者加上根节点</strong>。根据二叉树的性质，我们层层递推，一直可以到叶子节点。</p>
+<p><img src="http://img.itworld123.com/11058170-24763737730ee466.jpg" alt="图7 二叉树深度计算"></p>
+<p><strong>这里的核心就是返回条件</strong>。对于叶子节点其深度就是1，可以直接返回。而非叶子节点其深度需要根据左右子树进行计算。比如下面一个子树，11为该子树的根节点，左子树为叶子节点，没有右子树。因此，我们可以根据前面的思路计算出该子树的最大深度为2。依次类推，可以从下往上计算出整颗树的最大深度。</p>
+<p><img src="http://img.itworld123.com/11058170-a091454a52d6ab00.jpg" alt="图8 节点深度计算"></p>
+<p>根据上面的思路，我们可以很容易的写出代码，具体如下所示。</p>
+<p><img src="http://img.itworld123.com/11058170-7af85f9bd3b06b9e.jpg" alt></p>
+<p>如果我们将题目调整一下，求二叉树的最小深度，这个怎么实现？大家思考一下如何解决。</p>
+<h1 id="其它二叉树遍历面试题"><a href="#其它二叉树遍历面试题" class="headerlink" title="其它二叉树遍历面试题"></a>其它二叉树遍历面试题</h1><p>二叉树遍历相关的面试题很多，很难一篇文章介绍全。下面是在面试中常见的题目汇总，我们后续会一一详细介绍。</p>
+<p><strong>1. 二叉树的中序遍历</strong></p>
+<p><strong>2. 相同的树</strong></p>
+<p><strong>3.对称二叉树</strong></p>
+<p><strong>4.二叉树的层序遍历</strong></p>
+<p><strong>5. 二叉树锯齿层次遍历</strong></p>
+<p><strong>6.二叉树最小深度</strong></p>
+<p><strong>7.翻转二叉树</strong></p>
+<p><strong>8.搜索二叉树转累加树</strong></p>
+<p><strong>9.合并二叉树</strong></p>
+<p><strong>10.从根到叶子的二叉树之和</strong></p>
+<p><strong>11.单值二叉树</strong></p>
 
       
     </div>
@@ -539,9 +544,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Linux/" rel="tag"># Linux</a>
+            <a href="/tags/数据结构/" rel="tag"># 数据结构</a>
           
-            <a href="/tags/Ext2/" rel="tag"># Ext2</a>
+            <a href="/tags/二叉树/" rel="tag"># 二叉树</a>
           
         </div>
       
@@ -554,8 +559,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/05/01/linux/filesystem/ext2/ext2_write_base/" rel="next" title="Ext2文件系统彻底分析 | 写数据流程">
-                <i class="fa fa-chevron-left"></i> Ext2文件系统彻底分析 | 写数据流程
+              <a href="/2019/08/01/data_structure/互联网大厂offer收割之二叉树的基本概念及常见面试题汇总/" rel="next" title="互联网大厂offer收割之二叉树的基本概念及常见面试题汇总">
+                <i class="fa fa-chevron-left"></i> 互联网大厂offer收割之二叉树的基本概念及常见面试题汇总
               </a>
             
           </div>
@@ -564,8 +569,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/05/01/linux/filesystem/ext2/ext2_xattr_base/" rel="prev" title="Ext2文件系统彻底分析 | 扩展属性">
-                Ext2文件系统彻底分析 | 扩展属性 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/09/24/data_structure/互联网大厂offer收割之数组及相关面试题解决方法/" rel="prev" title="互联网大厂offer收割之数组及相关面试题解决方法">
+                互联网大厂offer收割之数组及相关面试题解决方法 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -853,7 +858,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#缓存命中"><span class="nav-number">1.</span> <span class="nav-text">缓存命中</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#非缓存命中"><span class="nav-number">2.</span> <span class="nav-text">非缓存命中</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#二叉树的遍历"><span class="nav-number">1.</span> <span class="nav-text">二叉树的遍历</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#遍历相关面试题精解"><span class="nav-number">2.</span> <span class="nav-text">遍历相关面试题精解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#其它二叉树遍历面试题"><span class="nav-number">3.</span> <span class="nav-text">其它二叉树遍历面试题</span></a></li></ol></div>
             
 
           </div>
