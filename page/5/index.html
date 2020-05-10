@@ -364,7 +364,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_layout/">
+    <link itemprop="mainEntityOfPage" href="http://www.itworld123.com/2019/05/01/linux/filesystem/ext2/ext2_write_base/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sunny Zhang">
@@ -384,7 +384,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/05/01/linux/filesystem/ext2/ext2_layout/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 数据的磁盘布局</a>
+                <a href="/2019/05/01/linux/filesystem/ext2/ext2_write_base/" class="post-title-link" itemprop="url">Ext2文件系统彻底分析 | 写数据流程</a>
               
             
           </h1>
@@ -486,11 +486,11 @@
 
       
         
-          <p><img src="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg" alt><br>本文是Ext2文件系统文章的第一篇，主要介绍一下Ext2文件系统的数据在磁盘上是如何放置的，也就是磁盘数据布局。理解磁盘数据布局是理解文件系统的前提，只有理解的数据布局才能更好的了解文件系统的逻辑。<br>
+          <p><img src="http://img.itworld123.com/logo/linux117433757_1_20171127072342854.jpg" alt><br>为了便于理解Ext2文件系统写数据的流程，本文先从整个Linux文件系统的角度分析一下写数据的流程，因此本文包含了部分VFS内容介绍。本文主要包含2部分内容，一部分是从总体上介绍一个写流程是如何从用户态接口到Ext2文件系统的，另一部分是Ext2文件的数据在磁盘上组织及函数流程。<br>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/05/01/linux/filesystem/ext2/ext2_layout/#more" rel="contents">
+              <a class="btn" href="/2019/05/01/linux/filesystem/ext2/ext2_write_base/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
